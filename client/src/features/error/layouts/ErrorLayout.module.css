@@ -1,0 +1,23 @@
+.errorContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 1rem;
+
+
+    padding: 2rem;
+}
+
+.errorTitle{
+    font-size: 6.2rem;
+    font-weight: bold;
+    color: #ff5372;
+}
+
+
+.errorMessage{
+    font-size: 3rem;
+    color: #e7e7e7;
+}
+

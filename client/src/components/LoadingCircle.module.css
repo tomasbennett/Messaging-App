@@ -1,0 +1,15 @@
+/* HTML: <div class="loader"></div> */
+.loader {
+    /* width: 4rem; */
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: .8rem solid;
+    border-color: white #0000; /* var(--input-bcg-colour) */
+    animation: l1 1s infinite;
+}
+
+@keyframes l1 {
+    to {
+        transform: rotate(.5turn)
+    }
+}

@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(uuid()) @db.Uuid
+  username String @unique
+  password String
+
+  rootFolderId String @unique @db.Uuid
+  rootFolder   Folder @relation("UserRootFolder", fields: [rootFolderId], references: [id])
+}
+
+model Folder {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
+  parentFolderId String?  @db.Uuid
+  parentFolder   Folder?  @relation("FolderToFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  subFolders     Folder[] @relation("FolderToFolder")
+
+  owner User? @relation("UserRootFolder")
+
+  files Files[]
+
+  createdAt DateTime  @default(now())
+
+  sharedRootFolder Shared? @relation("SharedFolder")
+
+  sharedFolderNode SharedNode[]
+}
+
+model Files {
+  id         String   @id @default(uuid()) @db.Uuid
+  filename   String
+  filesize   Int
+  filetype   String
+  uploadedAt DateTime @default(now())
+
+  parentFolderId String       @db.Uuid
+  parentFolder   Folder       @relation(fields: [parentFolderId], references: [id])
+  SharedNode     SharedNode[]
+
+  supabaseFileId String @unique
+
+}
+
+model Shared {
+  id String @id @default(uuid()) @db.Uuid
+
+  sharedFolderId String @unique @db.Uuid
+  sharedFolder   Folder @relation("SharedFolder", fields: [sharedFolderId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+
+  sharedRelationships SharedNode[]
+
+}
+
+model SharedNode {
+  id String @id @default(uuid()) @db.Uuid
+
+  sharedRelationshipId String @db.Uuid
+  sharedRelationship   Shared @relation(fields: [sharedRelationshipId], references: [id], onDelete: Cascade)
+
+  folderId String? @db.Uuid
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  fileId String? @db.Uuid
+  file   Files?  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  parentNodeId String?      @db.Uuid
+  parentNode   SharedNode?  @relation("SharedNodeToSharedNode", fields: [parentNodeId], references: [id], onDelete: Cascade)
+  childNodes   SharedNode[] @relation("SharedNodeToSharedNode")
+
+  @@unique([sharedRelationshipId, folderId])
+  @@unique([sharedRelationshipId, fileId])
+}

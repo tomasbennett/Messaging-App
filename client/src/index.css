@@ -1,0 +1,75 @@
+/* @font-face {
+  font-family: "Orbitron";
+  src: url("../public/fonts/orbitron-font/static/Orbitron-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  
+} */
+
+
+:root {
+  font-size: 62.5%;
+
+  --soft-light-colour: #e0e0e0;
+  --dark-container-colour: rgb(20, 20, 20);
+  --dark-consistent-bg-header-colour: rgb(29, 29, 29);
+
+  --blue-button-colour: rgb(0, 89, 255);
+  --hover-button-colour: rgb(0, 65, 185);
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+
+  box-sizing: border-box;
+}
+
+
+
+html,
+body {
+  /* font-family: "Orbitron", "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; */
+  /* font-size-adjust: 0.5; */
+  position: relative;
+
+  font-size: 1.6rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: black;
+  color: white;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+
+div#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+
+svg {
+  fill: inherit;
+}

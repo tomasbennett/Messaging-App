@@ -1,0 +1,27 @@
+{
+  "name": "express-default-template",
+  "version": "1.0.0",
+  "description": "This will be a default template for all Express projects.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:client": "npm install && cd client && npm install && npm run build",
+    "build:server": "npm install && cd server && npm install && tsc",
+    "build": "npm run build:client && npm run build:server",
+    "start:server": "node ./server/dist/server/src/app.js",
+    "build-and-start": "npm run build && npm run start:server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "zod": "^4.1.12",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2"
+  }
+}
