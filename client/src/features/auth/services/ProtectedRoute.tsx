@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { LoadingCircle } from "../../../components/LoadingCircle";
-import { domain } from "../../../services/EnvironmentAPI";
+import { domain } from "../../../constants/EnvironmentAPI";
 
 export function ProtectedRoute() {
     const [auth, setAuth] = useState<boolean | null>(null);

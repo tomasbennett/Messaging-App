@@ -3,7 +3,7 @@ import styles from "./SignInLayout.module.css";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { domain } from "../../../services/EnvironmentAPI";
+import { domain } from "../../../constants/EnvironmentAPI";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { ISignInError, SignInErrorSchema, ILoginForm, loginFormSchema } from "../../../../../shared/features/auth/models/ILoginSchema";
 import { ISignInContext } from "../models/ISignInContext";

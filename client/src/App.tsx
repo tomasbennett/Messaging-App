@@ -5,6 +5,7 @@ import { SignInLayout } from './features/auth/layouts/SignInLayout'
 import { NotAuthenticatedRoute, ProtectedRoute } from './features/auth/services/ProtectedRoute'
 import { ErrorElement } from './features/error/services/ErrorElement'
 import { ErrorPageLayout } from './features/error/layouts/ErrorLayout'
+import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 
 
 const router = createBrowserRouter([
@@ -14,9 +15,6 @@ const router = createBrowserRouter([
     errorElement: <ErrorElement />,
     children: [
       {
-        index: true
-      },
-      {
         path: "error",
         element: <ErrorPageLayout />,
       },
@@ -24,13 +22,8 @@ const router = createBrowserRouter([
         element: <NotAuthenticatedRoute />,
         children: [
           {
-            path: "sign-in",
             element: <SignInLayout />,
             children: [
-              {
-                index: true,
-                element: <Navigate to="login" replace />,
-              },
               {
                 path: "login",
                 handle: {
@@ -50,7 +43,10 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-
+          {
+            index: true,
+            element: <DashboardLayout />,
+          }
         ]
       }
     ]
