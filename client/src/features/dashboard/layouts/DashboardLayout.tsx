@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "./DashboardLayout.module.css";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { useSocket } from "../../../contexts/SocketHandlerContext";
+import { SocketContext, useSocket } from "../../../contexts/SocketHandlerContext";
 import { IReceiveMessage, ReceiveMessageSchema } from "../../../../../shared/features/message/models/IReceiveMessage";
 import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../../../../shared/features/message/constants";
 import { useForm } from "react-hook-form";
@@ -16,21 +16,28 @@ export function DashboardLayout() {
   const [messageError, setMessageError] = useState<ICustomErrorResponse | null>(null);
 
 
-  const socket = useSocket();
+  const socket = useContext(SocketContext);
 
 
   const [messages, setMessages] = useState<IReceiveMessage[]>([]);
 
 
   const handleMessageSubmit = async (data: ISendMessageFrontend) => {
+    if (!socket) {
+      console.error("Socket not available, cannot send message");
+      return;
+    }
+
     try {
+
+
       setIsMessageLoading(true);
       setMessageError(null);
 
       socket.emit(SOCKET_CHAT_SEND_EVENT, data, (response: unknown) => {
         const resSuccessResult = APISuccessSchema.safeParse(response);
         if (resSuccessResult.success) {
-          
+
           console.log("Message sent successfully:", resSuccessResult.data);
           return;
         }
@@ -61,6 +68,11 @@ export function DashboardLayout() {
 
 
   useEffect(() => {
+    if (!socket) {
+      console.error("Socket not available, cannot listen for messages");
+      return;
+    }
+
     const handleNewMessage = (message: unknown) => {
 
       const messageResult = ReceiveMessageSchema.safeParse(message);
