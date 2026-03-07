@@ -17,11 +17,11 @@ import { Server, Socket } from "socket.io";
 
 // import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
-import { SendMessageSchema } from "../../shared/features/message/models/ISendMessage";
 import { IReceiveMessage } from "../../shared/features/message/models/IReceiveMessage";
 import { ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
 import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/features/message/constants";
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
+import { SendMessageFrontendSchema } from "../../shared/features/message/models/ISendMessage";
 
 
 const SERVER = path.resolve(process.cwd(), "server");
@@ -106,7 +106,7 @@ io.on("connection", (socket: Socket) => {
   console.log("A user connected: " + socket.id);
 
   socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
-    const result = SendMessageSchema.safeParse(data);
+    const result = SendMessageFrontendSchema.safeParse(data);
     if (!result.success) {
       console.error("Invalid message data: ", result.error);
       return ack({
@@ -116,20 +116,19 @@ io.on("connection", (socket: Socket) => {
       });
     }
 
-    const { content, timestamp, senderUsername } = result.data;
+    const { content } = result.data;
 
-    console.log("Received message: " + content + " from sender: " + senderUsername);
+    console.log("Received message: " + content);
     const emitData: IReceiveMessage = {
       content,
-      senderUsername,
-      timestamp
+      timestamp: new Date(),
     };
 
-    socket.broadcast.emit(SOCKET_CHAT_RECEIVE_EVENT, emitData);
+    io.emit(SOCKET_CHAT_RECEIVE_EVENT, emitData);
 
     return ack({
       status: 200,
-      message: "Message sent successfully" + " from sender: " + senderUsername + " at timestamp: " + timestamp + " with content: " + content,
+      message: "Message sent successfully" + " with content: " + content,
       ok: true
     });
 

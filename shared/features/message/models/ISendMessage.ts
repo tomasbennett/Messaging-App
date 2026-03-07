@@ -1,13 +1,21 @@
 import z from "zod";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
 
-export const SendMessageSchema = z.object({
+
+
+export const SendMessageFrontendSchema = z.object({
     content: z.string().min(1, "Message content cannot be empty"),
-    senderUsername: z.string().min(1, "Sender ID is required"),
+});
+
+
+
+export const SendMessageBackendSchema = SendMessageFrontendSchema.extend({
     timestamp: DateFromStringSchema,
 });
 
 
 
+export type ISendMessageFrontend = z.infer<typeof SendMessageFrontendSchema>;
 
-export type ISendMessage = z.infer<typeof SendMessageSchema>;
+
+export type ISendMessageBackend = z.infer<typeof SendMessageBackendSchema>;

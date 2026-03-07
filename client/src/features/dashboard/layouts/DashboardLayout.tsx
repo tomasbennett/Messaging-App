@@ -1,6 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./DashboardLayout.module.css";
-import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { useSocket } from "../../../contexts/SocketHandlerContext";
+import { IReceiveMessage, ReceiveMessageSchema } from "../../../../../shared/features/message/models/IReceiveMessage";
+import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../../../../shared/features/message/constants";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ISendMessageBackend, ISendMessageFrontend, SendMessageFrontendSchema } from "../../../../../shared/features/message/models/ISendMessage";
+import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 
 
 
@@ -9,17 +16,35 @@ export function DashboardLayout() {
   const [messageError, setMessageError] = useState<ICustomErrorResponse | null>(null);
 
 
-  const [isFileLoading, setIsFileLoading] = useState<boolean>(false);
-  const [fileError, setFileError] = useState<ICustomErrorResponse | null>(null);
+  const socket = useSocket();
 
 
+  const [messages, setMessages] = useState<IReceiveMessage[]>([]);
 
-  const handleMessageSubmit = async () => {
+
+  const handleMessageSubmit = async (data: ISendMessageFrontend) => {
     try {
       setIsMessageLoading(true);
       setMessageError(null);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      socket.emit(SOCKET_CHAT_SEND_EVENT, data, (response: unknown) => {
+        const resSuccessResult = APISuccessSchema.safeParse(response);
+        if (resSuccessResult.success) {
+          
+          console.log("Message sent successfully:", resSuccessResult.data);
+          return;
+        }
+
+        const resErrorResult = APIErrorSchema.safeParse(response);
+        if (resErrorResult.success) {
+          setMessageError(resErrorResult.data);
+          console.error("Error sending message:", resErrorResult.data);
+          return;
+        }
+
+        console.error("Received unexpected response format:", response);
+
+      });
 
     } catch (error) {
       const err = error as ICustomErrorResponse;
@@ -27,62 +52,78 @@ export function DashboardLayout() {
 
     } finally {
       setIsMessageLoading(false);
-      
+
     }
 
   };
 
-  const handleFileSubmit = async () => {
-    try {
-      setIsFileLoading(true);
-      setFileError(null);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    } catch (error) {
-      const err = error as ICustomErrorResponse;
-      setFileError(err);
 
-    } finally {
-      setIsFileLoading(false);
+  useEffect(() => {
+    const handleNewMessage = (message: unknown) => {
 
-    }
-  };
+      const messageResult = ReceiveMessageSchema.safeParse(message);
+      if (!messageResult.success) {
+        console.error("Received invalid message format:", message);
+        return;
+      }
 
+      setMessages((prevMessages) => [...prevMessages, messageResult.data]);
+
+
+      console.log("Received message:", message);
+    };
+
+    socket.on(SOCKET_CHAT_RECEIVE_EVENT, handleNewMessage);
+
+    return () => {
+      socket.off(SOCKET_CHAT_RECEIVE_EVENT, handleNewMessage);
+    };
+  }, [socket]);
+
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+
+  } = useForm({
+    resolver: zodResolver(SendMessageFrontendSchema)
+  });
 
 
   return (
     <div className={styles.container}>
       <h1>Dashboard</h1>
 
-      <div>
-        <form>
-          <input type="text" placeholder="Type your message..." className={styles.messageInput} />
-          <button type="submit" className={styles.sendButton}>{
-            isMessageLoading ?
-              "Sending..."
-              :
-              "Send Message"
-          }</button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit(handleMessageSubmit)}>
+        {
+          errors?.content && <p className={styles.errorText}>{errors.content.message}</p>
+        }
+        <input {...register("content")} type="text" placeholder="Type your message..." className={styles.messageInput} />
 
-      <div>
-        <form>
-          <input type="file" />
-          <button type="submit">{
-            isFileLoading ?
-              "Uploading..."
+        {/* <input type="file" /> */}
 
-              :
-
-              "Submit File"
-          }</button>
-        </form>
-      </div>
+        {
+          isMessageLoading ?
+            <p>Sending...</p>
+            :
+            <button type="submit">Send Message</button>
+        }
+        
+      </form>
 
       <ul className={styles.messagesContainer}>
-
+        {
+          messages.map((msg) => (
+            <li key={msg.timestamp.toLocaleDateString()} className={styles.messageItem}>
+              <strong>{msg.content}</strong>
+              <br />
+              <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
+            </li>
+          ))
+        }
       </ul>
 
 

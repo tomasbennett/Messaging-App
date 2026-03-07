@@ -8,6 +8,7 @@ import { ErrorPageLayout } from './features/error/layouts/ErrorLayout'
 import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 import { useEffect } from 'react'
 import { SocketIOHandler } from './services/SocketIOHandler'
+import { SocketProvider } from './contexts/SocketHandlerContext'
 
 
 const router = createBrowserRouter([
@@ -62,19 +63,14 @@ const router = createBrowserRouter([
 
 function App() {
 
-  useEffect(() => {
-    const socket = new SocketIOHandler();
-
-
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   return (
     <>
-      <RouterProvider router={router} />
+      <SocketProvider>
+
+        <RouterProvider router={router} />
+
+      </SocketProvider>
     </>
   )
 }
