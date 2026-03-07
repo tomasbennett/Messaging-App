@@ -6,6 +6,8 @@ import { NotAuthenticatedRoute, ProtectedRoute } from './features/auth/services/
 import { ErrorElement } from './features/error/services/ErrorElement'
 import { ErrorPageLayout } from './features/error/layouts/ErrorLayout'
 import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
+import { useEffect } from 'react'
+import { SocketIOHandler } from './services/SocketIOHandler'
 
 
 const router = createBrowserRouter([
@@ -59,6 +61,16 @@ const router = createBrowserRouter([
 
 
 function App() {
+
+  useEffect(() => {
+    const socket = new SocketIOHandler();
+
+
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <>

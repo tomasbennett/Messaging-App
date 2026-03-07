@@ -1,6 +1,7 @@
 
 
 import express, { NextFunction, Request, Response } from "express";
+import http from "http";
 import cors from "cors";
 import path from "path";
 import dotenv from "dotenv";
@@ -11,10 +12,16 @@ import passport from "passport";
 
 import { router as apiRouter } from "./controllers/api";
 
+import { Server, Socket } from "socket.io";
 
 
-import "./passport/passportConfig";
+// import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
+import { SendMessageSchema } from "../../shared/features/message/models/ISendMessage";
+import { IReceiveMessage } from "../../shared/features/message/models/IReceiveMessage";
+import { ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
+import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/features/message/constants";
+import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
 
 
 const SERVER = path.resolve(process.cwd(), "server");
@@ -27,6 +34,7 @@ dotenv.config({
 });
 
 const app = express();
+const server = http.createServer(app);
 
 const allowedOrigins: string[] = [
   "http://localhost:5173",
@@ -85,7 +93,62 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+
+const io = new Server(server, {
+  cors: {
+    origin: environment === "PROD" ? true : allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  },
+});
+
+io.on("connection", (socket: Socket) => {
+  console.log("A user connected: " + socket.id);
+
+  socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
+    const result = SendMessageSchema.safeParse(data);
+    if (!result.success) {
+      console.error("Invalid message data: ", result.error);
+      return ack({
+        status: 400,
+        message: result.error.issues.map(e => e.message).join(", "),
+        ok: false
+      });
+    }
+
+    const { content, timestamp, senderUsername } = result.data;
+
+    console.log("Received message: " + content + " from sender: " + senderUsername);
+    const emitData: IReceiveMessage = {
+      content,
+      senderUsername,
+      timestamp
+    };
+
+    socket.broadcast.emit(SOCKET_CHAT_RECEIVE_EVENT, emitData);
+
+    return ack({
+      status: 200,
+      message: "Message sent successfully" + " from sender: " + senderUsername + " at timestamp: " + timestamp + " with content: " + content,
+      ok: true
+    });
+
+  });
+
+
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected: " + socket.id);
+    
+  });
+
+
+
+
+});
+
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 
 });

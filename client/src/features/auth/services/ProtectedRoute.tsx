@@ -4,6 +4,10 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 import { domain } from "../../../constants/EnvironmentAPI";
 
 export function ProtectedRoute() {
+
+    return <Outlet />;
+
+
     const [auth, setAuth] = useState<boolean | null>(null);
     const navigate = useNavigate();
 
@@ -59,6 +63,9 @@ export function ProtectedRoute() {
 
 
 export function NotAuthenticatedRoute() {
+    return <Outlet />;
+
+
     const [auth, setAuth] = useState<boolean | null>(null);
     const navigate = useNavigate();
 

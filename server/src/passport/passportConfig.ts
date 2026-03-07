@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { prisma } from "../db/prisma";
-import { User } from "@prisma/client";
+// import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { usernamePasswordSchema, ISignInError } from "../../../shared/features/auth/models/ILoginSchema";
 
@@ -26,7 +26,7 @@ passport.deserializeUser(async (id: string, done) => {
 
 
 passport.serializeUser((user: any, done) => {
-    done(null, (user as User).id);
+    // done(null, (user as User).id);
 
 });
 

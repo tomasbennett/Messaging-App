@@ -15,7 +15,8 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.66.1",
     "react-responsive": "^10.0.1",
-    "react-router-dom": "^7.9.6"
+    "react-router-dom": "^7.9.6",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.28.5",
