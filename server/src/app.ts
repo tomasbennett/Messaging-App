@@ -23,9 +23,9 @@ import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
 import { SendMessageFrontendSchema } from "../../shared/features/message/models/ISendMessage";
 
-
-const SERVER = path.resolve(process.cwd(), "server");
-const CLIENT_DIST = path.resolve(process.cwd(), "client", "dist");
+const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
+const SERVER = path.resolve(ROOT_DIR, "server");
+const CLIENT_DIST = path.resolve(ROOT_DIR, "client", "dist");
 
 
 
@@ -149,5 +149,4 @@ io.on("connection", (socket: Socket) => {
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-
 });

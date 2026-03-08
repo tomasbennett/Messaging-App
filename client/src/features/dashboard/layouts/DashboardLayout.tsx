@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import styles from "./DashboardLayout.module.css";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { SocketContext, useSocket } from "../../../contexts/SocketHandlerContext";
+import { SocketContext } from "../../../contexts/SocketHandlerContext";
 import { IReceiveMessage, ReceiveMessageSchema } from "../../../../../shared/features/message/models/IReceiveMessage";
 import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../../../../shared/features/message/constants";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ISendMessageBackend, ISendMessageFrontend, SendMessageFrontendSchema } from "../../../../../shared/features/message/models/ISendMessage";
+import { ISendMessageFrontend, SendMessageFrontendSchema } from "../../../../../shared/features/message/models/ISendMessage";
 import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 
 

@@ -67,9 +67,7 @@ function App() {
   return (
     <>
       <SocketProvider>
-
         <RouterProvider router={router} />
-
       </SocketProvider>
     </>
   )
