@@ -5,41 +5,24 @@ import passport from "passport";
 import { prisma } from "../db/prisma";
 
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
+import crypto from "crypto";
 
-import { ensureAuthentication, ensureNotAuthenticated } from "../passport/ensureAuthentication";
+import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
-import { ISignInError, usernamePasswordSchema } from "../../../shared/features/auth/models/ILoginSchema";
+import { ILoginForm, ISignInError, usernamePasswordSchema } from "../../../shared/features/auth/models/ILoginSchema";
+import { environment } from "../../../shared/constants";
+import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAccessTokenResponse";
+import { issueSignedInResponse } from "../services/IssueSignedInResponse";
+import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
+import { refreshTokenCookieKey } from "../constants/constants";
 
 
 
 export const router = Router();
 
 
-router.post("/login", ensureNotAuthenticated, (req: Request, res: Response<ISignInError | { message: string, user: User }>, next: NextFunction) => {
-    passport.authenticate("local", (err: Error, user: User | false, info: ISignInError | undefined) => {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return res.status(401).json({
-                message: info ? info.message : "Authentication failed",
-                inputType: info ? info.inputType : "root"
-            });
-
-        }
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-
-            return res.status(200).json({ message: "Authentication successful", user });
-        });
-    })(req, res, next);
-
-});
-
-
-router.post("/register", ensureNotAuthenticated, async (req: Request<{}, {}, { username: string, password: string }>, res: Response<ISignInError | { message: string, user: User }>, next: NextFunction) => {
+router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | IAccessTokenResponse>, next: NextFunction) => {
     const { username, password } = req.body;
 
     const usernameResult = usernamePasswordSchema.safeParse(username);
@@ -61,29 +44,76 @@ router.post("/register", ensureNotAuthenticated, async (req: Request<{}, {}, { u
 
 
     try {
-        const hashedPassword: string = await bcrypt.hash(password, process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 10);
+        const user: User | null = await prisma.user.findUnique({
+            where: {
+                username
+            }
+        });
 
-        const newUser = await prisma.user.create({
+        if (!user) {
+            const errorResponse: ISignInError = {
+                message: "Invalid username!!!",
+                inputType: "username"
+            };
+            return res.status(400).json(errorResponse);
+        }
+
+        const isPasswordValid: boolean = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            const errorResponse: ISignInError = {
+                message: "Invalid password!!!",
+                inputType: "password"
+            };
+            return res.status(400).json(errorResponse);
+        }
+        
+        return await issueSignedInResponse(user, res);
+
+
+
+
+    } catch (error) {
+        return next(error);
+    }
+
+});
+
+
+router.post("/register", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | IAccessTokenResponse>, next: NextFunction) => {
+    const { username, password } = req.body;
+
+    const usernameResult = usernamePasswordSchema.safeParse(username);
+    if (!usernameResult.success) {
+        return res.status(400).json({
+            message: usernameResult.error.issues[0].message,
+            inputType: "username"
+        });
+
+    }
+
+    const passwordResult = usernamePasswordSchema.safeParse(password);
+    if (!passwordResult.success) {
+        return res.status(400).json({
+            message: passwordResult.error.issues[0].message,
+            inputType: "password"
+        });
+    }
+
+    try {
+
+        const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 10);
+
+        const user = await prisma.user.create({
             data: {
                 username,
-                password: hashedPassword,
-                rootFolder: {
-                    create: {
-                        name: "root",
-                        createdAt: new Date()
-                    }
-                }
+                password: hashedPassword
             }
         });
 
-        req.logIn(newUser, (err) => {
-            if (err) {
-                return next(err);
-            }
+        await issueSignedInResponse(user, res);
 
-            return res.status(201).json({ message: "User registered successfully", user: newUser });
-        });
-
+        
 
     } catch (error: unknown) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -103,46 +133,57 @@ router.post("/register", ensureNotAuthenticated, async (req: Request<{}, {}, { u
 });
 
 
+router.delete("/logout", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    const refreshToken: string | undefined = req.cookies?.refreshToken;
 
-router.post("/logout", ensureAuthentication, (req: Request, res: Response<ICustomSuccessMessage>, next: NextFunction) => {
+    if (!refreshToken) {
+        return res.status(400).json({
+            message: "No refresh token provided!!!",
+            ok: false,
+            status: 400
+        });
+    }
 
-    req.logOut(err => {
-        if (err) return next(err);
+    try {
 
-        req.session.destroy((err) => {
-            if (err) return next(err);
+        const tokenHash = crypto
+            .createHash("sha256")
+            .update(refreshToken)
+            .digest("hex");
 
-
-            res.clearCookie("session-id");
-            return res.status(200).json({
-                ok: true,
-                status: 200,
-                message: "Successfully logged out!!!"
-            });
-
+        const deletedRefreshToken = await prisma.refreshToken.delete({
+            where: {
+                token: tokenHash
+            }
         });
 
+        res.clearCookie(refreshTokenCookieKey, {
+            httpOnly: true,
+            secure: environment === "PROD",
+            sameSite: environment === "PROD" ? "none" : "lax"
+        });
 
-    });
-});
+        return res.sendStatus(204);
+
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+                return res.status(400).json({
+                    message: "Refresh token not found for deletion!!!",
+                    ok: false,
+                    status: 400
+                });
+
+            }
+
+        }
+
+
+        return next(error);
+
+    }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(err);
-
-    res.status(500).json({ message: "Internal server error", error: err });
 
 });

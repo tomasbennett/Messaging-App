@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { ensureAuthentication } from "../passport/ensureAuthentication";
+import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 import upload from "../supabase/multer";
 import { supabase } from "../supabase/client";
 import { prisma } from "../db/prisma";
@@ -10,8 +10,8 @@ import { prisma } from "../db/prisma";
 export const router = Router();
 
 
-
-router.post("/files/upload", ensureAuthentication, upload.single("file"), async (req: Request<{}, {}, { currentFolderId: string | undefined }>, res: Response, next: NextFunction) => {
+//NEEDS FIXING FOR MULTIPLE FILES PER SINGLE MESSAGE UPLOAD, MAYBE WE NEED TO HAVE DIFFERENT ROUTERS FOR MESSAGES AND FOR PROFILE IMG UPLOADS
+router.post("/file/upload", ensureJWTAuthentication, upload.single("file"), async (req: Request<{}, {}, { currentFolderId: string | undefined }>, res: Response, next: NextFunction) => {
     try {
         const file = req.file;
 
@@ -56,7 +56,7 @@ router.post("/files/upload", ensureAuthentication, upload.single("file"), async 
 
 
 
-        const newFilePrisma = await prisma.files.create({
+        const newFilePrisma = await prisma.file.create({
             data: {
                 filename: originalname,
                 filesize: size,

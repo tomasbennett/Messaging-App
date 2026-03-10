@@ -3,7 +3,7 @@ import { supabase } from "../supabase/client";
 
 
 
-export async function fetchSupaBaseFile(supabaseFileId: string): Promise<Blob | ICustomErrorResponse> {
+export async function fetchSupaBaseFile(supabaseFileId: string): Promise<{ ok: true, blob: Blob } | ICustomErrorResponse> {
     const { data, error } = await supabase
         .storage
         .from(process.env.SUPABASE_BUCKET_NAME || "uploads")
@@ -19,7 +19,7 @@ export async function fetchSupaBaseFile(supabaseFileId: string): Promise<Blob | 
 
 
 
-    return data;
+    return { ok: true, blob: data };
 
 
 
