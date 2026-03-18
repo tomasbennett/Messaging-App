@@ -1,16 +1,16 @@
 import loadingStyles from "./LoadingCircle.module.css";
 
 type ILoadingCircleProps = {
-    width?: string
+    height?: string
 }
 
 export function LoadingCircle({
-    width = "4rem"
+    height = "4rem",
 }: ILoadingCircleProps) {
     return (
         <>
             <div style={
-                {width: width}
+                {height: height}
             } className={loadingStyles.loader}></div>
         </>
     )

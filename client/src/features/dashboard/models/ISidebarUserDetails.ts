@@ -5,3 +5,11 @@ export type ISidebarFriendsUserDetails = {
     lastMessage: string | undefined;
     lastMessageTimestamp: Date | undefined;
 }
+
+
+export type ISearchForFriendsUserDetails = {
+    userId: string;
+    userProfilePictureUrl: string | undefined;
+    username: string;
+    isPendingFriendRequest: boolean;
+}

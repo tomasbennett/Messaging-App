@@ -6,7 +6,6 @@ export function useSidebarHeaderMode() {
 
     const sidebarContainerRef = useRef<HTMLDivElement | null>(null);
 
-
     const getSearchMode = () => {
         setSidebarHeaderMode("search");
     };
@@ -31,5 +30,5 @@ export function useSidebarHeaderMode() {
 
     }, [sidebarHeaderMode]);
 
-    return { sidebarHeaderMode, getSearchMode, sidebarContainerRef };
+    return { sidebarHeaderMode, getSearchMode, sidebarContainerRef, setSidebarHeaderMode };
 }

@@ -2,12 +2,13 @@ import { useRef, useState } from "react";
 import { AddMessageIcon } from "../../../assets/icons/AddMessageIcon";
 import { SidebarUserDetails } from "../components/SidebarUserDetails";
 import { ISidebarMessageHeader } from "../models/ISidebarMessageHeader";
-import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
+import { ISearchForFriendsUserDetails, ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import styles from "./SidebarUserDetailsList.module.css";
 import { useSidebarHeaderMode } from "../hooks/useSidebarHeaderMode";
 import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
+import { handleErrorResponse } from "../../../services/ErrorReqHandling";
 
 type ISidebarUserDetailsListProps = {
     userDetailsList: ISidebarFriendsUserDetails[];
@@ -20,7 +21,8 @@ export function SidebarUserDetailsList({
     const {
         sidebarHeaderMode,
         getSearchMode,
-        sidebarContainerRef
+        sidebarContainerRef,
+        setSidebarHeaderMode
     } = useSidebarHeaderMode();
 
 
@@ -28,7 +30,7 @@ export function SidebarUserDetailsList({
 
     const [isSearchFriendsLoading, setIsSearchFriendsLoading] = useState<boolean>(false);
     const [searchFriendsError, setSearchFriendsError] = useState<ICustomErrorResponse | null>(null);
-
+    const [searchResults, setSearchResults] = useState<ISearchForFriendsUserDetails[]>([]);
 
 
     const searchForFriends = async (searchText: string) => {
@@ -60,28 +62,13 @@ export function SidebarUserDetailsList({
         } catch (error: unknown) {
             if (controller !== abortControllerRef.current) return;
 
-            if (!(error instanceof Error)) {
-                setSearchFriendsError(notExpectedFormatError);
-                return;
-            }
-
-            // if (error.name === "AbortError") {
-            //     console.log("Search aborted");
-            //     return;
-            // }
-
-            const customError: ICustomErrorResponse = {
-                ok: false,
-                status: 0,
-                message: error.message
-            };
-            setSearchFriendsError(customError);
-            return;
+            handleErrorResponse(error, setSearchFriendsError);
             
         } finally {
-            if (controller === abortControllerRef.current) {
-                setIsSearchFriendsLoading(false);
+            if (controller !== abortControllerRef.current) {
+                return;
             }
+            setIsSearchFriendsLoading(false);
         }
 
 
