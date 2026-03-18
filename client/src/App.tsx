@@ -9,6 +9,7 @@ import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 import { useEffect } from 'react'
 import { SocketIOHandler } from './services/SocketIOHandler'
 import { SocketProvider } from './contexts/SocketHandlerContext'
+import { ErrorProvider } from './contexts/ErrorContext'
 
 
 const router = createBrowserRouter([
@@ -66,9 +67,14 @@ function App() {
 
   return (
     <>
+    <ErrorProvider>
+
       {/* <SocketProvider> */}
         <RouterProvider router={router} />
       {/* </SocketProvider> */}
+      
+    </ErrorProvider>
+
     </>
   )
 }
