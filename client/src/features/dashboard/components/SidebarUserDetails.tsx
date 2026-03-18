@@ -1,19 +1,21 @@
 import styles from "./SidebarUserDetails.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
+import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 
-type ISidebarUserDetailsProps = {
-    userProfilePictureUrl: string | undefined;
-    username: string;
-    lastMessage: string | undefined;
-    lastMessageTimestamp: Date | undefined;
-}
+// type ISidebarUserDetailsProps = {
+//     userProfilePictureUrl: string | undefined;
+//     username: string;
+//     lastMessage: string | undefined;
+//     lastMessageTimestamp: Date | undefined;
+// }
 
 export function SidebarUserDetails({
+    userId,
     userProfilePictureUrl,
     username,
     lastMessage,
     lastMessageTimestamp
-}: ISidebarUserDetailsProps) {
+}: ISidebarFriendsUserDetails) {
 
 
 

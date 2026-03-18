@@ -146,15 +146,50 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./DashboardLayout.module.css";
 import { UserIcon } from "../../../assets/icons/UserIcon";
+import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
+import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 
 
 export function DashboardLayout() {
+  const [friendsDetailsList, setFriendsDetailsList] = useState<ISidebarFriendsUserDetails[]>([]);
+
+
+  useEffect(() => {
+    // Mock data for friends details list
+    const mockFriendsDetails: ISidebarFriendsUserDetails[] = [
+      {
+        userId: "1",
+        userProfilePictureUrl: undefined,
+        username: "Alice",
+        lastMessage: "Hey, how are you?",
+        lastMessageTimestamp: new Date()
+      },
+      {
+        userId: "2",
+        userProfilePictureUrl: undefined,
+        username: "Bob",
+        lastMessage: "Are we still on for tomorrow?",
+        lastMessageTimestamp: new Date()
+      },
+      {
+        userId: "3",
+        userProfilePictureUrl: undefined,
+        username: "Charlie",
+        lastMessage: "Check out this cool link!",
+        lastMessageTimestamp: new Date()
+      }
+    ];
+
+    setFriendsDetailsList(mockFriendsDetails);
+  }, []);
+
+
 
   return (
     <div className={styles.outerContainer}>
 
-      <h1>Dashboard</h1>
-      
+      <SidebarUserDetailsList userDetailsList={friendsDetailsList} />
+
     </div>
   );
 }
