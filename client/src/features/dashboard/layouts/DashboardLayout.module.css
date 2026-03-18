@@ -1,4 +1,22 @@
-input,
-button{
-    color: black;
+.outerContainer{
+    width: 100%;
+    height: 100%;
+
+    padding-top: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
+
+}
+
+svg, img{
+    width: 8rem;
+
+    overflow: hidden;
+
+    border-radius: 2rem;
 }

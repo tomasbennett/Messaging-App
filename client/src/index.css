@@ -11,12 +11,13 @@
 :root {
   font-size: 62.5%;
 
+  --general-bcg-colour: rgb(41, 41, 41);
   --soft-light-colour: #e0e0e0;
-  --dark-container-colour: rgb(20, 20, 20);
+  /* --dark-container-colour: rgb(20, 20, 20);
   --dark-consistent-bg-header-colour: rgb(29, 29, 29);
 
   --blue-button-colour: rgb(0, 89, 255);
-  --hover-button-colour: rgb(0, 65, 185);
+  --hover-button-colour: rgb(0, 65, 185); */
 }
 
 *,
