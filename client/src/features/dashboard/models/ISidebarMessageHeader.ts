@@ -1,0 +1,1 @@
+export type ISidebarMessageHeader = "title" | "search";
