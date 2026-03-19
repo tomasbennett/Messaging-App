@@ -36,7 +36,9 @@ export function SearchedForUserDetails({
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ friendUserId: userId })
+                body: JSON.stringify({ 
+                    friendUserId: userId 
+                })
             });
 
             if (!response.ok) {

@@ -148,11 +148,13 @@ import styles from "./DashboardLayout.module.css";
 import { UserIcon } from "../../../assets/icons/UserIcon";
 import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
+import { useError } from "../../../contexts/ErrorContext";
 
 
 export function DashboardLayout() {
   const [friendsDetailsList, setFriendsDetailsList] = useState<ISidebarFriendsUserDetails[]>([]);
 
+  const errorContext = useError();
 
   useEffect(() => {
     // Mock data for friends details list
@@ -181,6 +183,28 @@ export function DashboardLayout() {
     ];
 
     setFriendsDetailsList(mockFriendsDetails);
+
+    if (errorContext) {
+      errorContext.throwError({
+        message: "This is a test error",
+        status: 500,
+        ok: false
+      });
+
+      errorContext.throwError({
+        message: "This is another test error",
+        status: 400,
+        ok: false
+      });
+
+      errorContext.throwError({
+        message: "This is yet another test error",
+        status: 404,
+        ok: false
+      });
+
+
+    }
   }, []);
 
 

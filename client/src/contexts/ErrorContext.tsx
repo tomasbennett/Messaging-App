@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import styles from "./ErrorContext.module.css";
+import { waitForAnimationEnd } from "../services/WaitForAnimationToEnd";
 
 
 const ErrorContext = React.createContext<{
@@ -9,14 +10,49 @@ const ErrorContext = React.createContext<{
 
 
 export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [error, setError] = React.useState<ICustomErrorResponse | null>(null);
+
+    const [error, setError] = useState<ICustomErrorResponse | null>(null);
+
+    const queueRef = useRef<ICustomErrorResponse[]>([]);
+
+    const isProcessingRef = useRef(false);
+
+    const errorContainerRef = useRef<HTMLDivElement | null>(null);
+    const [isClosing, setIsClosing] = useState<boolean>(false);
+
+    
+
+    const processQueue = async () => {
+        if (isProcessingRef.current) return;
+
+        isProcessingRef.current = true;
+
+        while (queueRef.current.length > 0) {
+            const nextError = queueRef.current.shift()!;
+
+            setError(nextError);
+
+            await new Promise((resolve) => setTimeout(resolve, 7000));
+
+            setIsClosing(true);
+
+            if (errorContainerRef.current) {
+                await waitForAnimationEnd(errorContainerRef.current);
+            };
+
+            setIsClosing(false);
+
+            setError(null);
+        }
+
+        isProcessingRef.current = false;
+    };
+
+
 
     const throwError = (error: ICustomErrorResponse) => {
-        setError(error);
-        // DO SOME ANIMATION LOGIC HERE TO KEEP IT UP ONLY FOR A PERIOD OF TIME AND CREATE A QUEUE SYSTEM FOR MULTIPLE ERRORS
-        setTimeout(() => {
-            setError(null);
-        }, 7000);
+        queueRef.current.push(error);
+        processQueue();
     };
 
 
@@ -29,7 +65,10 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             {
                 error && (
                     <>
-                        <div className={styles.outerContainer}>
+                        <div
+                            ref={errorContainerRef}
+                            className={`${styles.outerContainer} ${isClosing ? styles.exitScreen : ""}`}
+                        >
                             <strong>Error: {error.message}</strong>
                             <p>Status: {error.status}</p>
                         </div>

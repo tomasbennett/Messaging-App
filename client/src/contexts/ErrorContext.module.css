@@ -1,0 +1,80 @@
+.outerContainer {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 0.5rem;
+    background-color: rgb(19, 19, 19);
+    z-index: 9999;
+
+    border-radius: .5rem;
+    /* border: 0; */
+    border: .4rem solid rgb(19, 19, 19);
+    border-right: .4rem solid red;
+
+
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
+
+    /* height: 7rem; */
+    width: 25rem;
+
+    color: white;
+
+    padding: 1rem .8rem;
+    padding-right: 1.5rem;
+
+    overflow: hidden;
+
+    animation: enterScreenFromRight 0.5s ease-out forwards;
+}
+
+.outerContainer>* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+}
+
+.outerContainer>strong {
+    /* font-size: larger; */
+    font-size: 1.5rem;
+}
+
+.outerContainer>p {
+    font-style: italic;
+    font-size: smaller;
+}
+
+.exitScreen {
+    animation: exitScreenToRight 0.5s ease-out forwards;
+}
+
+
+
+
+@keyframes enterScreenFromRight {
+    from {
+        opacity: 0;
+        right: 0;
+    }
+
+    to {
+        opacity: 1;
+        right: 20px;
+    }
+
+}
+
+@keyframes exitScreenToRight {
+    from {
+        opacity: 1;
+        right: 20px;
+    }
+
+    to {
+        opacity: 0;
+        right: 0;
+    }
+
+}
