@@ -25,9 +25,34 @@ model User {
   profileImgId String? @db.Uuid
   profileImg   File?   @relation("UserProfileImage", fields: [profileImgId], references: [id])
 
+  
+
 
   refreshTokens RefreshToken[]  
+
+  sentFriendRequests     FriendRequest[] @relation("SentRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedRequests")
 }
+
+
+
+model FriendRequest {
+  id String @id @default(uuid()) @db.Uuid
+
+  senderId String @db.Uuid
+  sender   User   @relation("SentRequests", fields: [senderId], references: [id])
+
+  receiverId String @db.Uuid
+  receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id])
+
+  isPending Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+
+
+
 
 
 
