@@ -148,7 +148,7 @@ import styles from "./DashboardLayout.module.css";
 import { UserIcon } from "../../../assets/icons/UserIcon";
 import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
-import { useError } from "../../../contexts/ErrorContext";
+import { useError } from "../../error/contexts/ErrorContext";
 
 
 export function DashboardLayout() {
@@ -188,18 +188,6 @@ export function DashboardLayout() {
       errorContext.throwError({
         message: "This is a test error",
         status: 500,
-        ok: false
-      });
-
-      errorContext.throwError({
-        message: "This is another test error",
-        status: 400,
-        ok: false
-      });
-
-      errorContext.throwError({
-        message: "This is yet another test error",
-        status: 404,
         ok: false
       });
 

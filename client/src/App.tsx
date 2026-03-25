@@ -9,7 +9,7 @@ import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 import { useEffect } from 'react'
 import { SocketIOHandler } from './services/SocketIOHandler'
 import { SocketProvider } from './contexts/SocketHandlerContext'
-import { ErrorProvider } from './contexts/ErrorContext'
+import { ErrorProvider } from './features/error/contexts/ErrorContext'
 
 
 const router = createBrowserRouter([

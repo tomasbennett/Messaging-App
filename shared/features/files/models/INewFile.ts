@@ -2,37 +2,79 @@ import z from "zod";
 import { allowedTypes, maxFileSizeInBytes } from "../constants";
 
 
+export const FileSingleSchema = z.custom<FileList | undefined>()
+    .superRefine((files, ctx) => {
+        if (!files || !(files instanceof FileList)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "File is required",
+            });
+            return;
+        }
+
+        if (files.length !== 1) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Exactly one file must be uploaded.",
+            });
+            return;
+        }
+
+        const file = files.item(0)!;
+
+        if (file.size > maxFileSizeInBytes) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
+                    } MB`,
+            });
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "File type is not allowed.",
+            });
+        }
+    });
 
 
-export const NewFileRequestSchema = z.object({
-    file: z.instanceof(FileList)
-        .refine((fileList) => fileList.length === 1, {
-            message: "Exactly one file must be uploaded.",
-        })
-        .refine((fileList) => fileList[0].size <= maxFileSizeInBytes, {
-            message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024} MB`,
-        })
-        .refine((fileList) => allowedTypes.includes(fileList[0].type), {
-            message: "File type is not allowed.",
-        }),
-});
+export const FilesMultipleSchema = z.custom<FileList | undefined>()
+    .superRefine((files, ctx) => {
+        if (!files || !(files instanceof FileList)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "File is required",
+            });
+            return;
+        }
 
+        if (files.length < 1) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "A minimum of one file must be uploaded.",
+            });
+            return;
+        }
 
+        for (let i = 0; i < files.length; i++) {
+            const file = files.item(i)!;
 
-export type INewFileRequest = z.infer<typeof NewFileRequestSchema>;
+            if (file.size > maxFileSizeInBytes) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
+                        } MB`,
+                });
+                return;
+            }
 
-
-
-
-
-export const NewFileRequestBackendSchema = NewFileRequestSchema.extend({
-    parentFolderId: z.string(),
-});
-
-
-export type INewFileRequestBackend = z.infer<typeof NewFileRequestBackendSchema>;
-
-
-
-
-
+            if (!allowedTypes.includes(file.type)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "File type is not allowed.",
+                });
+                return;
+            }
+        }
+    });

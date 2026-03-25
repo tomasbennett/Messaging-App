@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
-import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
+import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import styles from "./ErrorContext.module.css";
-import { waitForAnimationEnd } from "../services/WaitForAnimationToEnd";
+import { waitForAnimationEnd } from "../../../services/WaitForAnimationToEnd";
 
 
 const ErrorContext = React.createContext<{
