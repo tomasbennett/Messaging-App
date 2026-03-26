@@ -1,11 +1,17 @@
 import z from "zod";
 import { BaseConversationSchema } from "./IBaseConversation";
 import { FileSingleOptionalSchema } from "../../files/models/INewOptionalFile";
+import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
 
 
 
 
-export const CreateConversationFrontendSchema = BaseConversationSchema.extend({
+export const CreateConversationFrontendSchema = BaseConversationSchema
+.pick({
+    name: true,
+    participants: true,
+})
+.extend({
     groupChatProfilePictureFile: FileSingleOptionalSchema
 });
 
@@ -14,7 +20,8 @@ export type ICreateConversationFrontend = z.infer<typeof CreateConversationFront
 
 
 export const ReceiveConversationFrontendSchema = BaseConversationSchema.extend({
-    groupChatProfilePictureUrl: z.string().optional()
+    groupChatProfilePictureUrl: z.string().optional(),
+    createdAt: DateFromStringSchema
 });
 
 

@@ -5,13 +5,14 @@ import { ReceiveConversationFrontendSchema } from "../../conversation/models/IFr
 
 
 export const BaseMessageSchema = z.object({
-    messageId: z.string(),
+    messageId: z.string().min(1, { message: "Message ID is required" }),
     sender: ReceiveUserFrontendSchema.pick({
         userId: true,
         username: true,
         profilePictureUrl: true,
     }),
-    conversationId: z.string(),
+    conversationId: z.string().min(1, { message: "Conversation ID is required" }),
+    isRead: z.boolean(),
 });
 
 

@@ -26,7 +26,12 @@ export const ReceiveMessageFrontendSchema = BaseMessageSchema.extend({
 export type IReceiveMessageFrontend = z.infer<typeof ReceiveMessageFrontendSchema>;
 
 
-export const SendMessageFrontendSchema = BaseMessageSchema.extend({
+export const SendMessageFrontendSchema = BaseMessageSchema
+.pick({
+    conversationId: true,
+    sender: true,
+})
+.extend({
     content: z.string().optional(),
     files: z.custom<FileList | undefined>(),
 }).superRefine((data, ctx) => {

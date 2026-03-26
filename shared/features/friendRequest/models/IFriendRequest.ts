@@ -1,11 +1,12 @@
 import z from "zod";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
-import { ReceiveUserFrontendSchema } from "./IFrontendUser";
+import { ReceiveUserFrontendSchema } from "../../user/models/IFrontendUser";
+import { FriendRequestStatusValues } from "../constants";
 
 
 
-export const FriendRequestSchema = z.object({
-    requestId: z.string(),
+export const BaseFriendRequestSchema = z.object({
+    requestId: z.string().min(1, { message: "Request ID is required" }),
     sender: ReceiveUserFrontendSchema.pick({
         userId: true,
         username: true,
@@ -14,9 +15,9 @@ export const FriendRequestSchema = z.object({
     receiver: ReceiveUserFrontendSchema.pick({
         userId: true,
     }),
-    status: z.enum(["pending", "accepted", "rejected"]),
+    status: z.enum(FriendRequestStatusValues),
     createdAt: DateFromStringSchema,
     updatedAt: DateFromStringSchema
 });
 
-export type IFriendRequest = z.infer<typeof FriendRequestSchema>;   
+export type IBaseFriendRequest = z.infer<typeof BaseFriendRequestSchema>;   

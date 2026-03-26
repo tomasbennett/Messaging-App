@@ -4,7 +4,7 @@ import { ReceiveMessageFrontendSchema } from "../../message/models/IFrontendMess
 
 
 export const BaseConversationSchema = z.object({
-    conversationId: z.string(),
+    conversationId: z.string().min(1, { message: "Conversation ID is required" }),
     name: z.string().nullable(),
     participants: z.array(ReceiveUserFrontendSchema.pick({
         userId: true,
