@@ -13,7 +13,7 @@ import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISu
 import { ILoginForm, ISignInError, usernamePasswordSchema } from "../../../shared/features/auth/models/ILoginSchema";
 import { environment } from "../../../shared/constants";
 import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAccessTokenResponse";
-import { issueSignedInResponse } from "../services/IssueSignedInResponse";
+import { issueSignedInResponse } from "../auth/IssueSignedInResponse";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { refreshTokenCookieKey } from "../constants/constants";
 

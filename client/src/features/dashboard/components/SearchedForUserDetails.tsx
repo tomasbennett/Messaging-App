@@ -3,7 +3,7 @@ import styles from "./SearchedForUserDetails.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { useState } from "react";
 import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { handleErrorResponse } from "../../../services/ErrorReqHandling";
+import { handleErrorResponse } from "../../../services/SetThrownErrorState";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 

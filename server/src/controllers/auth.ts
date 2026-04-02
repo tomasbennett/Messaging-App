@@ -5,7 +5,7 @@ import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISu
 import crypto from "crypto"
 import { prisma } from "../db/prisma";
 import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAccessTokenResponse";
-import { CreateAccessToken } from "../services/CreateAccessToken";
+import { CreateAccessToken } from "../auth/CreateAccessToken";
 import { invalidRefreshTokenStatus } from "../../../shared/features/auth/constants";
 import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 

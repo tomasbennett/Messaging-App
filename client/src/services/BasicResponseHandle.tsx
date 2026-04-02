@@ -4,46 +4,85 @@ import { FieldValues, UseFormSetError } from "react-hook-form";
 import { ICustomErrorResponse, APIErrorSchema } from "../../../shared/features/api/models/APIErrorResponse";
 import { ISignInError } from "../../../shared/features/auth/models/ILoginSchema";
 import { jsonParsingError } from "../constants/errorConstants";
+import { IJWTFetchResponses } from "../models/IJWTFetchResponses";
+import { GetAccessToken } from "./GetAccessToken";
+import { SendToSignInErrorHandler } from "./SendToSignInErrorHandler";
+import { errorPageRoute } from "../constants/routes";
+import { NewAccessTokenRequest } from "./NewAccessTokenRequest";
 
-export async function basicResponseHandle<T extends FieldValues>(
+
+export async function jwtFetchHandler(
     url: string,
     fetchOptions: RequestInit,
     navigate: NavigateFunction,
-    setIsError: React.Dispatch<React.SetStateAction<ICustomErrorResponse | null>>,
-    setFormError?: UseFormSetError<T>
-): Promise<Response | null> {
+): Promise<IJWTFetchResponses<Response> | null> {
+    const accessTokenAttemptResponse = await GetAccessToken(navigate);
+    if (!accessTokenAttemptResponse) {
+        return null;
+    }
+
+    if (accessTokenAttemptResponse.returnType !== "response") {
+        return accessTokenAttemptResponse;
+    }
+
+    const accessToken = accessTokenAttemptResponse.data;
+    const res = await FetchHandlerHelper(
+        url,
+        fetchOptions,
+        navigate,
+        accessToken
+    );
+
+    return res;
+}
+
+
+
+async function FetchHandlerHelper(
+    url: string,
+    fetchOptions: RequestInit,
+    navigate: NavigateFunction,
+    accessToken: string,
+    hasRetried: boolean = false
+): Promise<IJWTFetchResponses<Response> | null> {
     try {
-        const response = await fetch(url, fetchOptions);
+
+        const authFetchOptions: RequestInit = {
+            ...fetchOptions,
+            headers: {
+                ...fetchOptions?.headers,
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+
+        const response = await fetch(url, authFetchOptions);
 
         if (response.status >= 500 && response.status <= 599) {
+            const data = await response.json();
+
+            const result = APIErrorSchema.safeParse(data);
+            if (result.success) {
+                const serverError: ICustomErrorResponse = {
+                    ok: false,
+                    status: response.status,
+                    message: result.data.message || "Internal Server Error"
+                };
+                navigate(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: serverError
+                    }
+                });
+                return null;
+            }
 
             const serverError: ICustomErrorResponse = {
                 ok: false,
                 status: response.status,
-                message: response?.statusText || "Internal Server Error"
+                message: "A server error occurred. Please try again later!!!"
             };
 
-            try {
-                const data = await response.json();
-
-                const result = APIErrorSchema.safeParse(data);
-                if (result.success) {
-                    serverError.message = result.data.message;
-
-                }
-
-            } catch (err) {
-                console.error("Error parsing server error response:", err);
-                setIsError(jsonParsingError);
-                setFormError?.("root", {
-                    message: jsonParsingError.message,
-                    type: "server"
-                });
-                return null;
-
-            }
-
-            navigate('/error', {
+            navigate(errorPageRoute, {
                 replace: true,
                 state: {
                     error: serverError
@@ -51,67 +90,42 @@ export async function basicResponseHandle<T extends FieldValues>(
             });
 
             return null;
+
         }
 
-        if (response.status === 401) {
-            console.log("DATA SENT CORRECTLY FROM ERROR HANDLER!!!")
-            const signInError: ISignInError = {
-                message: "You were logged out!!!",
-                inputType: "root"
+        if (response.status === 401 && !hasRetried) {
+            console.log("DATA SENT CORRECTLY FROM ERROR HANDLER!!!");
+
+            const newAccessToken = await NewAccessTokenRequest(navigate);
+            if (!newAccessToken) return null;
+
+            if (newAccessToken.returnType !== "response") {
+                return newAccessToken;
             }
-            navigate('/sign-in/login', {
-                replace: true,
-                state: {
-                    error: signInError
-                }
-            });
 
-            return null;
+            const res = await FetchHandlerHelper(
+                url,
+                fetchOptions,
+                navigate,
+                newAccessToken.data,
+                true
+            );
+
+            return res;
 
         }
 
-        return response;
-
-
-
-
+        return {
+            returnType: "response",
+            data: response
+        };
 
 
 
     } catch (error: unknown) {
         console.error("Error fetching folder page data:", error);
+        SendToSignInErrorHandler(error, navigate);
 
-        if (!(error instanceof Error)) {
-            navigate('/error', {
-                replace: true,
-                state: {
-                    error: {
-                        ok: false,
-                        status: 0,
-                        message: "An unknown error occurred."
-                    }
-                }
-            });
-
-            return null;
-        }
-
-        if (error.name === "AbortError") {
-            console.log("Fetch aborted in catch block!!!");
-            return null; // ??? Why return null here or error?
-
-        }
-
-        const customError: ICustomErrorResponse = {
-            ok: false,
-            status: 0,
-            message: error.message
-        };
-        setIsError(customError);
-        setFormError?.("root", {
-            message: error.message,
-            type: "server"
-        });
         return null;
 
     }
