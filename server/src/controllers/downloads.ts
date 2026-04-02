@@ -4,6 +4,7 @@ import { prisma } from "../db/prisma";
 
 import { fetchSupaBaseFile } from "../services/FetchSupaBaseFile";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
+import { ISupabaseURLGenerateResponse } from "../../../shared/features/files/models/ISupabaseURLGenerate";
 
 export const router = Router();
 
@@ -41,6 +42,35 @@ router.get("/inline-file/:fileId", async (req: Request<{ fileId: string }>, res:
         res.setHeader("Content-Length", buffer.length.toString());
         res.setHeader("Content-Disposition", `inline; filename="${file.filename}"`);
         res.send(fileBuffer);
+        
+    } catch (error) {
+        next(error);
+        
+    }
+});
+
+router.get("/supabase-file-id/:fileId/generate", ensureJWTAuthentication, async (req: Request<{ fileId: string }>, res: Response<ICustomErrorResponse | ISupabaseURLGenerateResponse>, next: NextFunction) => {
+    try {
+        const { fileId } = req.params;
+    
+        const file = await prisma.file.findUnique({
+            where: {
+                id: fileId
+            }
+        });
+    
+        if (!file) {
+            return res.status(404).send("Blog not found!!!");
+        }
+    
+        const supabaseFile = await fetchSupaBaseFile(file.supabaseFileId);
+    
+        if (!supabaseFile.ok) {
+            return res.status(404).send("File not found in storage: " + supabaseFile.message);
+        }
+        
+    
+        res.json({ supabaseFileId: file.supabaseFileId });
         
     } catch (error) {
         next(error);

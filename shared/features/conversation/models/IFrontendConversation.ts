@@ -2,6 +2,7 @@ import z from "zod";
 import { BaseConversationSchema } from "./IBaseConversation";
 import { FileSingleOptionalSchema } from "../../files/models/INewOptionalFile";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
+import { GroupProfileUnionSchema } from "../discriminatedUnions/IGroupProfileUnion";
 
 
 
@@ -20,7 +21,7 @@ export type ICreateConversationFrontend = z.infer<typeof CreateConversationFront
 
 
 export const ReceiveConversationFrontendSchema = BaseConversationSchema.extend({
-    groupChatProfilePictureUrl: z.string().optional(),
+    groupChatProfilePicture: GroupProfileUnionSchema,
     createdAt: DateFromStringSchema
 });
 

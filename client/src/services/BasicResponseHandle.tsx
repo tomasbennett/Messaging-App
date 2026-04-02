@@ -3,7 +3,7 @@ import { NavigateFunction } from "react-router-dom";
 import { FieldValues, UseFormSetError } from "react-hook-form";
 import { ICustomErrorResponse, APIErrorSchema } from "../../../shared/features/api/models/APIErrorResponse";
 import { ISignInError } from "../../../shared/features/auth/models/ILoginSchema";
-import { jsonParsingError } from "../constants/constants";
+import { jsonParsingError } from "../constants/errorConstants";
 
 export async function basicResponseHandle<T extends FieldValues>(
     url: string,

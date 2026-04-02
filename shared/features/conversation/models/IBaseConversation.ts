@@ -5,19 +5,13 @@ import { ReceiveMessageFrontendSchema } from "../../message/models/IFrontendMess
 
 export const BaseConversationSchema = z.object({
     conversationId: z.string().min(1, { message: "Conversation ID is required" }),
-    name: z.string().nullable(),
+    name: z.string().optional(),
     participants: z.array(ReceiveUserFrontendSchema.pick({
         userId: true,
-        username: true,
-        profilePictureUrl: true,
+        username: true
     })),
-    messages: z.array(ReceiveMessageFrontendSchema.pick({
-        messageId: true,
-        senderId: true,
-        conversationId: true,
-        content: true,
-        createdAt: true,
-    })),
+    messages: z.array(ReceiveMessageFrontendSchema),
+    isRead: z.boolean()
 });
 
 

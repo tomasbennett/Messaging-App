@@ -10,18 +10,18 @@ import session from "express-session";
 import passport from "passport";
 
 
-import { router as apiRouter } from "./controllers/api";
+import { apiRouter as apiRouter } from "./controllers/routes";
 
 import { Server, Socket } from "socket.io";
 
 
 // import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
-import { IReceiveMessage } from "../../shared/features/message/models/IReceiveMessage";
-import { ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
+import { IReceiveMessage } from "../../shared/features/message/models/IFrontendMessages";
+import { APIErrorSchema, ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
 import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/features/message/constants";
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
-import { SendMessageFrontendSchema } from "../../shared/features/message/models/ISendMessage";
+import { SendMessageFrontendSchema } from "../../shared/features/message/models/IBackendMessages";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -78,16 +78,32 @@ app.use("/api", apiRouter);
 
 
 app.get(/.*/, (req: Request, res: Response, next: NextFunction) => {
-
   return res.sendFile(path.join(CLIENT_DIST, "index.html"));
-
 
 });
 
 
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof Error) {
+    console.error("Unexpected error: ", err);
+    return res.status(500).json({
+      status: 500,
+      message: err.message || "An unexpected error occurred",
+      ok: false
+    } as ICustomErrorResponse);
+  }
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  return;
+  const customApiErrorResult = APIErrorSchema.safeParse(err);
+  if (customApiErrorResult.success) {
+    return res.status(customApiErrorResult.data.status).json(customApiErrorResult.data);
+  }
+
+  return res.status(500).json({
+    status: 500,
+    message: "An unexpected error occurred",
+    ok: false
+  } as ICustomErrorResponse);
+
 });
 
 
@@ -138,7 +154,7 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("A user disconnected: " + socket.id);
-    
+
   });
 
 

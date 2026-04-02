@@ -9,10 +9,9 @@ export const BaseMessageSchema = z.object({
     sender: ReceiveUserFrontendSchema.pick({
         userId: true,
         username: true,
-        profilePictureUrl: true,
+        // profilePictureUrl: true,
     }),
-    conversationId: z.string().min(1, { message: "Conversation ID is required" }),
-    isRead: z.boolean(),
+    conversationId: z.string().min(1, { message: "Conversation ID is required" })
 });
 
 

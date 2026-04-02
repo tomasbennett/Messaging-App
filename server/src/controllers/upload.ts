@@ -99,3 +99,7 @@ router.post("/file/upload", ensureJWTAuthentication, upload.single("file"), asyn
     }
 
 });
+
+router.patch("/me/user/profile", ensureJWTAuthentication, upload.single("profileImage"), async (req: Request, res: Response, next: NextFunction) => {
+    
+});
