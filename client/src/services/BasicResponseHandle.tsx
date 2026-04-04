@@ -1,9 +1,6 @@
 import { NavigateFunction } from "react-router-dom";
 
-import { FieldValues, UseFormSetError } from "react-hook-form";
 import { ICustomErrorResponse, APIErrorSchema } from "../../../shared/features/api/models/APIErrorResponse";
-import { ISignInError } from "../../../shared/features/auth/models/ILoginSchema";
-import { jsonParsingError } from "../constants/errorConstants";
 import { IJWTFetchResponses } from "../models/IJWTFetchResponses";
 import { GetAccessToken } from "./GetAccessToken";
 import { SendToSignInErrorHandler } from "./SendToSignInErrorHandler";

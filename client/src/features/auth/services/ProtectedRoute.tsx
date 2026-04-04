@@ -1,112 +1,61 @@
-import { useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 import { LoadingCircle } from "../../../components/LoadingCircle";
-import { domain } from "../../../constants/EnvironmentAPI";
+import { useCheckAuth } from "../hooks/useCheckAuth";
+import { homePageRoute, logInPageRoute } from "../../../constants/routes";
+import { SocketProvider } from "../../../contexts/SocketHandlerContext";
+
+
+
 
 export function ProtectedRoute() {
-
-    return <Outlet />;
-
-
-    const [auth, setAuth] = useState<boolean | null>(null);
-    const navigate = useNavigate();
-
-    useEffect(() => {   
-        async function checkAuth() {
-            try {
-                console.log("Checking auth...");
-                const response = await fetch(`${domain}/auth/check`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: { Accept: 'application/json' }
-                });
-                console.log("Fetch response received");
-    
-                if (response.ok) {
-                    setAuth(true);
-
-                } else {
-                    const data = await response.json();
-                    console.log(data?.message);
-                    console.log("not authenticated");
-                    setAuth(false);
-
-                }
-            } catch (error) {
-                console.log("Fetch error:", error);
-                setAuth(false);
-            }
-        }
-    
-        checkAuth();
-    }, []);
+    const { userAuth, isLoading } = useCheckAuth();
 
 
-
-    if (auth === null) {
+    if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%', flex: '1 1 0' }}>
-                <LoadingCircle width="5rem" />
+                <LoadingCircle height="5rem" />
             </div>
         )
 
-    } else if (auth === false) {
-        return <Navigate to="/sign-in/login" replace />;
-
-    } else {
-        return <Outlet />;
+    }
+    
+    if (userAuth === "none") {
+        return <Navigate to={logInPageRoute} replace />;
 
     }
+
+
+    return (
+
+
+        <SocketProvider>
+
+            <Outlet />
+
+        </SocketProvider>
+    );
 
 }
 
 
 
 export function NotAuthenticatedRoute() {
-    return <Outlet />;
+    const { userAuth, isLoading } = useCheckAuth();
 
 
-    const [auth, setAuth] = useState<boolean | null>(null);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        async function checkAuth() {
-            try {
-                const response = await fetch(`${domain}/auth/check`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: { Accept: 'application/json' }
-                });
-
-                if (response.ok) {
-                    setAuth(true);
-                } else if (response.status === 401) {
-                    setAuth(false);
-                } else {
-                    setAuth(false);
-                }
-            } catch {
-                setAuth(false);
-            }
-        }
-
-        checkAuth();
-    }, []);
-
-
-
-
-    if (auth === null) {
+    if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%', flex: '1 1 0' }}>
-                <LoadingCircle width="5rem" />
+                <LoadingCircle height="5rem" />
             </div>
         )
     }
 
-    if (auth === false) {
-        return <Outlet />;
+    if (userAuth === "user") {
+        return <Navigate to={homePageRoute} replace />;
     }
 
-    return <Navigate to="/" replace />;
+    return <Outlet />;
 }

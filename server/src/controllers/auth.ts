@@ -9,11 +9,9 @@ import { CreateAccessToken } from "../auth/CreateAccessToken";
 import { invalidRefreshTokenStatus } from "../../../shared/features/auth/constants";
 import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 
-
 export const router = Router();
 
-
-router.get("/auth/checkAccessToken", ensureJWTAuthentication, (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.get("/checkAuthLevel", ensureJWTAuthentication, (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
     if (req.user) {
         return res.status(200).json({
             ok: true,
@@ -31,7 +29,8 @@ router.get("/auth/checkAccessToken", ensureJWTAuthentication, (req: Request, res
 
 });
 
-router.get("/auth/grantNewAccessToken", async (req: Request, res: Response<ICustomErrorResponse | IAccessTokenResponse>, next: NextFunction) => {
+
+router.get("/grantNewAccessToken", async (req: Request, res: Response<ICustomErrorResponse | IAccessTokenResponse>, next: NextFunction) => {
     const refreshToken: string | undefined = req.cookies?.refreshToken;
 
     if (!refreshToken) {
@@ -99,7 +98,6 @@ router.get("/auth/grantNewAccessToken", async (req: Request, res: Response<ICust
 
     } catch (error) {
         return next(error);
-
 
     }
 });

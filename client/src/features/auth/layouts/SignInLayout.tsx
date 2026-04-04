@@ -7,6 +7,7 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { ISignInError, SignInErrorSchema, ILoginForm, loginFormSchema } from "../../../../../shared/features/auth/models/ILoginSchema";
 import { ISignInContext } from "../models/ISignInContext";
+import { homePageRoute } from "../../../constants/routes";
 
 
 export function SignInLayout() {
@@ -76,14 +77,6 @@ export function SignInLayout() {
     }, [location.pathname, clearErrors]);
 
 
-
-
-
-
-
-
-
-
     const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
         try {
             const response = await fetch(`${domain}/sign-in/${submitUrl}`, {
@@ -96,7 +89,7 @@ export function SignInLayout() {
             });
 
             if (response.ok) {
-                navigate("/", { replace: true });
+                navigate(homePageRoute, { replace: true });
                 return;
 
             } else {
@@ -104,17 +97,35 @@ export function SignInLayout() {
                 const errorResult = SignInErrorSchema.safeParse(responseData);
 
                 if (errorResult.success) {
-                    setError(errorResult.data.inputType, { type: "server", message: errorResult.data.message });
+                    setError(errorResult.data.inputType, { 
+                        type: "server", 
+                        message: errorResult.data.message 
+                    });
 
                 } else {
-                    setError("root", { type: "server", message: "An unknown error occurred." }); //PLEASE DON'T FORGET FOR LATER PROJECTS THAT root CAN HAVE ADDITIONAL PROPERTIES ATTACHED TO IT FOR CUSTOM ERRORS IF YOU HAVE A SERVER ERROR UNRELATED TO THE USER INPUTS LIKE root.serverError
+                    setError("root", { 
+                        type: "server", 
+                        message: "An unknown error occurred." 
+                    }); //PLEASE DON'T FORGET FOR LATER PROJECTS THAT root CAN HAVE ADDITIONAL PROPERTIES ATTACHED TO IT FOR CUSTOM ERRORS IF YOU HAVE A SERVER ERROR UNRELATED TO THE USER INPUTS LIKE root.serverError
 
                 }
 
             }
 
-        } catch (error) {
-            setError("root", { type: "server", message: "Failed to connect to the server." });
+        } catch (error: unknown) {
+
+            if (error instanceof Error) {
+                setError("root", { 
+                    type: "server", 
+                    message: error.message || "An error occurred while connecting to the server." 
+                });
+                return;
+            }
+
+            setError("root", { 
+                type: "server", 
+                message: "Failed to connect to the server." 
+            });
 
         }
     }

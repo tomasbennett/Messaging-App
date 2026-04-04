@@ -21,15 +21,24 @@ export async function NewAccessTokenRequest(
     try {
 
         console.log("THE NEW ACCESS TOKEN REQ RUNS");
-        const newAccessTokenReq = await fetch(`${domain}/api/auth/refreshToken`, {
+        const newAccessTokenReq = await fetch(`${domain}/api/auth/grantNewAccessToken`, {
             credentials: "include"
         });
     
         if (newAccessTokenReq.status === invalidRefreshTokenStatus) {
             //USER NEEDS TO SIGN IN AGAIN
-            navigate(logInPageRoute, { replace: true });
+            // navigate(logInPageRoute, { replace: true });
+            // IF WE ARE ON THE LOGIN PAGE AND GET A 401 THROUGH CHECKAUTH THEN IT MAY CREATE AN INFINITE LOOP TO NAV BACK TO LOGIN PAGE HERE
 
-            return null;
+
+            return {
+                returnType: "loginError",
+                error: {
+                    ok: false,
+                    status: invalidRefreshTokenStatus,
+                    message: "Your session has expired. Please sign in again!!!"
+                }
+            };
         }
 
         if (newAccessTokenReq.status >= 500 && newAccessTokenReq.status <= 599) {

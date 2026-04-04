@@ -69,9 +69,7 @@ function App() {
     <>
     <ErrorProvider>
 
-      {/* <SocketProvider> */}
         <RouterProvider router={router} />
-      {/* </SocketProvider> */}
       
     </ErrorProvider>
 
