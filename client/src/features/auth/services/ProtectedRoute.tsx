@@ -35,6 +35,8 @@ export function ProtectedRoute() {
             <Outlet />
 
         </SocketProvider>
+
+        
     );
 
 }

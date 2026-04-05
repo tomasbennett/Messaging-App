@@ -7,7 +7,7 @@ import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { IAuthLevel } from "../models/IUseCheckAuth";
 import { useError } from "../../error/contexts/ErrorContext";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
-import { signInPageRoute } from "../../../constants/routes";
+import {  signUpPageRoute as signInPageRoute } from "../../../constants/routes";
 
 
 

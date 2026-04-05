@@ -8,7 +8,9 @@ import { useSidebarHeaderMode } from "../hooks/useSidebarHeaderMode";
 import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
-import { handleErrorResponse } from "../../../services/SetThrownErrorState";
+
+
+
 
 type ISidebarUserDetailsListProps = {
     userDetailsList: ISidebarFriendsUserDetails[];
@@ -62,7 +64,7 @@ export function SidebarUserDetailsList({
         } catch (error: unknown) {
             if (controller !== abortControllerRef.current) return;
 
-            handleErrorResponse(error, setSearchFriendsError);
+            // handleErrorResponse(error, setSearchFriendsError);
             
         } finally {
             if (controller !== abortControllerRef.current) {

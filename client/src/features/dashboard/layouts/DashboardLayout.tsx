@@ -143,9 +143,8 @@
 //   );
 // }
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./DashboardLayout.module.css";
-import { UserIcon } from "../../../assets/icons/UserIcon";
 import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useError } from "../../error/contexts/ErrorContext";
