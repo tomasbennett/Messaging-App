@@ -1,4 +1,4 @@
-import { MessageProvider } from "../messages/contexts/MessageContext";
+import { FriendMessageProvider } from "../messages/contexts/MessageContext";
 import { AsideMenuLayout } from "./layouts/AsideMenuLayout";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 
@@ -7,7 +7,7 @@ export function DashboardApp() {
 
     return (
 
-        <MessageProvider>
+        <FriendMessageProvider>
 
             <AsideMenuLayout>
 
@@ -15,7 +15,7 @@ export function DashboardApp() {
                 
             </AsideMenuLayout>
 
-        </MessageProvider>
+        </FriendMessageProvider>
 
     )
 }
