@@ -6,6 +6,7 @@ import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
+import { IConversationMessage, ReceiveConversationMessagesFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
 
 
 
@@ -16,6 +17,7 @@ export function ConversationLayout() {
 
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([]);
 
     const errorCtx = useError();
 
@@ -65,9 +67,9 @@ export function ConversationLayout() {
                 const conversationResponse = response.data;
                 const conversationJSON = await conversationResponse.json();
     
-                const conversationDataResult = .safeParse(conversationJSON);
+                const conversationDataResult = ReceiveConversationMessagesFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
-                    // setConversationData(conversationDataResult.data);
+                    setConversationMessages(conversationDataResult.data.messages);
                     return;
                 }
 
@@ -130,7 +132,7 @@ export function ConversationLayout() {
         };
 
 
-    }, []);
+    }, [conversationId]);
 
 
 

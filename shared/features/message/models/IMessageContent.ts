@@ -6,10 +6,13 @@ import { allowedTypes, maxFileSizeInBytes } from "../../files/constants";
 
 export const MessageContentURLSchema = z.object({
     content: z.string().optional(),
-    fileUrls: z.array(z.string()),
+    files: z.array(z.object({
+        fileUrl: z.string(),
+        fileId: z.string(),
+    })),
 }).superRefine((data, ctx) => {
     const hasContent = !!data.content && data.content.trim() !== "";
-    const hasFileUrls = !!data.fileUrls && Array.isArray(data.fileUrls) && data.fileUrls.length > 0;
+    const hasFileUrls = !!data.files && Array.isArray(data.files) && data.files.length > 0;
 
     if (hasContent) {
         return;
@@ -24,10 +27,10 @@ export const MessageContentURLSchema = z.object({
         return;
     }
 
-    const fileUrls = data.fileUrls as string[];
+    const files = data.files;
 
-    for (let i = 0; i < fileUrls.length; i++) {
-        const fileUrl = fileUrls[i];
+    for (let i = 0; i < files.length; i++) {
+        const fileUrl = files[i].fileUrl;
 
         if (fileUrl.length < 1) {
             ctx.addIssue({

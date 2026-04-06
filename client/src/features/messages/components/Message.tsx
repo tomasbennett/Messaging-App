@@ -1,16 +1,17 @@
 import { FileIcon } from "../../../assets/icons/FileIcon";
 import { IPropsMessageComponent } from "../models/IPropsMessage";
 import styles from "./Message.module.css";
-
+import defaultUserProfileImg from "../../../assets/DEFAULT_USER_IMG.png"
 
 
 
 export function MessageComponent({
     messageId,
-    senderUsername,
+    conversationId,
     timestamp,
     content,
-    files
+    files,
+    conversationGroupType
 }: IPropsMessageComponent) {
 
 
@@ -23,8 +24,18 @@ export function MessageComponent({
 
 
                 {
-                    senderUsername &&
-                    <p className={styles.senderUsername}>{senderUsername}</p>
+                    conversationGroupType.type === "group" &&
+
+                    <>
+                    
+                        <p className={styles.senderUsername}>{conversationGroupType.senderName}</p>
+                        
+                        <div className={styles.profileImgContainer}>
+                            <img src={conversationGroupType?.senderProfileImgUrl ?? defaultUserProfileImg} alt={`User profile image: ${conversationGroupType.senderName}`} />
+                        </div>
+                    
+                    </>
+                
                 }
 
 

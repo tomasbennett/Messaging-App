@@ -1,8 +1,3 @@
-export type IPropsMessageComponent = {
-    messageId: string;
-    senderUsername?: string;
-    timestamp: Date;
+import { IConversationMessage } from "../../../../../shared/features/message/models/IConversationMessage";
 
-    content?: string;
-    files?: { fileUrl: string; fileId: string }[];
-};
+export type IPropsMessageComponent = IConversationMessage;
