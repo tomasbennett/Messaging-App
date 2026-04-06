@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { AddMessageIcon } from "../../../assets/icons/AddMessageIcon";
 import { SidebarUserDetails } from "../components/SidebarUserDetails";
 import { ISidebarMessageHeader } from "../models/ISidebarMessageHeader";
-import { ISearchForFriendsUserDetails, ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
+import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import styles from "./SidebarUserDetailsList.module.css";
 import { useSidebarHeaderMode } from "../hooks/useSidebarHeaderMode";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
@@ -14,12 +14,13 @@ import { useNavigate } from "react-router-dom";
 import { ReceiveUserFrontendSchema } from "../../../../../shared/features/user/models/IFrontendUser";
 import { ReceiveFriendRequestFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
 import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
 
 
 
 
 type ISidebarUserDetailsListProps = {
-    userDetailsList: ISidebarFriendsUserDetails[];
+    userDetailsList: IFriendPreviewMessages[];
 }
 
 export function SidebarUserDetailsList({
@@ -183,15 +184,12 @@ export function SidebarUserDetailsList({
 
                     userDetailsList.map((details) => (
                         <li
-                            key={details.userId}
+                            key={details.conversation.conversationId}
                             className={styles.listItem}>
 
                             <SidebarUserDetails
-                                userId={details.userId}
-                                userProfilePictureUrl={details.userProfilePictureUrl}
-                                username={details.username}
-                                lastMessage={details.lastMessage}
-                                lastMessageTimestamp={details.lastMessageTimestamp}
+                                conversation={details.conversation}
+                                latestMessage={details.latestMessage}
                             />
 
                         </li>

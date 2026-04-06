@@ -1,9 +1,9 @@
 import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
 
 export type ISidebarFriendsUserDetails = {
-    userId: string;
-    userProfilePictureUrl: string | undefined;
-    username: string;
+    conversationId: string;
+    conversationProfilePictureUrl: string | undefined;
+    conversationName: string;
     lastMessage: string | undefined;
     lastMessageTimestamp: Date | undefined;
 }

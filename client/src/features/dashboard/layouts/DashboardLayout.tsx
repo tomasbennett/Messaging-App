@@ -161,23 +161,23 @@ export function DashboardLayout() {
     // Mock data for friends details list
     const mockFriendsDetails: ISidebarFriendsUserDetails[] = [
       {
-        userId: "1",
-        userProfilePictureUrl: undefined,
-        username: "Alice",
+        conversationId: "1",
+        conversationProfilePictureUrl: undefined,
+        conversationName: "Alice",
         lastMessage: "Hey, how are you?",
         lastMessageTimestamp: new Date()
       },
       {
-        userId: "2",
-        userProfilePictureUrl: undefined,
-        username: "Bob",
+        conversationId: "2",
+        conversationProfilePictureUrl: undefined,
+        conversationName: "Bob",
         lastMessage: "Are we still on for tomorrow?",
         lastMessageTimestamp: new Date()
       },
       {
-        userId: "3",
-        userProfilePictureUrl: undefined,
-        username: "Charlie",
+        conversationId: "3",
+        conversationProfilePictureUrl: undefined,
+        conversationName: "Charlie",
         lastMessage: "Check out this cool link!",
         lastMessageTimestamp: new Date()
       }
@@ -200,7 +200,7 @@ export function DashboardLayout() {
 
   const {
     friendMessages,
-    isLoading: isFriendMessagesLoading,
+    isLoading: isFriendConversationsLoading,
     setFriendMessages
   } = useFriendMessageContext();
 
@@ -211,7 +211,7 @@ export function DashboardLayout() {
     <>
 
       {
-        isFriendMessagesLoading ?
+        isFriendConversationsLoading ?
 
           <LoadingCircle height="6rem" />
 
