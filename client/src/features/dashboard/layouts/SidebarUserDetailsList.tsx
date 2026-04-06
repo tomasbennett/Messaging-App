@@ -5,9 +5,15 @@ import { ISidebarMessageHeader } from "../models/ISidebarMessageHeader";
 import { ISearchForFriendsUserDetails, ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import styles from "./SidebarUserDetailsList.module.css";
 import { useSidebarHeaderMode } from "../hooks/useSidebarHeaderMode";
-import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
+import { useError } from "../../error/contexts/ErrorContext";
+import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
+import { useNavigate } from "react-router-dom";
+import { ReceiveUserFrontendSchema } from "../../../../../shared/features/user/models/IFrontendUser";
+import { ReceiveFriendRequestFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
+import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
 
 
 
@@ -31,12 +37,17 @@ export function SidebarUserDetailsList({
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const [isSearchFriendsLoading, setIsSearchFriendsLoading] = useState<boolean>(false);
-    const [searchFriendsError, setSearchFriendsError] = useState<ICustomErrorResponse | null>(null);
-    const [searchResults, setSearchResults] = useState<ISearchForFriendsUserDetails[]>([]);
+    const [searchResults, setSearchResults] = useState<IUserFriendStatusRelationship[]>([]);
 
+    const errorCtx = useError();
+    const nav = useNavigate();
 
     const searchForFriends = async (searchText: string) => {
         if (searchText.trim() === "") {
+            return;
+        }
+
+        if (!errorCtx) {
             return;
         }
 
@@ -47,29 +58,64 @@ export function SidebarUserDetailsList({
 
         try {
             setIsSearchFriendsLoading(true);
-            setSearchFriendsError(null);
 
-            const response = await fetch(`${domain}/api/users/search?query=${encodeURIComponent(searchText)}`, {
+            const response = await jwtFetchHandler(`${domain}/api/users/search?query=${encodeURIComponent(searchText)}`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 signal: controller.signal
-            });
+            }, nav);
+
+            if (!response) {
+                return;
+            }
+
+            if (response.returnType !== "response") {
+                errorCtx.throwError(response.error);
+                return;
+            }
+
+            const searchResponse = response.data;
+            const searchResJSON = await searchResponse.json();
+
+            const searchResult = ReceiveUserFriendStatusRelationshipSchema.safeParse(searchResJSON);
+
+            if (searchResult.success) {
+                setSearchResults(searchResult.data.userFriendStatusRelationships);
+                return;
+            }
+
+            const errorResult = APIErrorSchema.safeParse(searchResJSON);
+            if (errorResult.success) {
+                errorCtx.throwError(errorResult.data);
+                return;
+            }
 
             
+            errorCtx.throwError(notExpectedFormatError);
+            return;
 
 
-            
+
         } catch (error: unknown) {
             if (controller !== abortControllerRef.current) return;
 
-            // handleErrorResponse(error, setSearchFriendsError);
-            
-        } finally {
-            if (controller !== abortControllerRef.current) {
+            if (!(error instanceof Error)) {
+                errorCtx.throwError(notExpectedFormatError);
                 return;
             }
+
+            const customError: ICustomErrorResponse = {
+                ok: false,
+                status: 0,
+                message: error.message
+            };
+
+            errorCtx.throwError(customError);
+            return;
+
+
+        } finally {
+            if (controller !== abortControllerRef.current) return;
+
             setIsSearchFriendsLoading(false);
         }
 
@@ -92,39 +138,39 @@ export function SidebarUserDetailsList({
 
                             <div className={styles.btnContainer}>
 
-                                <button 
+                                <button
                                     className={styles.addFriend}
                                     onClick={() => getSearchMode()}
-                                    >
+                                >
                                     <AddMessageIcon />
                                 </button>
 
                             </div>
-                        
+
                         </>
 
-                        
-                    :
-                        
-                    sidebarHeaderMode === "search" ?
-                        <>
-                            <div className={styles.searchInputContainer}>
-                                <input 
-                                    type="text" 
-                                    className={styles.searchInput} 
-                                    placeholder="Search for friends..." 
-                                    autoFocus
-                                    onChange={(e) => searchForFriends(e.target.value)}
-                                />
 
-                                
+                        :
 
-                            </div>
-                        </>
+                        sidebarHeaderMode === "search" ?
+                            <>
+                                <div className={styles.searchInputContainer}>
+                                    <input
+                                        type="text"
+                                        className={styles.searchInput}
+                                        placeholder="Search for friends..."
+                                        autoFocus
+                                        onChange={(e) => searchForFriends(e.target.value)}
+                                    />
 
-                    :
 
-                        null
+
+                                </div>
+                            </>
+
+                            :
+
+                            null
 
                 }
 

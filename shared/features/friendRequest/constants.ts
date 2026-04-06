@@ -1,7 +1,7 @@
 export const FriendRequestStatusValues = [
     "pending",
     "accepted",
-    "rejected",
+    "no request sent yet",
 ] as const;
 
 

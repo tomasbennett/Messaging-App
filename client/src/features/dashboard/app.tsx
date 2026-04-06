@@ -1,4 +1,4 @@
-import { FriendMessageProvider } from "../messages/contexts/MessageContext";
+import { FriendMessageProvider } from "../messages/contexts/FriendMessageContext";
 import { AsideMenuLayout } from "./layouts/AsideMenuLayout";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 

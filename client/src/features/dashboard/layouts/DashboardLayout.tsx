@@ -148,6 +148,8 @@ import styles from "./DashboardLayout.module.css";
 import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useError } from "../../error/contexts/ErrorContext";
+import { useFriendMessageContext } from "../../messages/contexts/FriendMessageContext";
+import { LoadingCircle } from "../../../components/LoadingCircle";
 
 
 export function DashboardLayout() {
@@ -196,11 +198,33 @@ export function DashboardLayout() {
 
 
 
+  const {
+    friendMessages,
+    isLoading: isFriendMessagesLoading,
+    setFriendMessages
+  } = useFriendMessageContext();
+
+
+
   return (
-    <div className={styles.outerContainer}>
 
-      <SidebarUserDetailsList userDetailsList={friendsDetailsList} />
+    <>
 
-    </div>
+      {
+        isFriendMessagesLoading ?
+
+          <LoadingCircle height="6rem" />
+
+          :
+
+          <div className={styles.outerContainer}>
+
+            <SidebarUserDetailsList userDetailsList={friendsDetailsList} />
+
+          </div>
+      }
+
+    </>
+
   );
 }

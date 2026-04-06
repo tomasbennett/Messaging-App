@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { SendToSignInErrorHandler } from "../../../services/SendToSignInErrorHandler";
 import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { errorPageRoute } from "../../../constants/routes";
+import { LoadingCircle } from "../../../components/LoadingCircle";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -32,13 +34,13 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 console.error("Error context is not available in MessageProvider!!!");
                 return;
             }
-    
+
             abortController.current?.abort();
             const controller = new AbortController();
             abortController.current = controller;
-            
+
             try {
-    
+
                 const response = await jwtFetchHandler(`${domain}/api/conversations/preview`, {
                     method: "GET",
                     signal: controller.signal
@@ -51,6 +53,9 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
                 if (response.returnType !== "response") {
                     errorCtx.throwError(response.error);
+                    nav(errorPageRoute, {
+                        state: { error: response.error }
+                    });
                     return;
                 }
 
@@ -66,30 +71,31 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 const errorResult = APIErrorSchema.safeParse(friendsMessagesJSON);
                 if (errorResult.success) {
                     errorCtx.throwError(errorResult.data);
+                    nav(errorPageRoute, {
+                        state: { error: errorResult.data }
+                    });
                     return;
                 }
 
                 console.error("Unexpected response format for friend messages:", friendsMessagesJSON);
                 errorCtx.throwError(notExpectedFormatError);
+                nav(errorPageRoute, {
+                    state: { error: notExpectedFormatError }
+                });
                 return;
-    
-    
-    
-    
+
+
             } catch (err: unknown) {
                 if (controller !== abortController.current) return;
-    
+
                 console.error("Error fetching friend messages:", err);
-    
+
                 SendToSignInErrorHandler(err, nav);
                 return;
-                //MIGHT NEED TO NAVIGATE TO AN ERROR PAGE SHOULD THIS FAIL TO FETCH
-    
-    
-    
+
             } finally {
                 if (controller !== abortController.current) return;
-    
+
                 setIsLoading(false);
             }
 
@@ -108,14 +114,21 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
     return (
         <FriendMessageContext.Provider value={ctx}>
-            {children}
+            {
+                children
+            }
         </FriendMessageContext.Provider>
     );
 }
 
 
 
-export function useMessageContext() {
+export function useFriendMessageContext() {
     const context = useContext(FriendMessageContext);
+
+    if (!context) {
+        throw new Error("useFriendMessageContext must be used within FriendMessageProvider");
+    }
+
     return context;
 }

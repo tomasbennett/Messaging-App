@@ -6,7 +6,7 @@ interface IAsideMenuOptionProps {
   icon: React.ReactNode;
   label: string;
   navigateTo: string;
-  notification: React.ReactNode | null;
+  notification?: string | number;
 }
 
 export function AsideMenuOption({ icon, label, navigateTo, notification }: IAsideMenuOptionProps) {
