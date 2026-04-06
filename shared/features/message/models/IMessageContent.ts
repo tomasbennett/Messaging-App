@@ -42,6 +42,8 @@ export const MessageContentURLSchema = z.object({
 });
 
 
+export type IMessageContentURL = z.infer<typeof MessageContentURLSchema>;
+
 
 
 export const MessageContentFileSchema = z.object({
