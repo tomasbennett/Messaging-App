@@ -1,3 +1,5 @@
+import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+
 export type ISidebarFriendsUserDetails = {
     userId: string;
     userProfilePictureUrl: string | undefined;
@@ -7,9 +9,6 @@ export type ISidebarFriendsUserDetails = {
 }
 
 
-export type ISearchForFriendsUserDetails = {
-    userId: string;
-    userProfilePictureUrl: string | undefined;
-    username: string;
-    isPendingFriendRequest: boolean;
+export type IPropsSearchForFriendsUserDetails = IUserFriendStatusRelationship & {
+    updateFriendStatus(friendId: string, status: IUserFriendStatusRelationship["friendStatus"]): void;
 }

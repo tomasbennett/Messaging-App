@@ -1,15 +1,13 @@
-import { ISearchForFriendsUserDetails } from "../models/ISidebarUserDetails";
 import styles from "./SearchedForUserDetails.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { useState } from "react";
-import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { domain } from "../../../constants/EnvironmentAPI";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useError } from "../../error/contexts/ErrorContext";
-import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { useNavigate } from "react-router-dom";
-import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+import { addFriend } from "../../user/services/AddFriend";
+import { removeFriend } from "../../user/services/RemoveFriend";
+import { IPropsSearchForFriendsUserDetails } from "../models/ISidebarUserDetails";
 
 // type ISearchedForUserDetailsProps = {
 //     userId: string;
@@ -23,8 +21,9 @@ export function SearchedForUserDetails({
     otherUserId: userId,
     otherUserProfilePictureUrl: userProfilePictureUrl,
     otherUserUsername: username,
-    friendStatus
-}: IUserFriendStatusRelationship) {
+    friendStatus,
+    updateFriendStatus
+}: IPropsSearchForFriendsUserDetails) {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -32,7 +31,7 @@ export function SearchedForUserDetails({
 
     const nav = useNavigate();
 
-    const addFriend = async () => {
+    const handleAddFriend = async () => {
         if (!errorCtx) {
             console.error("Error context is not available");
             return;
@@ -41,41 +40,19 @@ export function SearchedForUserDetails({
         try {
             setIsLoading(true);
 
-            const response = await jwtFetchHandler(`${domain}/api/friends/add`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    friendUserId: userId
-                })
-            }, nav);
+            const addFriendResult = await addFriend(userId, nav);
 
-            if (!response) {
+            if (addFriendResult === null) {
                 return;
             }
 
-            if (response.returnType !== "response") {
-                errorCtx.throwError(response.error);
+            if (addFriendResult.returnType === "loginError") {
+                errorCtx.throwError(addFriendResult.error);
                 return;
             }
 
-            const addFriendResponse = response.data;
-            if (addFriendResponse.ok) {
-
-                return;
-            }
-
-            const errorResponseJson = await addFriendResponse.json();
-
-            const errorResult = APIErrorSchema.safeParse(errorResponseJson);
-            if (errorResult.success) {
-                const errorData = errorResult.data;
-                errorCtx.throwError(errorData);
-                return;
-            }
-
-            errorCtx.throwError(notExpectedFormatError);
+            //TURN STATUS TO PENDING IN UI
+            updateFriendStatus(userId, "pending");
 
 
 
@@ -98,6 +75,53 @@ export function SearchedForUserDetails({
             return;
 
 
+
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRemoveFriend = async () => {
+        if (!errorCtx) {
+            console.error("Error context is not available");
+            return;
+        }
+
+        try {
+
+            setIsLoading(true);
+
+            const removeFriendResult = await removeFriend(userId, nav);
+
+            if (removeFriendResult === null) {
+                return;
+            }
+
+            if (removeFriendResult.returnType === "loginError") {
+                errorCtx.throwError(removeFriendResult.error);
+                return;
+            }
+
+            //TURN STATUS TO NO REQUEST SENT YET IN UI
+            updateFriendStatus(userId, "no request sent yet");
+
+
+
+        } catch (error) {
+            if (error instanceof Error) {
+                errorCtx.throwError({
+                    message: error.message,
+                    status: 0,
+                    ok: false
+                });
+                return;
+            }
+
+            errorCtx.throwError({
+                message: "An unknown error occurred while removing the friend.",
+                status: 0,
+                ok: false
+            });
 
         } finally {
             setIsLoading(false);
@@ -127,39 +151,44 @@ export function SearchedForUserDetails({
             <div className={styles.lowerContainer}>
 
                 {
-                    isLoading ?
-                        <div className={styles.sendingRequestText}>
-                            <LoadingCircle height="90%" />
-                        </div>
+                    friendStatus === "pending" ?
+                        <p className={styles.pendingRequestText}>
+                            Pending<span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span>
+                        </p>
 
                         :
-
-                        friendStatus === "pending" ?
-                            <p className={styles.pendingRequestText}>
-                                Pending<span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span>
-                            </p>
-
-                            :
 
                         friendStatus === "no request sent yet" ?
 
 
-                            <button onClick={addFriend} className={styles.addFriendBtn} type="button">
-                                Add Friend
+                            <button onClick={handleAddFriend} className={styles.addFriendBtn} type="button">
+                                {
+                                    isLoading ?
+                                        <LoadingCircle height="90%" />
+                                        :
+
+                                        "Add Friend"
+                                }
                             </button>
 
                             :
 
-                        friendStatus === "accepted" ?
+                            friendStatus === "accepted" ?
 
-                            <p className={styles.alreadyFriendsText}>
-                                Already Friends
-                            </p>
+                                <button onClick={handleRemoveFriend} className={styles.removeFriendBtn} type="button">
+                                    {
+                                        isLoading ?
+                                            <LoadingCircle height="90%" />
+                                            :
+
+                                            "Remove Friend"
+                                    }
+                                </button>
 
 
-                            :
+                                :
 
-                            null
+                                null
                 }
 
 
