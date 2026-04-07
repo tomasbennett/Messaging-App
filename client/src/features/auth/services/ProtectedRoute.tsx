@@ -21,7 +21,7 @@ export function ProtectedRoute() {
 
     }
     
-    if (userAuth === "none") {
+    if (userAuth.userType === "none") {
         return <Navigate to={logInPageRoute} replace />;
 
     }
@@ -55,7 +55,7 @@ export function NotAuthenticatedRoute() {
         )
     }
 
-    if (userAuth === "user") {
+    if (userAuth.userType === "user") {
         return <Navigate to={homePageRoute} replace />;
     }
 

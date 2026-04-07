@@ -7,6 +7,8 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { IConversationMessage, ReceiveConversationMessagesFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
+import { LoadingCircle } from "../../../components/LoadingCircle";
+import { InputMessageComponent } from "../components/InputMessage";
 
 
 
@@ -37,7 +39,7 @@ export function ConversationLayout() {
                 console.error("Error context is not available");
                 return;
             }
-    
+
             if (!conversationId || typeof conversationId !== "string" || conversationId.trim() === "") {
                 errorCtx.throwError({
                     message: "Invalid conversation ID. Please select a valid conversation!!!",
@@ -46,10 +48,10 @@ export function ConversationLayout() {
                 });
                 return;
             }
-    
+
             try {
                 setIsLoading(true);
-    
+
                 const response = await jwtFetchHandler(`${domain}/api/conversations/${conversationId}`, {
                     method: "GET",
                     signal: controller.signal
@@ -66,7 +68,7 @@ export function ConversationLayout() {
 
                 const conversationResponse = response.data;
                 const conversationJSON = await conversationResponse.json();
-    
+
                 const conversationDataResult = ReceiveConversationMessagesFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
                     setConversationMessages(conversationDataResult.data.messages);
@@ -81,15 +83,15 @@ export function ConversationLayout() {
 
                 errorCtx.throwError(notExpectedFormatError);
                 return;
-    
-    
-                
+
+
+
             } catch (error: unknown) {
                 if (controller !== abortControllerRef.current) {
                     console.log("Fetch aborted, ignoring error");
                     return;
                 }
-    
+
                 if (!(error instanceof Error)) {
                     console.error("Unexpected error format:", error);
                     errorCtx.throwError({
@@ -99,27 +101,27 @@ export function ConversationLayout() {
                     });
                     return;
                 }
-    
+
                 if (error.name === "AbortError") {
                     console.log("Fetch aborted, ignoring error");
                     return;
                 }
-    
+
                 errorCtx.throwError({
                     message: error.message,
                     status: 0,
                     ok: false
                 });
-    
+
                 //MIGHT NEED TO NAV ON ERRORS HERE AS OTHERWISE CONVERSATION PAGE WILL BE BLANK WHEN LOADING ENDS, COULD BE GOOD TO HAVE AN ERROR STATE TO EACH PAGE AS WELL???
-    
+
             } finally {
                 if (controller !== abortControllerRef.current) {
                     return;
                 }
-    
+
                 setIsLoading(false);
-    
+
             }
         }
 
@@ -140,7 +142,48 @@ export function ConversationLayout() {
     return (
         <div className={styles.outerContainer}>
 
-            <p className={styles.placeholderText}>Select a conversation to start chatting!</p>
+            <div className={styles.contentContainer}>
+
+                {
+                    isLoading ?
+
+                        <div className={styles.loadingContainer}>
+
+                            <LoadingCircle height="5rem" />
+
+                        </div>
+
+                        :
+
+
+                        conversationMessages.length > 0 ?
+
+                            <div className={styles.messagesContainer}>
+
+                                {
+                                    conversationMessages.map((message) => (
+                                        <div key={message.messageId} className={styles.messageItem}>
+                                            <p className={styles.messageContent}>{message.content}</p>
+                                            <p className={styles.messageTimestamp}>{new Date(message.timestamp).toLocaleString()}</p>
+                                        </div>
+                                    ))
+                                }
+
+                            </div>
+
+                            :
+
+                            <p className={styles.noMessagesText}>No messages in this conversation yet. Start the conversation by sending a message!</p>
+                }
+
+            </div>
+
+            <div className={styles.inputContainer}>
+
+                <InputMessageComponent />
+
+            </div>
+
 
         </div>
     );

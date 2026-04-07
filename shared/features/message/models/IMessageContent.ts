@@ -9,7 +9,7 @@ export const MessageContentURLSchema = z.object({
     files: z.array(z.object({
         fileUrl: z.string(),
         fileId: z.string(),
-    })),
+    })).optional(),
 }).superRefine((data, ctx) => {
     const hasContent = !!data.content && data.content.trim() !== "";
     const hasFileUrls = !!data.files && Array.isArray(data.files) && data.files.length > 0;
@@ -27,7 +27,7 @@ export const MessageContentURLSchema = z.object({
         return;
     }
 
-    const files = data.files;
+    const files = data.files as { fileUrl: string; fileId: string }[];
 
     for (let i = 0; i < files.length; i++) {
         const fileUrl = files[i].fileUrl;

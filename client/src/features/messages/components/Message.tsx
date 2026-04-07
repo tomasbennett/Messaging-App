@@ -35,7 +35,6 @@ export function MessageComponent({
                         </div>
                     
                     </>
-                
                 }
 
 
