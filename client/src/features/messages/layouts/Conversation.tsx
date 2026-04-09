@@ -11,6 +11,7 @@ import { InputMessageComponent } from "../components/InputMessage";
 import { MessageComponent } from "../components/Message";
 import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 import { errorPageRoute } from "../../../constants/routes";
+import { useAuth } from "../../auth/contexts/AuthContext";
 
 
 
@@ -30,6 +31,7 @@ export function ConversationLayout() {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const { jwtFetchHandler } = useJWTFetch();
+    const { setAuthLevel } = useAuth();
 
 
     useEffect(() => {
@@ -70,15 +72,20 @@ export function ConversationLayout() {
                     return;
                 }
 
-                if (response.returnType !== "response") {
+                if (response.returnType === "loginError") {
                     errorCtx.throwError(response.error);
-                    //NO NEED TO NAV THIS RETURN TYPE MEANS THAT USERAUTH IS BEING SET TO NONE
-                    // nav(errorPageRoute, {
-                    //     replace: true,
-                    //     state: {
-                    //         error: response.error
-                    //     }
-                    // });
+                    setAuthLevel({ userType: "none" });
+                    return;
+                }
+
+                if (response.returnType === "fetchError") {
+                    errorCtx.throwError(response.error);
+                    nav(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: response.error
+                        }
+                    });
                     return;
                 }
 

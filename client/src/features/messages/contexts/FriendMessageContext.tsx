@@ -10,6 +10,7 @@ import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErr
 import { errorPageRoute } from "../../../constants/routes";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useAuth } from "../../auth/contexts/AuthContext";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -27,6 +28,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
     const nav = useNavigate();
 
     const { jwtFetchHandler } = useJWTFetch();
+    const { setAuthLevel } = useAuth();
 
     useEffect(() => {
         abortController.current?.abort();
@@ -55,11 +57,20 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
                 if (controller !== abortController.current) return;
 
-                if (response.returnType !== "response") {
+                if (response.returnType === "loginError") {
                     errorCtx.throwError(response.error);
-                    // nav(errorPageRoute, {
-                    //     state: { error: response.error }
-                    // });
+                    setAuthLevel({ userType: "none" });
+                    return;
+                }
+
+                if (response.returnType === "fetchError") {
+                    errorCtx.throwError(response.error);
+                    nav(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: response.error
+                        }
+                    });
                     return;
                 }
 

@@ -1,9 +1,6 @@
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse"
 
-export type IJWTFetchResponses<ReturnDataType> = {
-    returnType: "loginError",
-    error: ICustomErrorResponse
-} | {
-    returnType: "response",
-    data: ReturnDataType
-}
+export type IJWTFetchResponses<ReturnDataType> = 
+    | { returnType: "loginError", error: ICustomErrorResponse } 
+    | { returnType: "response", data: ReturnDataType }
+    | { returnType: "fetchError", error: ICustomErrorResponse }

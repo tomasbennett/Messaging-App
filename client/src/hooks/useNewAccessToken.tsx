@@ -146,7 +146,6 @@ export function useJWTFetch() {
                 }
                 const authFetchOptions: RequestInit = {
                     ...fetchOptions,
-                    // signal: controller?.signal,
                     headers: {
                         ...fetchOptions?.headers,
                         Authorization: `Bearer ${newAccessToken}`
@@ -162,7 +161,6 @@ export function useJWTFetch() {
 
             const authFetchOptions: RequestInit = {
                 ...fetchOptions,
-                // signal: controller?.signal,
                 headers: {
                     ...fetchOptions?.headers,
                     Authorization: `Bearer ${localStorageAccessToken}`
@@ -179,7 +177,6 @@ export function useJWTFetch() {
 
                 const retryAuthFetchOptions: RequestInit = {
                     ...fetchOptions,
-                    // signal: controller?.signal,
                     headers: {
                         ...fetchOptions?.headers,
                         Authorization: `Bearer ${newAccessToken}`
@@ -201,35 +198,29 @@ export function useJWTFetch() {
         } catch (error: unknown) {
             console.error("Error in jwtFetchHandler:", error);
 
+
             if (error instanceof Error) {
-                // errorCtx.throwError({
-                //     message: error.message,
-                //     status: 500,
-                //     ok: false
-                // });
+                const fetchError: ICustomErrorResponse = {
+                    message: error.message,
+                    status: 500,
+                    ok: false
+                };
+
                 return {
-                    returnType: "loginError",
-                    error: {
-                        message: error.message,
-                        status: 500,
-                        ok: false
-                    }
+                    returnType: "fetchError",
+                    error: fetchError
                 };
             }
 
-            // errorCtx.throwError({
-            //     message: "An unknown error occurred in jwtFetchHandler",
-            //     status: 500,
-            //     ok: false
-            // });
+            const unknownError: ICustomErrorResponse = {
+                message: "An unknown error occurred in jwtFetchHandler",
+                status: 500,
+                ok: false
+            };
 
             return {
-                returnType: "loginError",
-                error: {
-                    message: "An unknown error occurred in jwtFetchHandler",
-                    status: 500,
-                    ok: false
-                }
+                returnType: "fetchError",
+                error: unknownError
             };
 
 
