@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SendToSignInErrorHandler } from "../../../services/SendToSignInErrorHandler";
-import { NewAccessTokenRequest } from "../../../services/NewAccessTokenRequest";
 import { domain } from "../../../constants/EnvironmentAPI";
-import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { IAuthLevel } from "../models/IUseCheckAuth";
 import { useError } from "../../error/contexts/ErrorContext";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
@@ -11,6 +9,7 @@ import {  signUpPageRoute as signInPageRoute } from "../../../constants/routes";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
+import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 
 
 
@@ -26,6 +25,8 @@ export function useCheckAuth() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const { jwtFetchHandler } = useJWTFetch();
+
     useEffect(() => {
         async function checkAuth() {
 
@@ -39,7 +40,7 @@ export function useCheckAuth() {
 
                 const response = await jwtFetchHandler(`${domain}/api/auth/checkAuthLevel`, {
                     method: "GET",
-                }, navigate);
+                });
 
                 if (!response) {
                     setUserAuth({ userType: "none" });

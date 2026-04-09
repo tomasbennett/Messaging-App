@@ -14,7 +14,7 @@ import { IJWTFetchResponses } from "../models/IJWTFetchResponses";
 let refreshTokenPromise: Promise<string | null> | null = null;
 
 
-export function useNewAccessToken() {
+export function useJWTFetch() {
     const { setAuthLevel } = useAuth();
     const errorCtx = useError();
     const navigate = useNavigate();
@@ -129,7 +129,6 @@ export function useNewAccessToken() {
     async function jwtFetchHandler(
         url: string,
         fetchOptions: RequestInit,
-        controller?: AbortController
     ): Promise<IJWTFetchResponses<Response> | null> {
 
         if (!errorCtx) {
@@ -147,7 +146,7 @@ export function useNewAccessToken() {
                 }
                 const authFetchOptions: RequestInit = {
                     ...fetchOptions,
-                    signal: controller?.signal,
+                    // signal: controller?.signal,
                     headers: {
                         ...fetchOptions?.headers,
                         Authorization: `Bearer ${newAccessToken}`
@@ -163,7 +162,7 @@ export function useNewAccessToken() {
 
             const authFetchOptions: RequestInit = {
                 ...fetchOptions,
-                signal: controller?.signal,
+                // signal: controller?.signal,
                 headers: {
                     ...fetchOptions?.headers,
                     Authorization: `Bearer ${localStorageAccessToken}`
@@ -180,7 +179,7 @@ export function useNewAccessToken() {
 
                 const retryAuthFetchOptions: RequestInit = {
                     ...fetchOptions,
-                    signal: controller?.signal,
+                    // signal: controller?.signal,
                     headers: {
                         ...fetchOptions?.headers,
                         Authorization: `Bearer ${newAccessToken}`
@@ -201,12 +200,6 @@ export function useNewAccessToken() {
             
         } catch (error: unknown) {
             console.error("Error in jwtFetchHandler:", error);
-            // if (error instanceof DOMException && error.name === "AbortError") {
-            //     console.log("Fetch aborted, ignoring error");
-            //     return null;
-            // }
-
-            // setAuthLevel({ userType: "none" });
 
             if (error instanceof Error) {
                 // errorCtx.throwError({

@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Conversation.module.css";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { domain } from "../../../constants/EnvironmentAPI";
-import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { IConversationMessage, ReceiveConversationMessagesFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { InputMessageComponent } from "../components/InputMessage";
+import { MessageComponent } from "../components/Message";
+import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { errorPageRoute } from "../../../constants/routes";
 
 
 
@@ -26,6 +28,8 @@ export function ConversationLayout() {
     const nav = useNavigate();
 
     const abortControllerRef = useRef<AbortController | null>(null);
+
+    const { jwtFetchHandler } = useJWTFetch();
 
 
     useEffect(() => {
@@ -55,14 +59,26 @@ export function ConversationLayout() {
                 const response = await jwtFetchHandler(`${domain}/api/conversations/${conversationId}`, {
                     method: "GET",
                     signal: controller.signal
-                }, nav);
+                });
 
                 if (!response) {
                     return;
                 }
 
+                if (controller !== abortControllerRef.current) {
+                    console.log("Fetch aborted, ignoring response");
+                    return;
+                }
+
                 if (response.returnType !== "response") {
                     errorCtx.throwError(response.error);
+                    //NO NEED TO NAV THIS RETURN TYPE MEANS THAT USERAUTH IS BEING SET TO NONE
+                    // nav(errorPageRoute, {
+                    //     replace: true,
+                    //     state: {
+                    //         error: response.error
+                    //     }
+                    // });
                     return;
                 }
 
@@ -78,10 +94,22 @@ export function ConversationLayout() {
                 const errorResult = APIErrorSchema.safeParse(conversationJSON);
                 if (errorResult.success) {
                     errorCtx.throwError(errorResult.data);
+                    nav(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: errorResult.data
+                        }
+                    });
                     return;
                 }
 
                 errorCtx.throwError(notExpectedFormatError);
+                nav(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: notExpectedFormatError
+                    }
+                });
                 return;
 
 
@@ -94,24 +122,35 @@ export function ConversationLayout() {
 
                 if (!(error instanceof Error)) {
                     console.error("Unexpected error format:", error);
-                    errorCtx.throwError({
+                    const unknownError: ICustomErrorResponse = {
                         message: "An unexpected error occurred. Please try again.",
                         status: 500,
                         ok: false
+                    };
+                    errorCtx.throwError(unknownError);
+                    nav(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: unknownError
+                        }
                     });
                     return;
                 }
 
-                if (error.name === "AbortError") {
-                    console.log("Fetch aborted, ignoring error");
-                    return;
-                }
-
-                errorCtx.throwError({
+                const knownError: ICustomErrorResponse = {
                     message: error.message,
-                    status: 0,
+                    status: 500,
                     ok: false
+                };
+
+                errorCtx.throwError(knownError);
+                nav(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: knownError
+                    }
                 });
+                return;
 
                 //MIGHT NEED TO NAV ON ERRORS HERE AS OTHERWISE CONVERSATION PAGE WILL BE BLANK WHEN LOADING ENDS, COULD BE GOOD TO HAVE AN ERROR STATE TO EACH PAGE AS WELL???
 
@@ -130,9 +169,13 @@ export function ConversationLayout() {
 
 
         return () => {
+            //SO I NEED TO ABORT BUT ALSO HAVE NO EFFECT HAPPENING
+            //PROBABLY SHOULD PUT A FLAG HERE INSTEAD BUT THIS SHOULD WORK
+            abortControllerRef.current = null;
+            // setIsLoading(false);
+            // setConversationMessages([]);
             controller.abort();
         };
-
 
     }, [conversationId]);
 
@@ -162,10 +205,15 @@ export function ConversationLayout() {
 
                                 {
                                     conversationMessages.map((message) => (
-                                        <div key={message.messageId} className={styles.messageItem}>
-                                            <p className={styles.messageContent}>{message.content}</p>
-                                            <p className={styles.messageTimestamp}>{new Date(message.timestamp).toLocaleString()}</p>
-                                        </div>
+                                        <MessageComponent
+                                            key={message.messageId}
+                                            messageId={message.messageId}
+                                            conversationId={message.conversationId}
+                                            timestamp={message.timestamp}
+                                            content={message.content}
+                                            files={message.files}
+                                            conversationGroupType={message.conversationGroupType}
+                                        />
                                     ))
                                 }
 

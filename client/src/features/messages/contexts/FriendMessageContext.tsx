@@ -6,10 +6,10 @@ import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { useNavigate } from "react-router-dom";
 import { SendToSignInErrorHandler } from "../../../services/SendToSignInErrorHandler";
-import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { errorPageRoute } from "../../../constants/routes";
 import { LoadingCircle } from "../../../components/LoadingCircle";
+import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -26,7 +26,12 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
     const nav = useNavigate();
 
+    const { jwtFetchHandler } = useJWTFetch();
+
     useEffect(() => {
+        abortController.current?.abort();
+        const controller = new AbortController();
+        abortController.current = controller;
 
         async function fetchFriendMessages() {
 
@@ -35,27 +40,26 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 return;
             }
 
-            abortController.current?.abort();
-            const controller = new AbortController();
-            abortController.current = controller;
 
             try {
 
                 const response = await jwtFetchHandler(`${domain}/api/conversations/preview`, {
                     method: "GET",
                     signal: controller.signal
-                }, nav);
+                });
 
 
                 if (!response) {
                     return;
                 }
 
+                if (controller !== abortController.current) return;
+
                 if (response.returnType !== "response") {
                     errorCtx.throwError(response.error);
-                    nav(errorPageRoute, {
-                        state: { error: response.error }
-                    });
+                    // nav(errorPageRoute, {
+                    //     state: { error: response.error }
+                    // });
                     return;
                 }
 
@@ -102,6 +106,12 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
         }
 
         fetchFriendMessages();
+
+
+        return () => {
+            abortController.current = null;
+            controller.abort();
+        }
 
     }, []);
 
