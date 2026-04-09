@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AddMessageIcon } from "../../../assets/icons/AddMessageIcon";
 import { SidebarUserDetails } from "../components/SidebarUserDetails";
 import { ISidebarMessageHeader } from "../models/ISidebarMessageHeader";
@@ -9,12 +9,14 @@ import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/feat
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { useError } from "../../error/contexts/ErrorContext";
-import { jwtFetchHandler } from "../../../services/BasicResponseHandle";
 import { useNavigate } from "react-router-dom";
 import { ReceiveUserFrontendSchema } from "../../../../../shared/features/user/models/IFrontendUser";
 import { ReceiveFriendRequestFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
 import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
 import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
+import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useAuth } from "../../auth/contexts/AuthContext";
+import { errorPageRoute } from "../../../constants/routes";
 
 
 
@@ -42,7 +44,18 @@ export function SidebarUserDetailsList({
 
     const errorCtx = useError();
     const nav = useNavigate();
+    const { jwtFetchHandler } = useJWTFetch();
+    const { setAuthLevel } = useAuth();
 
+    const isUnmountingRef = useRef<boolean>(false);
+
+    useEffect(() => {
+        return () => {
+            isUnmountingRef.current = true;
+            abortControllerRef.current?.abort();
+        };
+    }, []);
+    
     const searchForFriends = async (searchText: string) => {
         if (searchText.trim() === "") {
             return;
@@ -63,14 +76,33 @@ export function SidebarUserDetailsList({
             const response = await jwtFetchHandler(`${domain}/api/users/search?query=${encodeURIComponent(searchText)}`, {
                 method: "GET",
                 signal: controller.signal
-            }, nav);
+            });
 
             if (!response) {
                 return;
             }
 
-            if (response.returnType !== "response") {
+            if (controller !== abortControllerRef.current) return;
+
+            if (isUnmountingRef.current === true) {
+                isUnmountingRef.current = false;
+                return;
+            }
+
+            if (response.returnType === "loginError") {
                 errorCtx.throwError(response.error);
+                setAuthLevel({ userType: "none" });
+                return;
+            }
+
+            if (response.returnType === "fetchError") {
+                errorCtx.throwError(response.error);
+                nav(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: response.error
+                    }
+                });
                 return;
             }
 

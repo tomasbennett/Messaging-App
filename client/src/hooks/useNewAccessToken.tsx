@@ -130,11 +130,6 @@ export function useJWTFetch() {
         url: string,
         fetchOptions: RequestInit,
     ): Promise<IJWTFetchResponses<Response> | null> {
-
-        if (!errorCtx) {
-            console.error("Error context is not available in useNewAccessToken");
-            return null;
-        }
         
         try {
             const localStorageAccessToken = localStorage.getItem(accessTokenLocalStorageKey);

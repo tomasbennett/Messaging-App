@@ -179,8 +179,6 @@ export function ConversationLayout() {
             //SO I NEED TO ABORT BUT ALSO HAVE NO EFFECT HAPPENING
             //PROBABLY SHOULD PUT A FLAG HERE INSTEAD BUT THIS SHOULD WORK
             abortControllerRef.current = null;
-            // setIsLoading(false);
-            // setConversationMessages([]);
             controller.abort();
         };
 

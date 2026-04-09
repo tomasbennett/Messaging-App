@@ -5,7 +5,7 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { IAuthLevel } from "../models/IUseCheckAuth";
 import { useError } from "../../error/contexts/ErrorContext";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
-import {  signUpPageRoute as signInPageRoute } from "../../../constants/routes";
+import {  errorPageRoute, signUpPageRoute as signInPageRoute } from "../../../constants/routes";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
@@ -23,7 +23,6 @@ export function useCheckAuth() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const navigate = useNavigate();
-    const location = useLocation();
 
     const { jwtFetchHandler } = useJWTFetch();
 
@@ -43,15 +42,26 @@ export function useCheckAuth() {
                 });
 
                 if (!response) {
-                    setUserAuth({ userType: "none" });
+                    // setUserAuth({ userType: "none" });
                     //SO NEW PLAN IS IF IT RETURNS NULL THEN JUST ASSUME THAT IT HAS DONE IT FOR YOU
                     //OR THIS TIME BECAUSE NO NAV NEEDS TO HAPPEN WE CAN JUST SET IT ANYWAY
                     return;
                 }
 
                 if (response.returnType === "loginError") {
-                    setUserAuth({ userType: "none" });
                     errorCtx.throwError(response.error);
+                    setUserAuth({ userType: "none" });
+                    return;
+                }
+
+                if (response.returnType === "fetchError") {
+                    errorCtx.throwError(response.error);
+                    navigate(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: response.error
+                        }
+                    });
                     return;
                 }
 
