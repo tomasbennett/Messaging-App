@@ -10,5 +10,5 @@ export type ISidebarFriendsUserDetails = {
 
 
 export type IPropsSearchForFriendsUserDetails = IUserFriendStatusRelationship & {
-    updateFriendStatus(friendId: string, status: IUserFriendStatusRelationship["friendStatus"]): void;
+    updateFriendStatus(status: IUserFriendStatusRelationship["friendStatus"]): void;
 }

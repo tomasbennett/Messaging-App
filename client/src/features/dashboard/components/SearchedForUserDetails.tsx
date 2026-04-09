@@ -5,9 +5,8 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useNavigate } from "react-router-dom";
 import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
-import { addFriend } from "../../user/services/AddFriend";
-import { removeFriend } from "../../user/services/RemoveFriend";
 import { IPropsSearchForFriendsUserDetails } from "../models/ISidebarUserDetails";
+import { useFriendStatus } from "../../user/hooks/useFriendStatus";
 
 // type ISearchedForUserDetailsProps = {
 //     userId: string;
@@ -25,110 +24,110 @@ export function SearchedForUserDetails({
     updateFriendStatus
 }: IPropsSearchForFriendsUserDetails) {
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const errorCtx = useError();
 
-    const nav = useNavigate();
+    // const handleAddFriend = async () => {
+    //     if (!errorCtx) {
+    //         console.error("Error context is not available");
+    //         return;
+    //     }
 
-    const handleAddFriend = async () => {
-        if (!errorCtx) {
-            console.error("Error context is not available");
-            return;
-        }
+    //     try {
+    //         setIsLoading(true);
 
-        try {
-            setIsLoading(true);
+    //         const addFriendResult = await addFriend(userId, nav);
 
-            const addFriendResult = await addFriend(userId, nav);
+    //         if (addFriendResult === null) {
+    //             return;
+    //         }
 
-            if (addFriendResult === null) {
-                return;
-            }
+    //         if (addFriendResult.returnType === "loginError") {
+    //             errorCtx.throwError(addFriendResult.error);
+    //             return;
+    //         }
 
-            if (addFriendResult.returnType === "loginError") {
-                errorCtx.throwError(addFriendResult.error);
-                return;
-            }
-
-            //TURN STATUS TO PENDING IN UI
-            updateFriendStatus(userId, "pending");
+    //         //TURN STATUS TO PENDING IN UI
+    //         updateFriendStatus(userId, "pending");
 
 
 
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                errorCtx.throwError({
-                    message: error.message,
-                    status: 0,
-                    ok: false
-                });
-                return;
-            }
+    //     } catch (error: unknown) {
+    //         if (error instanceof Error) {
+    //             errorCtx.throwError({
+    //                 message: error.message,
+    //                 status: 0,
+    //                 ok: false
+    //             });
+    //             return;
+    //         }
 
-            errorCtx.throwError({
-                message: "An unknown error occurred while sending the friend request.",
-                status: 0,
-                ok: false
-            });
+    //         errorCtx.throwError({
+    //             message: "An unknown error occurred while sending the friend request.",
+    //             status: 0,
+    //             ok: false
+    //         });
 
-            return;
-
-
-
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleRemoveFriend = async () => {
-        if (!errorCtx) {
-            console.error("Error context is not available");
-            return;
-        }
-
-        try {
-
-            setIsLoading(true);
-
-            const removeFriendResult = await removeFriend(userId, nav);
-
-            if (removeFriendResult === null) {
-                return;
-            }
-
-            if (removeFriendResult.returnType === "loginError") {
-                errorCtx.throwError(removeFriendResult.error);
-                return;
-            }
-
-            //TURN STATUS TO NO REQUEST SENT YET IN UI
-            updateFriendStatus(userId, "no request sent yet");
+    //         return;
 
 
 
-        } catch (error) {
-            if (error instanceof Error) {
-                errorCtx.throwError({
-                    message: error.message,
-                    status: 0,
-                    ok: false
-                });
-                return;
-            }
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
-            errorCtx.throwError({
-                message: "An unknown error occurred while removing the friend.",
-                status: 0,
-                ok: false
-            });
+    // const handleRemoveFriend = async () => {
+    //     if (!errorCtx) {
+    //         console.error("Error context is not available");
+    //         return;
+    //     }
 
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    //     try {
+
+    //         setIsLoading(true);
+
+    //         const removeFriendResult = await removeFriend(userId, nav);
+
+    //         if (removeFriendResult === null) {
+    //             return;
+    //         }
+
+    //         if (removeFriendResult.returnType === "loginError") {
+    //             errorCtx.throwError(removeFriendResult.error);
+    //             return;
+    //         }
+
+    //         //TURN STATUS TO NO REQUEST SENT YET IN UI
+    //         updateFriendStatus(userId, "no request sent yet");
 
 
+
+    //     } catch (error) {
+    //         if (error instanceof Error) {
+    //             errorCtx.throwError({
+    //                 message: error.message,
+    //                 status: 0,
+    //                 ok: false
+    //             });
+    //             return;
+    //         }
+
+    //         errorCtx.throwError({
+    //             message: "An unknown error occurred while removing the friend.",
+    //             status: 0,
+    //             ok: false
+    //         });
+
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+    const {
+        isLoading,
+        addFriend: handleAddFriend,
+        removeFriend: handleRemoveFriend
+    } = useFriendStatus(userId, updateFriendStatus);
 
     return (
         <div className={styles.outerContainer}>
@@ -160,30 +159,50 @@ export function SearchedForUserDetails({
 
                         friendStatus === "no request sent yet" ?
 
+                            <div className={styles.addFriendContainer}>
 
-                            <button onClick={handleAddFriend} className={styles.addFriendBtn} type="button">
                                 {
                                     isLoading ?
                                         <LoadingCircle height="90%" />
+
                                         :
 
-                                        "Add Friend"
+                                        <button onClick={handleAddFriend} className={styles.addFriendBtn} type="button">
+                                            {
+
+                                                "Add Friend"
+                                            }
+                                        </button>
+
                                 }
-                            </button>
+                            </div>
+
+
 
                             :
 
                             friendStatus === "accepted" ?
 
-                                <button onClick={handleRemoveFriend} className={styles.removeFriendBtn} type="button">
+                                <div className={styles.removeFriendContainer}>
+
                                     {
                                         isLoading ?
                                             <LoadingCircle height="90%" />
+
                                             :
 
-                                            "Remove Friend"
+                                            <button onClick={handleRemoveFriend} className={styles.removeFriendBtn} type="button">
+                                                {
+
+                                                    "Remove Friend"
+                                                }
+                                            </button>
+
                                     }
-                                </button>
+
+                                </div>
+
+
 
 
                                 :
