@@ -8,8 +8,9 @@ import { ISignInError } from "../../../shared/features/auth/models/ILoginSchema"
 import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAccessTokenResponse";
 import { CreateAccessToken } from "./CreateAccessToken";
 import { refreshTokenCookieKey } from "../constants/constants";
+import { ILoginRegisterSuccessUserInfoSchema } from "../../../shared/features/auth/models/ILoginSuccessUserInfo";
 
-export async function issueSignedInResponse(user: User, res: Response<ISignInError | IAccessTokenResponse>) {
+export async function issueSignedInResponse(user: User, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>) {
     try {
         const accessToken = CreateAccessToken(user);
     
@@ -43,7 +44,9 @@ export async function issueSignedInResponse(user: User, res: Response<ISignInErr
                 message: "Login successful",
                 ok: true,
                 status: 200,
-                accessToken
+                accessToken,
+                userId: user.id,
+                username: user.username
             });
 
 

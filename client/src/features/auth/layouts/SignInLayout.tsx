@@ -8,6 +8,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { ISignInError, SignInErrorSchema, ILoginForm, loginFormSchema } from "../../../../../shared/features/auth/models/ILoginSchema";
 import { ISignInContext } from "../models/ISignInContext";
 import { homePageRoute } from "../../../constants/routes";
+import { LoginRegisterSuccessUserInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
+import { useAuth } from "../contexts/AuthContext";
 
 
 export function SignInLayout() {
@@ -46,12 +48,12 @@ export function SignInLayout() {
 
     }, []);
 
-    
-    
 
-    
-    
-    
+
+
+
+
+
     const {
         register,
         handleSubmit,
@@ -64,8 +66,8 @@ export function SignInLayout() {
         reValidateMode: "onChange",
         errors: defaultErrors
     });
-    
-    
+
+
 
     const prevPathRef = useRef(location.pathname);
 
@@ -75,6 +77,11 @@ export function SignInLayout() {
             prevPathRef.current = location.pathname;
         }
     }, [location.pathname, clearErrors]);
+
+
+    const {
+        setAuthLevel
+    } = useAuth();
 
 
     const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
@@ -88,43 +95,48 @@ export function SignInLayout() {
                 body: JSON.stringify(data)
             });
 
-            if (response.ok) {
+            const responseData = await response.json();
+            const responseDataResult = LoginRegisterSuccessUserInfoSchema.safeParse(responseData);
+
+            if (responseDataResult.success && response.ok) {
+                setAuthLevel({
+                    userType: "user",
+                    userId: responseDataResult.data.userId,
+                    username: responseDataResult.data.username
+                });
                 navigate(homePageRoute, { replace: true });
                 return;
+            }
+
+
+            const errorResult = SignInErrorSchema.safeParse(responseData);
+            if (errorResult.success) {
+                setError(errorResult.data.inputType, {
+                    type: "server",
+                    message: errorResult.data.message
+                });
 
             } else {
-                const responseData = await response.json();
-                const errorResult = SignInErrorSchema.safeParse(responseData);
-
-                if (errorResult.success) {
-                    setError(errorResult.data.inputType, { 
-                        type: "server", 
-                        message: errorResult.data.message 
-                    });
-
-                } else {
-                    setError("root", { 
-                        type: "server", 
-                        message: "An unknown error occurred." 
-                    }); //PLEASE DON'T FORGET FOR LATER PROJECTS THAT root CAN HAVE ADDITIONAL PROPERTIES ATTACHED TO IT FOR CUSTOM ERRORS IF YOU HAVE A SERVER ERROR UNRELATED TO THE USER INPUTS LIKE root.serverError
-
-                }
+                setError("root", {
+                    type: "server",
+                    message: "An unknown error occurred."
+                }); //PLEASE DON'T FORGET FOR LATER PROJECTS THAT root CAN HAVE ADDITIONAL PROPERTIES ATTACHED TO IT FOR CUSTOM ERRORS IF YOU HAVE A SERVER ERROR UNRELATED TO THE USER INPUTS LIKE root.serverError
 
             }
 
         } catch (error: unknown) {
 
             if (error instanceof Error) {
-                setError("root", { 
-                    type: "server", 
-                    message: error.message || "An error occurred while connecting to the server." 
+                setError("root", {
+                    type: "server",
+                    message: error.message || "An error occurred while connecting to the server."
                 });
                 return;
             }
 
-            setError("root", { 
-                type: "server", 
-                message: "Failed to connect to the server." 
+            setError("root", {
+                type: "server",
+                message: "Failed to connect to the server."
             });
 
         }

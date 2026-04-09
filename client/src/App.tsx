@@ -8,6 +8,7 @@ import { ErrorPageLayout } from './features/error/layouts/ErrorLayout'
 import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 import { ErrorProvider } from './features/error/contexts/ErrorContext'
 import { DashboardApp } from './features/dashboard/app'
+import { AuthProvider } from './features/auth/contexts/AuthContext'
 
 
 const router = createBrowserRouter([
@@ -65,11 +66,15 @@ function App() {
 
   return (
     <>
-    <ErrorProvider>
+      <ErrorProvider>
 
-        <RouterProvider router={router} />
-      
-    </ErrorProvider>
+        <AuthProvider>
+
+          <RouterProvider router={router} />
+
+        </AuthProvider>
+
+      </ErrorProvider>
 
     </>
   )

@@ -9,13 +9,18 @@ import { useError } from "../../error/contexts/ErrorContext";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import {  signUpPageRoute as signInPageRoute } from "../../../constants/routes";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
+import { useAuth } from "../contexts/AuthContext";
 
 
 
 export function useCheckAuth() {
     const errorCtx = useError();
 
-    const [userAuth, setUserAuth] = useState<IAuthLevel>({ userType: "none" });
+    const {
+        authLevel: userAuth,
+        setAuthLevel: setUserAuth
+    } = useAuth();
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const navigate = useNavigate();
@@ -38,6 +43,8 @@ export function useCheckAuth() {
 
                 if (!response) {
                     setUserAuth({ userType: "none" });
+                    //SO NEW PLAN IS IF IT RETURNS NULL THEN JUST ASSUME THAT IT HAS DONE IT FOR YOU
+                    //OR THIS TIME BECAUSE NO NAV NEEDS TO HAPPEN WE CAN JUST SET IT ANYWAY
                     return;
                 }
 
@@ -49,10 +56,14 @@ export function useCheckAuth() {
 
                 const authLevelRes = response.data;
                 const authLevelJSON = await authLevelRes.json();
-                const authLevelUserResult = .safeParse(authLevelJSON);
+                const authLevelUserResult = ReceiveUserAuthContextInfoSchema.safeParse(authLevelJSON);
 
                 if (authLevelRes.status === 200 && authLevelUserResult.success) {
-                    setUserAuth("user");
+                    setUserAuth({
+                        userType: "user",
+                        userId: authLevelUserResult.data.userId,
+                        username: authLevelUserResult.data.username,
+                    });
                     return;
                 }
 

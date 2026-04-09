@@ -16,13 +16,14 @@ import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAcce
 import { issueSignedInResponse } from "../auth/IssueSignedInResponse";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { refreshTokenCookieKey } from "../constants/constants";
+import { ILoginRegisterSuccessUserInfoSchema } from "../../../shared/features/auth/models/ILoginSuccessUserInfo";
 
 
 
 export const router = Router();
 
 
-router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | IAccessTokenResponse>, next: NextFunction) => {
+router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>, next: NextFunction) => {
     const { username, password } = req.body;
 
     const usernameResult = usernamePasswordSchema.safeParse(username);
@@ -80,7 +81,7 @@ router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISi
 });
 
 
-router.post("/register", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | IAccessTokenResponse>, next: NextFunction) => {
+router.post("/register", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>, next: NextFunction) => {
     const { username, password } = req.body;
 
     const usernameResult = usernamePasswordSchema.safeParse(username);
