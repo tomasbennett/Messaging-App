@@ -9,6 +9,7 @@ import { ConversationGroupSingleUnionSchema } from "../discriminatedUnion/IGroup
 
 export const ConversationMessageSchema = z.object({
     messageId: z.string().min(1, { message: "Message ID is required" }),
+    senderId: z.string().min(1, { message: "Sender ID is required" }),
     conversationId: z.string().min(1, { message: "Conversation ID is required" }),  
     timestamp: DateFromStringSchema,
     conversationGroupType: ConversationGroupSingleUnionSchema,

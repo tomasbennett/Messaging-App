@@ -7,32 +7,32 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 export function InputMessageComponent() {
 
-    const {
-        handleSubmit,
-        formState: { errors },
-        register,
-        setError,
+    // const {
+    //     handleSubmit,
+    //     formState: { errors },
+    //     register,
+    //     setError,
         
-    } = useForm({
-        resolver: zodResolver()
-    });
+    // } = useForm({
+    //     resolver: zodResolver()
+    // });
 
 
-    const onSubmit = async (data) => {
+    // const onSubmit = async (data) => {
 
-    }
+    // }
 
     return (
         <>
 
             <div className={styles.outerContainer}>
-                <form onSubmit={handleSubmit(onSubmit)} className={styles.formContainer}>
+                {/* <form onSubmit={handleSubmit(onSubmit)} className={styles.formContainer}> */}
 
                     <input type="text" placeholder="Type your message..." className={styles.inputField} />
 
                     <button type="submit" className={styles.sendButton}>Send</button>
 
-                </form>
+                {/* </form> */}
             </div>
 
 

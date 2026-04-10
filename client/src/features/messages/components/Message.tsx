@@ -2,6 +2,11 @@ import { FileIcon } from "../../../assets/icons/FileIcon";
 import { IPropsMessageComponent } from "../models/IPropsMessage";
 import styles from "./Message.module.css";
 import defaultUserProfileImg from "../../../assets/DEFAULT_USER_IMG.png"
+import { useAuth } from "../../auth/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import { logInPageRoute } from "../../../constants/routes";
+import { useError } from "../../error/contexts/ErrorContext";
+import { useMemo } from "react";
 
 
 
@@ -11,17 +16,47 @@ export function MessageComponent({
     timestamp,
     content,
     files,
+    senderId,
     conversationGroupType
 }: IPropsMessageComponent) {
 
 
+    const { authLevel } = useAuth();
+
+    const errorCtx = useError();
+
+    if (authLevel.userType === "none") {
+        errorCtx?.throwError({
+            message: "You must be logged in to view messages. Please log in and try again.",
+            status: 401,
+            ok: false
+        });
+
+        return (
+            <Navigate to={logInPageRoute} replace={true} />
+        )
+    }
+
+
+    const isOwnMessage = useMemo<boolean>(() => { return authLevel.userId === senderId; }, [senderId, authLevel.userId]);
+
+    const messageContainerClassName = useMemo<string>(() => {
+        let baseClass = styles.outerContainer;
+
+        if (isOwnMessage) {
+            baseClass += ` ${styles.ownMessage}`;
+        } else {
+            baseClass += ` ${styles.otherMessage}`;
+        }
+
+        return baseClass;
+    }, [isOwnMessage]);
 
     return (
         <>
 
 
-            <div className={styles.outerContainer}>
-
+            <div className={messageContainerClassName}>
 
                 {
                     conversationGroupType.type === "group" &&

@@ -218,6 +218,7 @@ export function ConversationLayout() {
                                             content={message.content}
                                             files={message.files}
                                             conversationGroupType={message.conversationGroupType}
+                                            senderId={message.senderId}
                                         />
                                     ))
                                 }

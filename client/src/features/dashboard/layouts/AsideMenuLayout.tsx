@@ -53,19 +53,6 @@ export function AsideMenuLayout({
                 <aside className={styles.aside}>
                     <ul className={styles.menuOptionsList}>
 
-                        {/* <li className={styles.menuOption}>
-                            <NavLink className={
-                                ({ isActive }) => isActive ? styles.activeMenuOption : styles.inactiveMenuOption
-                            } to={homePageRoute} replace={true} >
-
-                                <div className={styles.menuOptionSVGContainer}>
-
-                                </div>
-                            
-                            </NavLink>
-
-                        </li> */}
-
                         <AsideMenuOption 
                             navigateTo={homePageRoute}
                             label={"Messages"}
@@ -74,9 +61,6 @@ export function AsideMenuLayout({
                                 unreadMessagesCount > 0 ? unreadMessagesCount : undefined
                             }
                             />
-
-
-
 
 
                     </ul>
