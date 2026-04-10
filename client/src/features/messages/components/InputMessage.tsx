@@ -35,8 +35,6 @@ export function InputMessageComponent() {
                 {/* </form> */}
             </div>
 
-
-
         </>
     )
 }

@@ -1,15 +1,12 @@
 import z from "zod";
 import { allowedTypes, maxFileSizeInBytes } from "../../files/constants";
-
+import { FileArrayPropertiesSchema } from "../../files/models/IFileArray";
 
 
 
 export const MessageContentURLSchema = z.object({
     content: z.string().optional(),
-    files: z.array(z.object({
-        fileUrl: z.string(),
-        fileId: z.string(),
-    })).optional(),
+    files: z.array(FileArrayPropertiesSchema).optional(),
 }).superRefine((data, ctx) => {
     const hasContent = !!data.content && data.content.trim() !== "";
     const hasFileUrls = !!data.files && Array.isArray(data.files) && data.files.length > 0;

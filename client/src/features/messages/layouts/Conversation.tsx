@@ -217,7 +217,6 @@ export function ConversationLayout() {
                                     conversationId={conversationHeaderInfo.conversationId}
                                     name={conversationHeaderInfo.name}
                                     groupChatProfilePicture={conversationHeaderInfo.groupChatProfilePicture}
-                                    createdAt={conversationHeaderInfo.createdAt}
                                 />
                             }
 

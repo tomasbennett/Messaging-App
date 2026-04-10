@@ -8,7 +8,6 @@ export function ConversationHeader({
     conversationId,
     name,
     groupChatProfilePicture,
-    createdAt
 }: IPropsConversationHeaderComponent) {
 
     return (

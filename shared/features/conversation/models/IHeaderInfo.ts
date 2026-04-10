@@ -8,7 +8,6 @@ export const ConversationHeaderInfoSchema = ReceiveConversationFrontendSchema.pi
     conversationId: true,
     name: true,
     groupChatProfilePicture: true,
-    createdAt: true,
 });
 
 
