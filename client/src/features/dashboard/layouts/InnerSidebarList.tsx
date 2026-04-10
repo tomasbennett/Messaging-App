@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { AddMessageIcon } from "../../../assets/icons/AddMessageIcon";
-import { SidebarUserDetails } from "../components/SidebarUserDetails";
+import { SidebarUserDetails } from "../components/SidebarConversationDetails";
 import { ISidebarMessageHeader } from "../models/ISidebarMessageHeader";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
-import styles from "./SidebarUserDetailsList.module.css";
+import styles from "./InnerSidebarList.module.css";
 import { useSidebarHeaderMode } from "../hooks/useSidebarHeaderMode";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";

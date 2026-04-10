@@ -5,13 +5,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
-import { IConversationMessage, ReceiveConversationMessagesFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
+import { IConversationMessage, ReceiveConversationMessagesAndHeaderInfoFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { InputMessageComponent } from "../components/InputMessage";
 import { MessageComponent } from "../components/Message";
 import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 import { errorPageRoute } from "../../../constants/routes";
 import { useAuth } from "../../auth/contexts/AuthContext";
+import { UserCogsIcon } from "../../../assets/icons/UserCogsIcon";
+import { ConversationHeader } from "../components/ConversationHeader";
+import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
 
 
 
@@ -23,6 +26,7 @@ export function ConversationLayout() {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([]);
+    const [conversationHeaderInfo, setConversationHeaderInfo] = useState<IConversationHeaderInfo | null>(null);
 
     const errorCtx = useError();
 
@@ -92,9 +96,10 @@ export function ConversationLayout() {
                 const conversationResponse = response.data;
                 const conversationJSON = await conversationResponse.json();
 
-                const conversationDataResult = ReceiveConversationMessagesFrontendSchema.safeParse(conversationJSON);
+                const conversationDataResult = ReceiveConversationMessagesAndHeaderInfoFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
                     setConversationMessages(conversationDataResult.data.messages);
+                    setConversationHeaderInfo(conversationDataResult.data.headerInfo);
                     return;
                 }
 
@@ -203,31 +208,52 @@ export function ConversationLayout() {
 
                         :
 
+                        <>
 
-                        conversationMessages.length > 0 ?
+                    
+                            {
+                                conversationHeaderInfo &&
+                                <ConversationHeader
+                                    conversationId={conversationHeaderInfo.conversationId}
+                                    name={conversationHeaderInfo.name}
+                                    groupChatProfilePicture={conversationHeaderInfo.groupChatProfilePicture}
+                                    createdAt={conversationHeaderInfo.createdAt}
+                                />
+                            }
 
-                            <div className={styles.messagesContainer}>
 
+                            <div className={styles.conversationContentsContainer}>
                                 {
-                                    conversationMessages.map((message) => (
-                                        <MessageComponent
-                                            key={message.messageId}
-                                            messageId={message.messageId}
-                                            conversationId={message.conversationId}
-                                            timestamp={message.timestamp}
-                                            content={message.content}
-                                            files={message.files}
-                                            conversationGroupType={message.conversationGroupType}
-                                            senderId={message.senderId}
-                                        />
-                                    ))
-                                }
+                                    conversationMessages.length > 0 ?
 
+                                        <div className={styles.messagesContainer}>
+
+                                            {
+                                                conversationMessages.map((message) => (
+                                                    <MessageComponent
+                                                        key={message.messageId}
+                                                        messageId={message.messageId}
+                                                        conversationId={message.conversationId}
+                                                        timestamp={message.timestamp}
+                                                        content={message.content}
+                                                        files={message.files}
+                                                        conversationGroupType={message.conversationGroupType}
+                                                        senderId={message.senderId}
+                                                    />
+                                                ))
+                                            }
+
+                                        </div>
+
+                                        :
+
+                                        <p className={styles.noMessagesText}>No messages in this conversation yet. Start the conversation by sending a message!</p>
+                                }
                             </div>
 
-                            :
+                        </>
 
-                            <p className={styles.noMessagesText}>No messages in this conversation yet. Start the conversation by sending a message!</p>
+
                 }
 
             </div>

@@ -1,4 +1,4 @@
-import styles from "./SearchedForUserDetails.module.css";
+import styles from "./SearchedForFriendReq.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { useState } from "react";
 import { LoadingCircle } from "../../../components/LoadingCircle";

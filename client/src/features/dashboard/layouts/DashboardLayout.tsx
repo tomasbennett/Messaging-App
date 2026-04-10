@@ -145,45 +145,45 @@
 
 import { useEffect, useState } from "react";
 import styles from "./DashboardLayout.module.css";
-import { SidebarUserDetailsList } from "./SidebarUserDetailsList";
+import { SidebarUserDetailsList } from "./InnerSidebarList";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useError } from "../../error/contexts/ErrorContext";
-import { useFriendMessageContext } from "../../messages/contexts/FriendMessageContext";
+import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 
 
 export function DashboardLayout() {
-  const [friendsDetailsList, setFriendsDetailsList] = useState<ISidebarFriendsUserDetails[]>([]);
+  // const [friendsDetailsList, setFriendsDetailsList] = useState<ISidebarFriendsUserDetails[]>([]);
 
   const errorContext = useError();
 
   useEffect(() => {
     // Mock data for friends details list
-    const mockFriendsDetails: ISidebarFriendsUserDetails[] = [
-      {
-        conversationId: "1",
-        conversationProfilePictureUrl: undefined,
-        conversationName: "Alice",
-        lastMessage: "Hey, how are you?",
-        lastMessageTimestamp: new Date()
-      },
-      {
-        conversationId: "2",
-        conversationProfilePictureUrl: undefined,
-        conversationName: "Bob",
-        lastMessage: "Are we still on for tomorrow?",
-        lastMessageTimestamp: new Date()
-      },
-      {
-        conversationId: "3",
-        conversationProfilePictureUrl: undefined,
-        conversationName: "Charlie",
-        lastMessage: "Check out this cool link!",
-        lastMessageTimestamp: new Date()
-      }
-    ];
+    // const mockFriendsDetails: ISidebarFriendsUserDetails[] = [
+    //   {
+    //     conversationId: "1",
+    //     conversationProfilePictureUrl: undefined,
+    //     conversationName: "Alice",
+    //     lastMessage: "Hey, how are you?",
+    //     lastMessageTimestamp: new Date()
+    //   },
+    //   {
+    //     conversationId: "2",
+    //     conversationProfilePictureUrl: undefined,
+    //     conversationName: "Bob",
+    //     lastMessage: "Are we still on for tomorrow?",
+    //     lastMessageTimestamp: new Date()
+    //   },
+    //   {
+    //     conversationId: "3",
+    //     conversationProfilePictureUrl: undefined,
+    //     conversationName: "Charlie",
+    //     lastMessage: "Check out this cool link!",
+    //     lastMessageTimestamp: new Date()
+    //   }
+    // ];
 
-    setFriendsDetailsList(mockFriendsDetails);
+    // setFriendsDetailsList(mockFriendsDetails);
 
     if (errorContext) {
       errorContext.throwError({
@@ -213,13 +213,13 @@ export function DashboardLayout() {
       {
         isFriendConversationsLoading ?
 
-          <LoadingCircle height="6rem" />
+          <LoadingCircle height="4rem" />
 
           :
 
           <div className={styles.outerContainer}>
 
-            <SidebarUserDetailsList userDetailsList={friendsDetailsList} />
+            <SidebarUserDetailsList userDetailsList={friendMessages} />
 
           </div>
       }

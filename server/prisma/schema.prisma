@@ -139,5 +139,5 @@ model RefreshToken {
   userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
 
-  expiresAt DateTime
+  // expiresAt DateTime
 }

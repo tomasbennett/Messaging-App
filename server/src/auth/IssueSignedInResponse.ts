@@ -28,7 +28,7 @@ export async function issueSignedInResponse(user: User, res: Response<ISignInErr
             data: {
                 token: refreshTokenHash,
                 userId: user.id,
-                expiresAt: new Date(Date.now() + expiry)
+                // expiresAt: new Date(Date.now() + expiry)
             }
         });
     
@@ -37,7 +37,7 @@ export async function issueSignedInResponse(user: User, res: Response<ISignInErr
                 httpOnly: true,
                 secure: environment === "PROD",
                 sameSite: environment === "PROD" ? "none" : "lax",
-                maxAge: expiry
+                // maxAge: expiry
             })
             .status(200)
             .json({
@@ -50,7 +50,7 @@ export async function issueSignedInResponse(user: User, res: Response<ISignInErr
             });
 
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error issuing signed-in response:", error);
         if (error instanceof Error) {
             return res.status(500).json({

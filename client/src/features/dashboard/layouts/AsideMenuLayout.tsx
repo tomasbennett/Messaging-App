@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { homePageRoute } from "../../../constants/routes";
 import { AsideMenuOption } from "../components/AsideMenuOption";
 import { MessageIcon } from "../../../assets/icons/MessageIcon";
-import { useFriendMessageContext } from "../../messages/contexts/FriendMessageContext";
+import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
 import { useMemo } from "react";
 
 interface IAsideMenuLayoutProps {

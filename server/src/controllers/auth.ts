@@ -66,21 +66,21 @@ router.get("/grantNewAccessToken", async (req: Request, res: Response<ICustomErr
             });
         }
 
-        if (dbRefreshToken.expiresAt.getTime() < Date.now()) {
-            const delRefreshToken = await prisma.refreshToken.delete({
-                where: {
-                    id: dbRefreshToken.id
-                }
-            });
+        // if (dbRefreshToken.expiresAt.getTime() < Date.now()) {
+        //     const delRefreshToken = await prisma.refreshToken.delete({
+        //         where: {
+        //             id: dbRefreshToken.id
+        //         }
+        //     });
 
             
 
-            return res.status(invalidRefreshTokenStatus).json({
-                ok: false,
-                status: invalidRefreshTokenStatus,
-                message: "Refresh token expired!!!"
-            });
-        }
+        //     return res.status(invalidRefreshTokenStatus).json({
+        //         ok: false,
+        //         status: invalidRefreshTokenStatus,
+        //         message: "Refresh token expired!!!"
+        //     });
+        // }
 
 
 

@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 
 import session from "express-session";
 import passport from "passport";
-
+import cookieParser from "cookie-parser";
 
 import { apiRouter as apiRouter } from "./controllers/routes";
 
@@ -17,11 +17,9 @@ import { Server, Socket } from "socket.io";
 
 // import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
-import { IReceiveMessage } from "../../shared/features/message/models/IFrontendMessages";
 import { APIErrorSchema, ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
 import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/features/message/constants";
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
-import { SendMessageFrontendSchema } from "../../shared/features/message/models/IBackendMessages";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -48,26 +46,26 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(CLIENT_DIST));
+app.use(cookieParser());
+
+
+// app.use(session({
+//   name: "session-id",
+//   secret: process.env.COOKIE_SECRET_NAME || "default_secret",
+//   resave: false,
+//   saveUninitialized: false,
+//   proxy: environment === "PROD" ? true : false,
+//   cookie: {
+//     httpOnly: true,
+//     secure: environment === "PROD",
+//     sameSite: environment === "PROD" ? "none" : "lax",
+//   },
+// }));
 
 
 
-app.use(session({
-  name: "session-id",
-  secret: process.env.COOKIE_SECRET_NAME || "default_secret",
-  resave: false,
-  saveUninitialized: false,
-  proxy: environment === "PROD" ? true : false,
-  cookie: {
-    httpOnly: true,
-    secure: environment === "PROD",
-    sameSite: environment === "PROD" ? "none" : "lax",
-  },
-}));
-
-
-
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 
 
@@ -121,41 +119,41 @@ const io = new Server(server, {
 io.on("connection", (socket: Socket) => {
   console.log("A user connected: " + socket.id);
 
-  socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
-    const result = SendMessageFrontendSchema.safeParse(data);
-    if (!result.success) {
-      console.error("Invalid message data: ", result.error);
-      return ack({
-        status: 400,
-        message: result.error.issues.map(e => e.message).join(", "),
-        ok: false
-      });
-    }
+  // socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
+  //   const result = SendMessageFrontendSchema.safeParse(data);
+  //   if (!result.success) {
+  //     console.error("Invalid message data: ", result.error);
+  //     return ack({
+  //       status: 400,
+  //       message: result.error.issues.map(e => e.message).join(", "),
+  //       ok: false
+  //     });
+  //   }
 
-    const { content } = result.data;
+  //   const { content } = result.data;
 
-    console.log("Received message: " + content);
-    const emitData: IReceiveMessage = {
-      content,
-      timestamp: new Date(),
-    };
+  //   console.log("Received message: " + content);
+  //   const emitData: IReceiveMessage = {
+  //     content,
+  //     timestamp: new Date(),
+  //   };
 
-    io.emit(SOCKET_CHAT_RECEIVE_EVENT, emitData);
+  //   io.emit(SOCKET_CHAT_RECEIVE_EVENT, emitData);
 
-    return ack({
-      status: 200,
-      message: "Message sent successfully" + " with content: " + content,
-      ok: true
-    });
+  //   return ack({
+  //     status: 200,
+  //     message: "Message sent successfully" + " with content: " + content,
+  //     ok: true
+  //   });
 
-  });
+  // });
 
 
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected: " + socket.id);
+  // socket.on("disconnect", () => {
+  //   console.log("A user disconnected: " + socket.id);
 
-  });
+  // });
 
 
 
