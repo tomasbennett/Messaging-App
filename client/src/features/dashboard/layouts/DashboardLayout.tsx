@@ -152,7 +152,9 @@ import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendCo
 import { LoadingCircle } from "../../../components/LoadingCircle";
 
 
-export function DashboardLayout() {
+export function DashboardLayout({
+  children
+}: { children: React.ReactNode }) {
   // const [friendsDetailsList, setFriendsDetailsList] = useState<ISidebarFriendsUserDetails[]>([]);
 
   const errorContext = useError();
@@ -220,6 +222,10 @@ export function DashboardLayout() {
           <div className={styles.outerContainer}>
 
             <SidebarUserDetailsList userDetailsList={friendMessages} />
+
+            {
+              children
+            }
 
           </div>
       }

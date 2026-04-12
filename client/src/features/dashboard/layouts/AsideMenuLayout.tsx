@@ -1,6 +1,6 @@
 import styles from "./AsideMenuLayout.module.css";
 import githubImage from "../../../assets/github-profile-image.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { homePageRoute } from "../../../constants/routes";
 import { AsideMenuOption } from "../components/AsideMenuOption";
 import { MessageIcon } from "../../../assets/icons/MessageIcon";
