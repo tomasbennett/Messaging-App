@@ -18,7 +18,7 @@ const AuthContext = createContext<IAuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [authLevel, setAuthLevel] = useState<IAuthLevel>({
-        userType: "none"
+        userType: "unknown"
     });
     
     const ctx: IAuthContextType = {

@@ -11,24 +11,38 @@ import { notExpectedFormatError } from "../constants/errorConstants";
 import { IJWTFetchResponses } from "../models/IJWTFetchResponses";
 
 
-let refreshTokenPromise: Promise<string | null> | null = null;
+let refreshTokenPromise: Promise<IJWTFetchResponses<string>> | null = null;
 
 
 export function useJWTFetch() {
-    const { setAuthLevel } = useAuth();
+    // const { setAuthLevel } = useAuth();
     const errorCtx = useError();
     const navigate = useNavigate();
 
 
-    async function refreshAccessToken(): Promise<string | null> {
+    async function refreshAccessToken(): Promise<IJWTFetchResponses<string>> {
         if (refreshTokenPromise) {
             return refreshTokenPromise;
         }
 
         refreshTokenPromise = (async () => {
             if (!errorCtx) {
-                console.error("Error context is not available in useNewAccessToken");
-                return null;
+                console.error("Error context is not available in refreshAccessToken");
+                const errorResponse: ICustomErrorResponse = {
+                    ok: false,
+                    status: 500,
+                    message: "Error context is not available in refreshAccessToken"
+                };
+                navigate(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: errorResponse
+                    }
+                });
+                return {
+                    returnType: "fetchError",
+                    error: errorResponse
+                };
             }
 
             try {
@@ -41,14 +55,15 @@ export function useJWTFetch() {
                     //USER NEEDS TO SIGN IN AGAIN
                     // navigate(logInPageRoute, { replace: true });
                     // IF WE ARE ON THE LOGIN PAGE AND GET A 401 THROUGH CHECKAUTH THEN IT MAY CREATE AN INFINITE LOOP TO NAV BACK TO LOGIN PAGE HERE
-                    setAuthLevel({ userType: "none" });
-                    errorCtx.throwError({
-                        message: "Your session has expired. Please sign in again!!!",
-                        status: invalidRefreshTokenStatus,
-                        ok: false
-                    });
 
-                    return null;
+                    return {
+                        returnType: "loginError",
+                        error: {
+                            ok: false,
+                            status: invalidRefreshTokenStatus,
+                            message: "No session detected!!!"
+                        }
+                    };
                 }
 
                 if (newAccessTokenReq.status >= 500 && newAccessTokenReq.status <= 599) {
@@ -57,13 +72,17 @@ export function useJWTFetch() {
                         status: newAccessTokenReq.status,
                         message: "A server error occurred. Please try again later!!!"
                     };
+                    errorCtx.throwError(serverError);
                     navigate(errorPageRoute, {
                         replace: true,
                         state: {
                             error: serverError
                         }
                     });
-                    return null;
+                    return {
+                        returnType: "fetchError",
+                        error: serverError
+                    };
                 }
 
 
@@ -72,16 +91,26 @@ export function useJWTFetch() {
                 const accessTokenResult = AccessTokenResponseSchema.safeParse(accessTokenJSON);
                 if (accessTokenResult.success) {
                     localStorage.setItem(accessTokenLocalStorageKey, accessTokenResult.data.accessToken);
-                    return accessTokenResult.data.accessToken;
+                    return {
+                        returnType: "response",
+                        data: accessTokenResult.data.accessToken
+                    };
                 }
 
                 const apiCustomErrorResult = APIErrorSchema.safeParse(accessTokenJSON);
                 if (apiCustomErrorResult.success) {
-
-                    setAuthLevel({ userType: "none" });
+                    navigate(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: apiCustomErrorResult.data
+                        }
+                    });
                     errorCtx.throwError(apiCustomErrorResult.data);
 
-                    return null;
+                    return {
+                        returnType: "fetchError",
+                        error: apiCustomErrorResult.data
+                    };
                 }
 
 
@@ -90,30 +119,56 @@ export function useJWTFetch() {
                         error: notExpectedFormatError
                     }
                 });
-                return null;
+                errorCtx.throwError(notExpectedFormatError);
+                return {
+                    returnType: "fetchError",
+                    error: notExpectedFormatError
+                };
 
 
 
             } catch (error: unknown) {
                 console.error("Error refreshing access token:", error);
-                setAuthLevel({ userType: "none" });
 
                 if (error instanceof Error) {
-                    errorCtx.throwError({
-                        message: error.message,
-                        status: 500,
-                        ok: false
+                    const fetchError: ICustomErrorResponse = {
+                        ok: false,
+                        status: 0,
+                        message: error.message
+                    };
+                    navigate(errorPageRoute, {
+                        replace: true,
+                        state: {
+                            error: fetchError
+                        }
                     });
-                    return null;
+                    errorCtx.throwError(fetchError);
+
+                    return {
+                        returnType: "fetchError",
+                        error: fetchError
+                    };
                 }
 
-                errorCtx.throwError({
-                    message: "An unknown error occurred while refreshing access token",
-                    status: 500,
-                    ok: false
+                const unknownError: ICustomErrorResponse = {
+                    ok: false,
+                    status: 0,
+                    message: "An unknown error occurred while refreshing access token."
+                };
+
+                errorCtx.throwError(unknownError);
+
+                navigate(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: unknownError
+                    }
                 });
 
-                return null;
+                return {
+                    returnType: "fetchError",
+                    error: unknownError
+                };
 
             } finally {
                 refreshTokenPromise = null;
@@ -129,15 +184,34 @@ export function useJWTFetch() {
     async function jwtFetchHandler(
         url: string,
         fetchOptions: RequestInit,
-    ): Promise<IJWTFetchResponses<Response> | null> {
+    ): Promise<IJWTFetchResponses<Response>> {
+
+        if (!errorCtx) {
+            console.error("Error context is not available in jwtFetchHandler");
+            const errorResponse: ICustomErrorResponse = {
+                ok: false,
+                status: 500,
+                message: "Error context is not available in jwtFetchHandler"
+            };
+            navigate(errorPageRoute, {
+                replace: true,
+                state: {
+                    error: errorResponse
+                }
+            });
+            return {
+                returnType: "fetchError",
+                error: errorResponse
+            };
+        }
         
         try {
             const localStorageAccessToken = localStorage.getItem(accessTokenLocalStorageKey);
             
             if (!localStorageAccessToken) {
                 const newAccessToken = await refreshAccessToken();
-                if (!newAccessToken) {
-                    return null;
+                if (newAccessToken.returnType === "fetchError" || newAccessToken.returnType === "loginError") {
+                    return newAccessToken;
                 }
                 const authFetchOptions: RequestInit = {
                     ...fetchOptions,
@@ -166,8 +240,8 @@ export function useJWTFetch() {
 
             if (response.status === invalidRefreshTokenStatus) {
                 const newAccessToken = await refreshAccessToken();
-                if (!newAccessToken) {
-                    return null;
+                if (newAccessToken.returnType === "fetchError" || newAccessToken.returnType === "loginError") {
+                    return newAccessToken;
                 }
 
                 const retryAuthFetchOptions: RequestInit = {
@@ -201,6 +275,15 @@ export function useJWTFetch() {
                     ok: false
                 };
 
+                errorCtx.throwError(fetchError);
+
+                navigate(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: fetchError
+                    }
+                });
+
                 return {
                     returnType: "fetchError",
                     error: fetchError
@@ -212,6 +295,15 @@ export function useJWTFetch() {
                 status: 500,
                 ok: false
             };
+
+            navigate(errorPageRoute, {
+                replace: true,
+                state: {
+                    error: unknownError
+                }
+            });
+
+            errorCtx.throwError(unknownError);
 
             return {
                 returnType: "fetchError",

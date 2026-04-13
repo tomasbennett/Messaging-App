@@ -2,7 +2,8 @@ import { IUserAuthContextInfoSchema } from "../../../../../shared/features/auth/
 
 export type IAuthLevel = 
     | { userType: "none"}
-    | ({ userType: "user" } & IUserAuthContextInfoSchema);
+    | ({ userType: "user" } & IUserAuthContextInfoSchema)
+    | { userType: "unknown" };
 
 
 

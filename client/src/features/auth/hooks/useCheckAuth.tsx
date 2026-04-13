@@ -41,27 +41,16 @@ export function useCheckAuth() {
                     method: "GET",
                 });
 
-                if (!response) {
-                    // setUserAuth({ userType: "none" });
-                    //SO NEW PLAN IS IF IT RETURNS NULL THEN JUST ASSUME THAT IT HAS DONE IT FOR YOU
-                    //OR THIS TIME BECAUSE NO NAV NEEDS TO HAPPEN WE CAN JUST SET IT ANYWAY
-                    return;
-                }
-
                 if (response.returnType === "loginError") {
+                    if (userAuth.userType === "unknown") { return; } //MIGHT NEED TO SET TO NONE HERE IN CASE OF UNKNOWN USER TYPE //, BUT WE MAY WANT TO KEEP IT AS UNKNOWN TO DIFFERENTIATE BETWEEN A USER THAT HAS NOT BEEN CHECKED YET AND A USER THAT HAS BEEN CHECKED AND IS NOT AUTHENTICATED
+
                     errorCtx.throwError(response.error);
                     setUserAuth({ userType: "none" });
                     return;
                 }
 
                 if (response.returnType === "fetchError") {
-                    errorCtx.throwError(response.error);
-                    navigate(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: response.error
-                        }
-                    });
+                    // errorCtx.throwError(response.error);
                     return;
                 }
 
