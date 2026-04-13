@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { LoadingCircle } from "../../../components/LoadingCircle";
-import { useCheckAuth } from "../hooks/useCheckAuth";
 import { homePageRoute, logInPageRoute } from "../../../constants/routes";
 import { SocketProvider } from "../../../contexts/SocketHandlerContext";
+import { useAuth } from "../contexts/AuthContext";
 
 
 
 
 export function ProtectedRoute() {
-    const { userAuth, isLoading } = useCheckAuth();
+    const { authLevel: userAuth, isLoading } = useAuth();
 
 
     if (isLoading) {
@@ -21,7 +21,7 @@ export function ProtectedRoute() {
 
     }
     
-    if (userAuth.userType === "none") {
+    if (userAuth.userType === "none" || userAuth.userType === "unknown") {
         return <Navigate to={logInPageRoute} replace />;
 
     }
@@ -30,11 +30,11 @@ export function ProtectedRoute() {
     return (
 
 
-        <SocketProvider>
+        // <SocketProvider>
 
             <Outlet />
 
-        </SocketProvider>
+        // </SocketProvider>
 
         
     );
@@ -44,7 +44,7 @@ export function ProtectedRoute() {
 
 
 export function NotAuthenticatedRoute() {
-    const { userAuth, isLoading } = useCheckAuth();
+    const { authLevel: userAuth, isLoading } = useAuth();
 
 
     if (isLoading) {

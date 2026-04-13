@@ -43,9 +43,6 @@ export function useFriendStatus(
                 })
             });
 
-            if (!response) {
-                return;
-            }
 
             if (response.returnType === "loginError") {
                 errorCtx.throwError(response.error);
@@ -54,12 +51,6 @@ export function useFriendStatus(
             }
 
             if (response.returnType === "fetchError") {
-                errorCtx.throwError(response.error);
-                // nav(errorPageRoute, {
-                //     state: {
-                //         error: response.error
-                //     }
-                // });
                 return;
             }
 

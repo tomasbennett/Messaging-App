@@ -25,7 +25,7 @@ export function MessageComponent({
 
     const errorCtx = useError();
 
-    if (authLevel.userType === "none") {
+    if (authLevel.userType === "none" || authLevel.userType === "unknown") {
         errorCtx?.throwError({
             message: "You must be logged in to view messages. Please log in and try again.",
             status: 401,

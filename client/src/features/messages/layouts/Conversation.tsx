@@ -67,10 +67,6 @@ export function ConversationLayout() {
                     signal: controller.signal
                 });
 
-                if (!response) {
-                    return;
-                }
-
                 if (controller !== abortControllerRef.current) {
                     console.log("Fetch aborted, ignoring response");
                     return;
@@ -83,13 +79,6 @@ export function ConversationLayout() {
                 }
 
                 if (response.returnType === "fetchError") {
-                    errorCtx.throwError(response.error);
-                    nav(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: response.error
-                        }
-                    });
                     return;
                 }
 

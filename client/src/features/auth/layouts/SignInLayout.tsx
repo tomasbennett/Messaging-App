@@ -104,7 +104,7 @@ export function SignInLayout() {
                     userId: responseDataResult.data.userId,
                     username: responseDataResult.data.username
                 });
-                navigate(homePageRoute, { replace: true });
+                // navigate(homePageRoute, { replace: true });
                 return;
             }
 

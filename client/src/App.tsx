@@ -20,7 +20,10 @@ import { accountPageRoute, myAccountPageRoute } from './constants/routes'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <GeneralHomeLayout />,
+    element: 
+      <AuthProvider>
+        <GeneralHomeLayout />
+      </AuthProvider>,
     errorElement: <ErrorElement />,
     children: [
       {
@@ -114,11 +117,11 @@ function App() {
     <>
       <ErrorProvider>
 
-        <AuthProvider>
+        {/* <AuthProvider> */}
 
           <RouterProvider router={router} />
 
-        </AuthProvider>
+        {/* </AuthProvider> */}
 
       </ErrorProvider>
 

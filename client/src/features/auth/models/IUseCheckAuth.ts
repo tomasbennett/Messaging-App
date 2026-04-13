@@ -10,4 +10,6 @@ export type IAuthLevel =
 export type IAuthContextType = {
     authLevel: IAuthLevel;
     setAuthLevel: React.Dispatch<React.SetStateAction<IAuthLevel>>;
+    isLoading: boolean;
+    checkAuth: () => Promise<void>;
 }

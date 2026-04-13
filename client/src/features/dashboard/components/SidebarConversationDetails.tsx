@@ -1,12 +1,9 @@
 import styles from "./SidebarConversationDetails.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
-import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useNavigate } from "react-router-dom";
-// import { conversationPageRoute } from "../../../constants/routes";
 import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
 import { FileIcon } from "../../../assets/icons/FileIcon";
 import { NavLink } from "react-router-dom";
-import { useCallback, useMemo } from "react";
 
 
 
@@ -27,8 +24,6 @@ export function SidebarUserDetails({
         content: lastMessageContent
     } = latestMessage || {};
 
-
-    const nav = useNavigate();
 
 
 

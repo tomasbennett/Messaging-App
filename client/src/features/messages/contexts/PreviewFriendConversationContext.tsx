@@ -50,11 +50,6 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                     signal: controller.signal
                 });
 
-
-                if (!response) {
-                    return;
-                }
-
                 if (controller !== abortController.current) return;
 
                 if (response.returnType === "loginError") {
@@ -64,13 +59,6 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 }
 
                 if (response.returnType === "fetchError") {
-                    errorCtx.throwError(response.error);
-                    nav(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: response.error
-                        }
-                    });
                     return;
                 }
 
