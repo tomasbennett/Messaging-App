@@ -145,7 +145,7 @@ router.get("/preview",
 
 
 router.get(
-    ":conversationId",
+    "/:conversationId",
     ensureJWTAuthentication,
     async (req: Request<{ conversationId: string }>, res: Response<ICustomErrorResponse | IReceiveConversationMessagesFrontend>, next: NextFunction) => {
         

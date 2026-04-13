@@ -23,7 +23,7 @@ import { ICustomSuccessMessage } from "../../shared/features/api/models/APISucce
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
-const CLIENT_DIST = path.resolve(ROOT_DIR, "client", "dist");
+// const CLIENT_DIST = path.resolve(ROOT_DIR, "client", "dist");
 
 
 
@@ -45,7 +45,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(CLIENT_DIST));
+// app.use(express.static(CLIENT_DIST));
 app.use(cookieParser());
 
 
@@ -75,10 +75,10 @@ app.use(cookieParser());
 app.use("/api", apiRouter);
 
 
-app.get(/.*/, (req: Request, res: Response, next: NextFunction) => {
-  return res.sendFile(path.join(CLIENT_DIST, "index.html"));
+// app.get(/.*/, (req: Request, res: Response, next: NextFunction) => {
+//   return res.sendFile(path.join(CLIENT_DIST, "index.html"));
 
-});
+// });
 
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {

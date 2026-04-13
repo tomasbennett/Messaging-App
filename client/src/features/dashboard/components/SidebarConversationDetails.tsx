@@ -2,7 +2,7 @@ import styles from "./SidebarConversationDetails.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { ISidebarFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useNavigate } from "react-router-dom";
-import { conversationPageRoute } from "../../../constants/routes";
+// import { conversationPageRoute } from "../../../constants/routes";
 import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
 import { FileIcon } from "../../../assets/icons/FileIcon";
 import { NavLink } from "react-router-dom";
@@ -35,7 +35,7 @@ export function SidebarUserDetails({
     return (
         <div className={styles.outerContainer}>
 
-            <NavLink to={`${conversationPageRoute}/${conversationId}`} className={(isActive) => {
+            <NavLink to={`${conversationId}`} className={(isActive) => {
                 let baseClass = styles.innerContainer;
 
                 if (isActive) {

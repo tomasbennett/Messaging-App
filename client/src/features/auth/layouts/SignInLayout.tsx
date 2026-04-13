@@ -7,7 +7,7 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { ISignInError, SignInErrorSchema, ILoginForm, loginFormSchema } from "../../../../../shared/features/auth/models/ILoginSchema";
 import { ISignInContext } from "../models/ISignInContext";
-import { homePageRoute } from "../../../constants/routes";
+import { homePageRoute, logInPageRoute, signUpPageRoute } from "../../../constants/routes";
 import { LoginRegisterSuccessUserInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -196,12 +196,12 @@ export function SignInLayout() {
 
                         <p className={styles.switchSignInParagraph}>
                             Don't have an account?
-                            <Link to="/sign-in/register">Sign up here</Link>
+                            <Link to={signUpPageRoute}>Sign up here</Link>
                         </p>
                         :
                         <p className={styles.switchSignInParagraph}>
                             Already have an account?
-                            <Link to="/sign-in/login">Log in here</Link>
+                            <Link to={logInPageRoute}>Log in here</Link>
                         </p>
 
                 }
