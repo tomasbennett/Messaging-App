@@ -89,7 +89,7 @@
     max-width: 30rem;
 
     padding: 1.2rem;
-    background: var(--blue-button-colour);
+    background: blue;
     color: white;
     border: none;
     border-radius: .6rem;
@@ -101,7 +101,7 @@
 }
 
 .submitButton:hover {
-    background: var(--hover-button-colour);
+    background: rgb(0, 166, 221);
 }
 
 .switchSignInParagraph {
@@ -118,7 +118,7 @@
 }
 
 .switchSignInParagraph a {
-    color: var(--blue-button-colour);
+    color: blue;
     text-decoration: none;
     font-weight: bold;
     transition: 0.25s;
@@ -126,7 +126,7 @@
 }
 
 .switchSignInParagraph a:hover {
-    color: var(--hover-button-colour);
+    color: rgb(0, 170, 226);
 }
 
 

@@ -86,7 +86,7 @@ export function SignInLayout() {
 
     const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
         try {
-            const response = await fetch(`${domain}/sign-in/${submitUrl}`, {
+            const response = await fetch(`${domain}/api/sign-in/${submitUrl}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

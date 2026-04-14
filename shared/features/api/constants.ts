@@ -1,0 +1,1 @@
+export const apiPOSTBaseRegex: RegExp = /^[ a-zA-Z0-9_!]+$/;
