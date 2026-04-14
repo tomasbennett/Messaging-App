@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { SendToSignInErrorHandler } from "../../../services/SendToSignInErrorHandler";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { errorPageRoute } from "../../../constants/routes";
-import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 import { useAuth } from "../../auth/contexts/AuthContext";
 
