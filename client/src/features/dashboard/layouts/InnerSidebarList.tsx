@@ -17,6 +17,7 @@ import { IFriendPreviewMessages } from "../../../../../shared/features/conversat
 import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { errorPageRoute } from "../../../constants/routes";
+import { MessageListIcon } from "../../../assets/icons/MessageListIcon";
 
 
 
@@ -31,8 +32,8 @@ export function SidebarUserDetailsList({
 
     const {
         sidebarHeaderMode,
-        getSearchMode,
-        sidebarContainerRef,
+        // getSearchMode,
+        // sidebarContainerRef,
         setSidebarHeaderMode
     } = useSidebarHeaderMode();
 
@@ -55,7 +56,7 @@ export function SidebarUserDetailsList({
             abortControllerRef.current?.abort();
         };
     }, []);
-    
+
     const searchForFriends = async (searchText: string) => {
         if (searchText.trim() === "") {
             return;
@@ -122,7 +123,7 @@ export function SidebarUserDetailsList({
                 return;
             }
 
-            
+
             errorCtx.throwError(notExpectedFormatError);
             return;
 
@@ -159,21 +160,26 @@ export function SidebarUserDetailsList({
 
 
     return (
-        <div ref={sidebarContainerRef} className={styles.container}>
+        <div
+            // ref={sidebarContainerRef} 
+            className={styles.container}
+        >
 
             <div className={styles.titleContainer}>
 
                 {
-                    sidebarHeaderMode === "title" ?
+                    sidebarHeaderMode === "conversations" ?
                         <>
 
-                            <h2 className={styles.title}>Friends</h2>
 
                             <div className={styles.btnContainer}>
 
+                                <h2 className={styles.title}>Conversations</h2>
+
                                 <button
-                                    className={styles.addFriend}
-                                    onClick={() => getSearchMode()}
+                                    type="button"
+                                    className={styles.changeModeBtn}
+                                    onClick={() => setSidebarHeaderMode("search")}
                                 >
                                     <AddMessageIcon />
                                 </button>
@@ -187,6 +193,19 @@ export function SidebarUserDetailsList({
 
                         sidebarHeaderMode === "search" ?
                             <>
+                                <div className={styles.upperSearchContainer}>
+
+                                    <h2 className={styles.title}>Search for friends</h2>
+                                    <button
+                                        type="button"
+                                        className={styles.changeModeBtn}
+                                        onClick={() => setSidebarHeaderMode("conversations")}
+                                    >
+                                        <MessageListIcon />
+                                    </button>
+
+                                </div>
+
                                 <div className={styles.searchInputContainer}>
                                     <input
                                         type="text"
@@ -214,18 +233,24 @@ export function SidebarUserDetailsList({
 
                 {
 
-                    userDetailsList.map((details) => (
-                        <li
-                            key={details.conversation.conversationId}
-                            className={styles.listItem}>
+                    userDetailsList.length === 0 && sidebarHeaderMode === "conversations" ? (
+                        <p className={styles.noConversationsText}>No conversations yet. Start by searching for friends and sending them a message!</p>
+                    )
 
-                            <SidebarUserDetails
-                                conversation={details.conversation}
-                                latestMessage={details.latestMessage}
-                            />
+                        :
 
-                        </li>
-                    ))
+                        userDetailsList.map((details) => (
+                            <li
+                                key={details.conversation.conversationId}
+                                className={styles.listItem}>
+
+                                <SidebarUserDetails
+                                    conversation={details.conversation}
+                                    latestMessage={details.latestMessage}
+                                />
+
+                            </li>
+                        ))
                 }
 
             </ul>

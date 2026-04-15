@@ -1,11 +1,12 @@
 import styles from "./AsideMenuLayout.module.css";
 import githubImage from "../../../assets/github-profile-img.jpg";
 import { NavLink, Outlet } from "react-router-dom";
-import { homePageRoute } from "../../../constants/routes";
+import { homePageRoute, myAccountPageRoute } from "../../../constants/routes";
 import { AsideMenuOption } from "../components/AsideMenuOption";
 import { MessageIcon } from "../../../assets/icons/MessageIcon";
 import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
 import { useMemo } from "react";
+import { UserIcon } from "../../../assets/icons/UserIcon";
 
 interface IAsideMenuLayoutProps {
     children: React.ReactNode;
@@ -31,7 +32,7 @@ export function AsideMenuLayout({
                 return count + 1;
             }
             return count;
-        }, 5);
+        }, 0);
     }, [friendMessages]);
 
 
@@ -61,6 +62,12 @@ export function AsideMenuLayout({
                                 notification={
                                     unreadMessagesCount > 0 ? unreadMessagesCount : undefined
                                 }
+                            />
+
+                            <AsideMenuOption
+                                navigateTo={myAccountPageRoute}
+                                // label={"my account"}
+                                icon={<UserIcon />}
                             />
 
 

@@ -211,24 +211,30 @@ export function DashboardLayout({
   return (
 
     <>
+      <div className={styles.outerContainer}>
 
-      {
-        isFriendConversationsLoading ?
 
-          <LoadingCircle height="4rem" />
 
-          :
+        {
+          isFriendConversationsLoading ?
 
-          <div className={styles.outerContainer}>
+            <LoadingCircle height="5rem" />
 
-            <SidebarUserDetailsList userDetailsList={friendMessages} />
+            :
 
-            {
-              children
-            }
+            <div className={styles.innerContainer}>
 
-          </div>
-      }
+              <SidebarUserDetailsList userDetailsList={friendMessages} />
+
+              {
+                children
+              }
+
+            </div>
+        }
+
+
+      </div>
 
     </>
 

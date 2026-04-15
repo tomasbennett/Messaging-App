@@ -1,0 +1,179 @@
+.container{
+    --inline-padding: 1rem;
+
+    flex-shrink: 0;
+
+    width: 28rem;
+
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    
+
+    overflow: hidden;
+
+    border-right: .1rem solid var(--soft-light-colour);
+
+}
+
+
+.titleContainer{
+
+
+    display: flex;
+    flex-direction: column;
+
+    width: 90%;
+
+    gap: 1.5rem;
+
+    
+    border-bottom: .1rem solid var(--soft-light-colour);
+    
+    padding: var(--inline-padding);
+    
+    & h2{
+        font-size: 2.1rem;
+    }
+}
+
+
+.btnContainer{
+    flex-shrink: 0;
+    
+    
+
+    /* background-color: orange; */
+
+    height: 8rem;
+
+    display: flex;
+    column-gap: .5rem;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.changeModeBtn{
+    flex-shrink: 0;
+
+    width: 4.8rem;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    padding: 1rem;
+
+    background-color: var(--darker-header-bcg-colour);
+    border-radius: 50%;
+    fill: white;
+
+    transition: background-color 0.2s ease-in-out, fill 0.2s ease-in-out;
+    
+    & > svg{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+
+        pointer-events: none;
+    }
+
+}
+
+
+.changeModeBtn:hover{
+    background-color: white;
+    fill: var(--darker-header-bcg-colour);
+}
+
+
+.upperSearchContainer{
+
+
+    display: flex;
+    column-gap: .5rem;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+
+.searchInputContainer{
+    width: 100%;
+
+    color: black;
+    & > input{
+        width: 100%;
+
+        padding: .7rem;
+        padding-left: 1rem;
+        padding-right: 0;
+
+        border-radius: 2rem;
+
+        /* border: .1rem solid var(--darker-header-bcg-colour); */
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.listContainer{
+    flex: 1 1 0;
+
+    width: 100%;
+
+    /* background-color: orange; */
+
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+
+
+
+
+
+
+
+
+
+.noConversationsText{
+    font-size: 1.5rem;
+
+    padding: var(--inline-padding);
+
+    text-align: center;
+    font-weight: bold;
+
+
+    margin-top: 1rem;
+}

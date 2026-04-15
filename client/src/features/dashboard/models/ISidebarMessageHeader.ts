@@ -1,1 +1,1 @@
-export type ISidebarMessageHeader = "title" | "search";
+export type ISidebarMessageHeader = "conversations" | "search";
