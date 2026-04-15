@@ -31,6 +31,7 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const nextError = queueRef.current.shift()!;
 
             setError(nextError);
+            console.log(nextError.message);
 
             await new Promise((resolve) => setTimeout(resolve, 7000));
 

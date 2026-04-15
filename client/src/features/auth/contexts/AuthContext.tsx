@@ -7,6 +7,8 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
+import { useNavigate } from "react-router-dom";
+import { errorPageRoute } from "../../../constants/routes";
 
 
 
@@ -32,6 +34,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const errorCtx = useError();
 
     const { jwtFetchHandler } = useJWTFetch();
+
+    const nav = useNavigate();
     
 
     const checkAuth = async () => {
@@ -60,6 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (response.returnType === "fetchError") {
                 // errorCtx.throwError(response.error);
+                errorCtx.throwError(response.error);
+                nav(errorPageRoute, { state: { error: response.error } });
+                
                 return;
             }
 

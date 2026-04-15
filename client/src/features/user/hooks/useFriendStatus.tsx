@@ -51,6 +51,13 @@ export function useFriendStatus(
             }
 
             if (response.returnType === "fetchError") {
+                errorCtx.throwError(response.error);
+                nav(errorPageRoute, {
+                    replace: true,
+                    state: {
+                        error: response.error
+                    }
+                });
                 return;
             }
 

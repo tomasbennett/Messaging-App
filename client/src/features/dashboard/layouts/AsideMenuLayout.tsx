@@ -31,46 +31,49 @@ export function AsideMenuLayout({
                 return count + 1;
             }
             return count;
-        }, 0);
+        }, 5);
     }, [friendMessages]);
 
 
 
     return (
         <>
+            <div className={styles.outerContainer}>
 
-            <header className={styles.header}>
-                <div className={styles.titleContainer}>
-                    <div className={styles.gitHubProfileImgContainer}>
-                        <img src={githubImage} alt="Github Profile Image" />
+                <header className={styles.header}>
+                    <div className={styles.titleContainer}>
+                        <div className={styles.gitHubProfileImgContainer}>
+                            <img src={githubImage} alt="Github Profile Image" />
+                        </div>
+                        <h1 className={styles.title}>MessageApp</h1>
                     </div>
-                    <h1 className={styles.title}>MessageApp</h1>
-                </div>
-            </header>
+                </header>
 
-            <div className={styles.lowerContainer}>
+                <div className={styles.lowerContainer}>
 
-                <aside className={styles.aside}>
-                    <ul className={styles.menuOptionsList}>
+                    <aside className={styles.aside}>
+                        <ul className={styles.menuOptionsList}>
 
-                        <AsideMenuOption 
-                            navigateTo={homePageRoute}
-                            label={"Messages"}
-                            icon={<MessageIcon />}
-                            notification={
-                                unreadMessagesCount > 0 ? unreadMessagesCount : undefined
-                            }
+                            <AsideMenuOption
+                                navigateTo={homePageRoute}
+                                // label={"Messages"}
+                                icon={<MessageIcon />}
+                                notification={
+                                    unreadMessagesCount > 0 ? unreadMessagesCount : undefined
+                                }
                             />
 
 
-                    </ul>
-                </aside>
+                        </ul>
+                    </aside>
 
-                <main className={styles.main}>
-                    {
-                        children
-                    }
-                </main>
+                    <main className={styles.main}>
+                        {
+                            children
+                        }
+                    </main>
+
+                </div>
 
             </div>
 

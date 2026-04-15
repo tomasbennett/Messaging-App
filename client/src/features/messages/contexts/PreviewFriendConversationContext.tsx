@@ -58,6 +58,10 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 }
 
                 if (response.returnType === "fetchError") {
+                    errorCtx.throwError(response.error);
+                    nav(errorPageRoute, {
+                        state: { error: response.error }
+                    });
                     return;
                 }
 

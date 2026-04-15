@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
-import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
 
 import crypto from "crypto"
 import { prisma } from "../db/prisma";
@@ -8,16 +7,21 @@ import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAcce
 import { CreateAccessToken } from "../auth/CreateAccessToken";
 import { invalidRefreshTokenStatus } from "../../../shared/features/auth/constants";
 import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
+import { IReceiveUserAuthContextInfoSchema } from "../../../shared/features/auth/models/ILoginSuccessUserInfo";
+
+
 
 export const router = Router();
 
-router.get("/checkAuthLevel", ensureJWTAuthentication, (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.get("/checkAuthLevel", ensureJWTAuthentication, (req: Request, res: Response<ICustomErrorResponse | IReceiveUserAuthContextInfoSchema>, next: NextFunction) => {
     if (req.user) {
         return res.status(200).json({
             ok: true,
             status: 200,
-            message: "User is authenticated with access token"
-        });
+            message: "User is authenticated with access token",
+            userId: req.user.id,
+            username: req.user.username
+        }); 
     }
 
     //DONT REMEMBER WHY THIS IS HERE BUT I THINK IT IS IN CASE THE MIDDLEWARE DOESNT THROW AN ERROR BUT ALSO DOESNT AUTHENTICATE THE USER FOR SOME REASON

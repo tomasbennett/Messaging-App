@@ -186,24 +186,6 @@ export function useJWTFetch() {
         fetchOptions: RequestInit,
     ): Promise<IJWTFetchResponses<Response>> {
 
-        if (!errorCtx) {
-            console.error("Error context is not available in jwtFetchHandler");
-            const errorResponse: ICustomErrorResponse = {
-                ok: false,
-                status: 500,
-                message: "Error context is not available in jwtFetchHandler"
-            };
-            navigate(errorPageRoute, {
-                replace: true,
-                state: {
-                    error: errorResponse
-                }
-            });
-            return {
-                returnType: "fetchError",
-                error: errorResponse
-            };
-        }
         
         try {
             const localStorageAccessToken = localStorage.getItem(accessTokenLocalStorageKey);
@@ -248,7 +230,7 @@ export function useJWTFetch() {
                     ...fetchOptions,
                     headers: {
                         ...fetchOptions?.headers,
-                        Authorization: `Bearer ${newAccessToken}`
+                        Authorization: `Bearer ${newAccessToken.data}`
                     }
                 };
 
@@ -275,15 +257,6 @@ export function useJWTFetch() {
                     ok: false
                 };
 
-                errorCtx.throwError(fetchError);
-
-                navigate(errorPageRoute, {
-                    replace: true,
-                    state: {
-                        error: fetchError
-                    }
-                });
-
                 return {
                     returnType: "fetchError",
                     error: fetchError
@@ -295,15 +268,6 @@ export function useJWTFetch() {
                 status: 500,
                 ok: false
             };
-
-            navigate(errorPageRoute, {
-                replace: true,
-                state: {
-                    error: unknownError
-                }
-            });
-
-            errorCtx.throwError(unknownError);
 
             return {
                 returnType: "fetchError",
