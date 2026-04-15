@@ -234,7 +234,7 @@ export function SidebarUserDetailsList({
                 {
 
                     userDetailsList.length === 0 && sidebarHeaderMode === "conversations" ? (
-                        <p className={styles.noConversationsText}>No conversations yet. Start by searching for friends and sending them a message!</p>
+                        <li className={styles.noConversationsText}>No conversations yet. Start by searching for friends and sending them a message!</li>
                     )
 
                         :

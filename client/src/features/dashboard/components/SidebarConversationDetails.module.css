@@ -1,0 +1,174 @@
+.outerContainer {
+    flex-shrink: 0;
+
+    width: 100%;
+
+    
+
+    overflow: hidden;
+
+    display: flex;
+
+
+    
+    
+}
+
+
+.innerContainer {
+    flex: 1 1 0;
+    
+    display: flex;
+    justify-content: center;
+    column-gap: .8rem;
+    
+    padding: 1rem;
+    
+    overflow: hidden;
+    
+    text-decoration: none;
+    
+    
+    cursor: pointer;
+
+    transition: background-color .2s linear;
+}
+
+.activeConversation,
+.inactiveConversation:hover {
+    background-color: rgba(255, 255, 255, 0.23);
+}
+
+.userIconContainer {
+    flex-shrink: 0;
+
+    
+
+    overflow: hidden;
+
+
+    .singleIcon {
+        aspect-ratio: 1;
+        width: 6rem;
+
+        border-radius: 50%;
+    
+        object-fit: cover;
+    }
+
+    .multiIconContainer{
+        position: relative;
+
+        aspect-ratio: 1;
+        width: 8rem;
+
+        overflow: visible;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+
+        .multiIcon{
+            flex-shrink: 0;
+
+            width: 70%;
+            aspect-ratio: 1;
+
+            position: relative;
+
+            left: 15%;
+
+            z-index: 3;
+
+        }
+
+        .participantsNumber{
+            flex-shrink: 0;
+
+            position: relative;
+
+            right: 15%;
+
+
+            width: 70%;
+            aspect-ratio: 1;
+
+            padding-right: 1.2rem;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            border-radius: 50%;
+
+            background-color: black;
+        }
+
+
+    }
+
+}
+
+
+.textDetailsContainer {
+    flex: 1 1 0;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: .6rem;
+
+    overflow: hidden;
+}
+
+
+.upperTextContainer {
+    flex: 1 1 0;
+
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: .5rem;
+
+
+    .username {
+        font-size: larger;
+        font-weight: bold;
+
+        white-space: nowrap;
+        text-wrap: ellipsis;
+
+        overflow: hidden;
+    }
+
+    .timestamp {}
+}
+
+.lowerTextContainer {
+    flex: 1 1 0;
+
+    width: 100%;
+
+    display: flex;
+
+
+    overflow: hidden;
+
+
+    .lastMessage {
+        color: white;
+
+        flex: 1 1 0;
+
+        height: 100%;
+
+
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        overflow: hidden;
+    }
+}
