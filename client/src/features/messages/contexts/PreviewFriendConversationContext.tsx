@@ -75,7 +75,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                         {
                             conversation: {
                                 conversationId: "1",
-                                name: "Callum",
+                                name: "Callummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
                                 isRead: true,
                                 groupChatProfilePicture: {
                                     type: "participants",
@@ -87,7 +87,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                                 }
                             },
                             latestMessage: {
-                                timestamp: new Date("2024-03-11"),
+                                timestamp: new Date(),
                                 content: {
                                     messageType: "text",
                                     textContent: "This was the previous message man I wish I could do Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim, illum magnam rerum excepturi nobis repellendus quia? Dolore consectetur commodi est doloremque aliquam, sequi recusandae quidem dicta cumque ipsa voluptatem. Atque iusto ut minus fuga eaque aperiam maxime, sapiente dignissimos labore soluta odit perspiciatis dicta delectus ipsa corporis mollitia voluptatum nobis."
@@ -118,10 +118,10 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                                 }
                             },
                             latestMessage: {
-                                timestamp: new Date("2024-03-11"),
+                                timestamp: new Date(),
                                 content: {
-                                    messageType: "text",
-                                    textContent: "This was the previous message man I wish I could do Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim, illum magnam rerum excepturi nobis repellendus quia? Dolore consectetur commodi est doloremque aliquam, sequi recusandae quidem dicta cumque ipsa voluptatem. Atque iusto ut minus fuga eaque aperiam maxime, sapiente dignissimos labore soluta odit perspiciatis dicta delectus ipsa corporis mollitia voluptatum nobis."
+                                    messageType: "file",
+                                    fileSize: 13000000
                                 }
                             }
                         }

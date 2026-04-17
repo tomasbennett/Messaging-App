@@ -5,6 +5,7 @@ import { IFriendPreviewMessages } from "../../../../../shared/features/conversat
 import { FileIcon } from "../../../assets/icons/FileIcon";
 import { NavLink } from "react-router-dom";
 import { homePageRoute } from "../../../constants/routes";
+import { formatFileSize } from "../../../util/FormatBytes";
 
 
 
@@ -31,12 +32,12 @@ export function SidebarUserDetails({
     return (
         <div className={styles.outerContainer}>
 
-            <NavLink to={`${conversationId}`} className={({isActive}) => {
+            <NavLink to={`${conversationId}`} className={({ isActive }) => {
                 let baseClass = styles.innerContainer;
 
                 if (isActive) {
                     baseClass += ` ${styles.activeConversation}`;
-                } else if (!isRead) {
+                } else {
                     baseClass += ` ${styles.inactiveConversation}`;
                 }
 
@@ -54,29 +55,24 @@ export function SidebarUserDetails({
 
                             :
 
-                            conversationProfilePictureUrl.participants.length > 1 ?
-
-                                <div className={styles.multiIconContainer}>
-
-                                    <img
-                                        src={conversationProfilePictureUrl.participants[0]?.profileImgUrl ?? defaultUserImg}
-                                        alt={`User Icon: ${conversationName}`}
-                                        className={styles.multiIcon}
-                                    />
-
-                                    <div className={styles.participantsNumber}>
-                                        {`+${conversationProfilePictureUrl.participants.length - 1}`}
-                                    </div>
-
-                                </div>
-
-                                :
-
+                            <>
                                 <img
                                     src={conversationProfilePictureUrl.participants[0]?.profileImgUrl ?? defaultUserImg}
                                     alt={`User Icon: ${conversationName}`}
                                     className={styles.singleIcon}
                                 />
+
+                                {
+
+                                    conversationProfilePictureUrl.participants.length > 1 &&
+
+                                    <div className={styles.participantsNumber}>
+                                        {`+${conversationProfilePictureUrl.participants.length - 1}`}
+                                    </div>
+                                }
+
+                            </>
+
                     }
                 </div>
 
@@ -92,28 +88,41 @@ export function SidebarUserDetails({
                         {
                             lastMessageContent &&
 
-                                lastMessageContent.messageType === "text" ?
+                            <>
+                                {
+                                    lastMessageContent.messageType === "text" ?
 
-                                <p className={styles.lastMessage}>{lastMessageContent.textContent || ""}</p>
+                                        <p className={styles.lastMessage}>{lastMessageContent.textContent || ""}</p>
 
-                                :
+                                        :
 
-                                <div className={styles.fileLastMessageContainer}>
+                                        <div className={styles.fileLastMessageContainer}>
 
-                                    <div className={styles.fileSVGContainer}>
+                                            <div className={styles.fileSVGContainer}>
 
-                                        <FileIcon />
+                                                <FileIcon />
 
-                                    </div>
+                                            </div>
 
-                                    <p className={styles.fileLastMessageText}>{`File Size: ${lastMessageContent?.fileSize}`}</p>
+                                            <p className={styles.fileLastMessageText}>{`File Size: ${formatFileSize(lastMessageContent.fileSize)}`}</p>
 
-                                </div>
+                                        </div>
+                                }
+
+                            </>
+
                         }
 
 
                     </div>
                 </div>
+
+                {
+                    !isRead &&
+                    <div className={styles.isUnreadNotification}>
+
+                    </div>
+                }
 
             </NavLink>
 

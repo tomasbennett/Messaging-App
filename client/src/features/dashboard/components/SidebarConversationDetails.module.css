@@ -3,35 +3,39 @@
 
     width: 100%;
 
-    
+
 
     overflow: hidden;
 
     display: flex;
 
 
-    
-    
+
+
 }
 
 
 .innerContainer {
     flex: 1 1 0;
-    
+
     display: flex;
     justify-content: center;
     column-gap: .8rem;
-    
+
     padding: 1rem;
-    
+
     overflow: hidden;
-    
+
     text-decoration: none;
-    
-    
+
+
     cursor: pointer;
 
     transition: background-color .2s linear;
+}
+
+.activeConversation {
+    cursor: none;
 }
 
 .activeConversation,
@@ -42,7 +46,12 @@
 .userIconContainer {
     flex-shrink: 0;
 
-    
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
 
     overflow: hidden;
 
@@ -52,61 +61,33 @@
         width: 6rem;
 
         border-radius: 50%;
-    
+
         object-fit: cover;
     }
 
-    .multiIconContainer{
-        position: relative;
+    .participantsNumber {
+        position: absolute;
 
-        aspect-ratio: 1;
-        width: 8rem;
+        bottom: 0;
+        right: 0;
 
-        overflow: visible;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
+        background: var(--notification-bcg);
 
-        .multiIcon{
-            flex-shrink: 0;
+        width: 3.2rem;
+        aspect-ratio: 1;
 
-            width: 70%;
-            aspect-ratio: 1;
+        border-radius: 50%;
 
-            position: relative;
-
-            left: 15%;
-
-            z-index: 3;
-
-        }
-
-        .participantsNumber{
-            flex-shrink: 0;
-
-            position: relative;
-
-            right: 15%;
-
-
-            width: 70%;
-            aspect-ratio: 1;
-
-            padding-right: 1.2rem;
-
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-
-            border-radius: 50%;
-
-            background-color: black;
-        }
-
+        /* box-shadow: .5rem .5rem 1rem rgba(0, 0, 0, 0.432); */
 
     }
+
+
 
 }
 
@@ -126,6 +107,7 @@
     flex: 1 1 0;
 
     width: 100%;
+    min-width: 0;
 
     display: flex;
     justify-content: space-between;
@@ -134,24 +116,33 @@
 
 
     .username {
+        flex-shrink: 0;
+        flex-grow: 1;
+        flex-basis: 0;
+
         font-size: larger;
         font-weight: bold;
 
         white-space: nowrap;
-        text-wrap: ellipsis;
+        text-overflow: ellipsis;
 
         overflow: hidden;
     }
 
-    .timestamp {}
+    .timestamp {
+        flex-shrink: 0;
+        flex-grow: 0;
+        flex-basis: auto;
+    }
 }
 
 .lowerTextContainer {
     flex: 1 1 0;
 
     width: 100%;
-
-    display: flex;
+    min-width: 0;
+    /* 
+    display: flex; */
 
 
     overflow: hidden;
@@ -160,15 +151,84 @@
     .lastMessage {
         color: white;
 
-        flex: 1 1 0;
+        /* flex: 1 1 0; */
 
-        height: 100%;
+        width: 100%;
+        /* height: 100%; */
 
 
-        display: -webkit-box;
+        /* display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 1; */
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
 
         overflow: hidden;
     }
+
+
+    .fileLastMessageContainer {
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        column-gap: .3rem;
+
+
+
+        .fileSVGContainer {
+            flex-shrink: 0;
+
+            max-height: 100%;
+
+            aspect-ratio: 1;
+            width: 3rem;
+
+
+            &>svg {
+                fill: white;
+
+                width: 100%;
+                height: 100%;
+
+                object-fit: contain;
+            }
+        }
+
+
+        .fileLastMessageText {
+            flex: 1 1 0;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            overflow: hidden;
+        }
+
+
+    }
+}
+
+
+.isUnreadNotification {
+
+
+
+    align-self: center;
+
+    aspect-ratio: 1;
+    width: 1.6rem;
+
+
+    transform: rotateZ(45deg);
+
+
+    background: var(--notification-bcg);
+
+    box-shadow: .5rem .5rem .5rem rgba(0, 0, 0, 0.45);
+
 }
