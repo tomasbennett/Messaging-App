@@ -44,7 +44,28 @@ export function SidebarUserDetailsList({
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const [isSearchFriendsLoading, setIsSearchFriendsLoading] = useState<boolean>(false);
-    const [searchResults, setSearchResults] = useState<IUserFriendStatusRelationship[]>([]);
+    const [searchResults, setSearchResults] = useState<IUserFriendStatusRelationship[]>([
+        {
+            otherUserId: "1",
+            friendStatus: "no request sent yet",
+            otherUserUsername: "Axel_Taker",
+        },
+        {
+            otherUserId: "2",
+            friendStatus: "accepted",
+            otherUserUsername: "AAAHHHHHH",
+        },
+        {
+            otherUserId: "3",
+            friendStatus: "pending",
+            otherUserUsername: "BA",
+        },
+        {
+            otherUserId: "4",
+            friendStatus: "no request sent yet",
+            otherUserUsername: "falcon9999999999",
+        },
+    ]);
     const [inputSearchText, setInputSearchText] = useState<string>("");
 
     const errorCtx = useError();

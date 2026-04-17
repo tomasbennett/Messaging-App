@@ -35,57 +35,33 @@ export function SearchedForUserDetails({
         <div className={styles.outerContainer}>
 
             <div className={styles.imgContainer}>
-                {
-                    userProfilePictureUrl ?
-                        <img src={userProfilePictureUrl} alt={`${username}'s profile picture`} className={styles.userIcon} />
-                        :
-                        <img src={defaultUserImg} alt={`User Icon: ${username}`} />
-                }
-            </div>
 
-            <div className={styles.upperContainer}>
-
-                <p className={styles.username}>{username}</p>
+                <img src={userProfilePictureUrl ?? defaultUserImg} alt={`${username}'s profile picture`} className={styles.userIcon} />
 
             </div>
 
-            <div className={styles.lowerContainer}>
 
-                {
-                    friendStatus === "pending" ?
-                        <p className={styles.pendingRequestText}>
-                            Pending<span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span>
-                        </p>
+            <div className={styles.rightSideContainer}>
+                
+                <div className={styles.upperContainer}>
 
-                        :
+                    <p className={styles.username}>{username}</p>
 
-                        friendStatus === "no request sent yet" ?
+                </div>
 
-                            <div className={styles.addFriendContainer}>
+                <div className={styles.lowerContainer}>
 
-                                {
-                                    isLoading ?
-                                        <LoadingCircle height="90%" />
-
-                                        :
-
-                                        <button onClick={handleAddFriend} className={styles.addFriendBtn} type="button">
-                                            {
-
-                                                "Add Friend"
-                                            }
-                                        </button>
-
-                                }
-                            </div>
-
-
+                    {
+                        friendStatus === "pending" ?
+                            <p className={styles.pendingRequestText}>
+                                Pending<span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span><span className={styles.loadingEllipsis}>.</span>
+                            </p>
 
                             :
 
-                            friendStatus === "accepted" ?
+                            friendStatus === "no request sent yet" ?
 
-                                <div className={styles.removeFriendContainer}>
+                                <div className={styles.addFriendContainer}>
 
                                     {
                                         isLoading ?
@@ -93,27 +69,54 @@ export function SearchedForUserDetails({
 
                                             :
 
-                                            <button onClick={handleRemoveFriend} className={styles.removeFriendBtn} type="button">
+                                            <button onClick={handleAddFriend} className={styles.addFriendBtn} type="button">
                                                 {
 
-                                                    "Remove Friend"
+                                                    "Add Friend"
                                                 }
                                             </button>
 
                                     }
-
                                 </div>
-
 
 
 
                                 :
 
-                                null
-                }
+                                friendStatus === "accepted" ?
 
+                                    <div className={styles.removeFriendContainer}>
+
+                                        {
+                                            isLoading ?
+                                                <LoadingCircle height="90%" />
+
+                                                :
+
+                                                <button onClick={handleRemoveFriend} className={styles.removeFriendBtn} type="button">
+                                                    {
+
+                                                        "Remove Friend"
+                                                    }
+                                                </button>
+
+                                        }
+
+                                    </div>
+
+
+
+
+                                    :
+
+                                    null
+                    }
+
+
+                </div>
 
             </div>
+
 
 
         </div>
