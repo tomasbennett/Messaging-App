@@ -221,10 +221,12 @@
     align-self: center;
 
     aspect-ratio: 1;
-    width: 1.6rem;
+    width: 1.5rem;
 
 
     transform: rotateZ(45deg);
+
+    border-radius: .5rem;
 
 
     background: var(--notification-bcg);

@@ -18,6 +18,9 @@ import { useJWTFetch } from "../../../hooks/useNewAccessToken";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { errorPageRoute } from "../../../constants/routes";
 import { MessageListIcon } from "../../../assets/icons/MessageListIcon";
+import { LoadingCircle } from "../../../components/LoadingCircle";
+import { SearchedForUserDetails } from "../components/SearchedForFriendReq";
+import { IFriendRequestStatus } from "../../../../../shared/features/friendRequest/constants";
 
 
 
@@ -42,6 +45,7 @@ export function SidebarUserDetailsList({
 
     const [isSearchFriendsLoading, setIsSearchFriendsLoading] = useState<boolean>(false);
     const [searchResults, setSearchResults] = useState<IUserFriendStatusRelationship[]>([]);
+    const [inputSearchText, setInputSearchText] = useState<string>("");
 
     const errorCtx = useError();
     const nav = useNavigate();
@@ -212,7 +216,10 @@ export function SidebarUserDetailsList({
                                         className={styles.searchInput}
                                         placeholder="Search for friends..."
                                         autoFocus
-                                        onChange={(e) => searchForFriends(e.target.value)}
+                                        onChange={(e) => {
+                                            searchForFriends(e.target.value);
+                                            setInputSearchText(e.target.value);
+                                        }}
                                     />
 
 
@@ -232,25 +239,85 @@ export function SidebarUserDetailsList({
             <ul className={styles.listContainer}>
 
                 {
+                    sidebarHeaderMode === "conversations" ?
 
-                    userDetailsList.length === 0 && sidebarHeaderMode === "conversations" ? (
-                        <li className={styles.noConversationsText}>No conversations yet. Start by searching for friends and sending them a message!</li>
-                    )
+                        <>
+                            {
+                                userDetailsList.length === 0 ? (
+                                    <li className={styles.noConversationsText}>No conversations yet. Start by searching for friends and sending them a message!</li>
+                                )
+
+                                    :
+
+                                    userDetailsList.map((details) => (
+                                        <li
+                                            key={details.conversation.conversationId}
+                                            className={styles.listItem}>
+
+                                            <SidebarUserDetails
+                                                conversation={details.conversation}
+                                                latestMessage={details.latestMessage}
+                                            />
+
+                                        </li>
+                                    ))
+
+                            }
+
+
+                        </>
 
                         :
 
-                        userDetailsList.map((details) => (
-                            <li
-                                key={details.conversation.conversationId}
-                                className={styles.listItem}>
+                        sidebarHeaderMode === "search" ?
 
-                                <SidebarUserDetails
-                                    conversation={details.conversation}
-                                    latestMessage={details.latestMessage}
-                                />
+                            <>
 
-                            </li>
-                        ))
+                                {
+                                    isSearchFriendsLoading ?
+                                        <li className={styles.searchFriendsLoadingContainer}>
+                                            <LoadingCircle height="4rem" />
+                                        </li>
+                                        :
+                                        searchResults.length <= 0 && inputSearchText.trim() !== "" ? (
+                                            <li className={styles.noConversationsText}>No users found with provided username please keep searching...</li>
+                                        )
+                                            :
+                                            searchResults.map((searchedForUser) => {
+
+                                                const updateFriendStatus = (status: IFriendRequestStatus) => {
+                                                    setSearchResults((prev) =>
+                                                        prev.map((user) =>
+                                                            user.otherUserId === searchedForUser.otherUserId
+                                                                ? { ...user, friendStatus: status }
+                                                                : user
+                                                        )
+                                                    );
+                                                };
+
+                                                return (
+                                                    <SearchedForUserDetails
+                                                        key={searchedForUser.otherUserId}
+                                                        otherUserId={searchedForUser.otherUserId}
+                                                        otherUserUsername={searchedForUser.otherUserUsername}
+                                                        otherUserProfilePictureUrl={searchedForUser.otherUserProfilePictureUrl}
+                                                        friendStatus={searchedForUser.friendStatus}
+                                                        updateFriendStatus={updateFriendStatus}
+                                                    />
+                                                )
+                                            })
+
+
+
+                                }
+
+                            </>
+
+                            :
+
+                            null
+
+
                 }
 
             </ul>
