@@ -21,6 +21,8 @@ import { MessageListIcon } from "../../../assets/icons/MessageListIcon";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { SearchedForUserDetails } from "../components/SearchedForFriendReq";
 import { IFriendRequestStatus } from "../../../../../shared/features/friendRequest/constants";
+import { ISearchUsersQueryParams } from "../../../../../shared/features/user/models/ISearchUsers";
+import { toQueryString } from "../../../util/ToQueryString";
 
 
 
@@ -99,7 +101,14 @@ export function SidebarUserDetailsList({
         try {
             setIsSearchFriendsLoading(true);
 
-            const response = await jwtFetchHandler(`${domain}/api/users/search?query=${encodeURIComponent(searchText)}`, {
+            const userSearchParams = {
+                limit: 10,
+                search: searchText
+            } satisfies ISearchUsersQueryParams;
+
+            const urlParams = toQueryString(userSearchParams);
+
+            const response = await jwtFetchHandler(`${domain}/api/users/search?${urlParams}}`, {
                 method: "GET",
                 signal: controller.signal
             });

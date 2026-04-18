@@ -30,7 +30,6 @@ model User {
 
   refreshTokens RefreshToken[]  
 
-  sentFriendRequests     FriendRequest[] @relation("SentRequests")
   receivedFriendRequests FriendRequest[] @relation("ReceivedRequests")
 }
 
@@ -39,15 +38,17 @@ model User {
 model FriendRequest {
   id String @id @default(uuid()) @db.Uuid
 
-  senderId String @db.Uuid
-  sender   User   @relation("SentRequests", fields: [senderId], references: [id])
+  senderParticipantId String @db.Uuid
+  senderParticipant   ConversationParticipant   @relation("SentRequests", fields: [senderParticipantId], references: [id])
 
   receiverId String @db.Uuid
   receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id])
 
-  isPending Boolean @default(true)
+  isAccepted Boolean @default(false)
 
   createdAt DateTime @default(now())
+
+  @@unique([senderParticipantId, receiverId])
 }
 
 
@@ -76,6 +77,8 @@ model ConversationParticipant {
 
   userId         String       @db.Uuid
   user           User         @relation(fields: [userId], references: [id])
+
+  sentConversationRequests FriendRequest[] @relation("SentRequests")
 
   lastReadAt       DateTime     @default(now())
 

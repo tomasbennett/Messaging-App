@@ -28,7 +28,8 @@ export function SearchedForUserDetails({
     const {
         isLoading,
         addFriend: handleAddFriend,
-        removeFriend: handleRemoveFriend
+        removeFriend: handleRemoveFriend,
+        acceptRequest: handleAcceptFriendReq
     } = useFriendStatus(userId, updateFriendStatus);
 
     return (
@@ -42,7 +43,7 @@ export function SearchedForUserDetails({
 
 
             <div className={styles.rightSideContainer}>
-                
+
                 <div className={styles.upperContainer}>
 
                     <p className={styles.username}>{username}</p>
@@ -109,7 +110,35 @@ export function SearchedForUserDetails({
 
                                     :
 
-                                    null
+                                    friendStatus === "user sent you a friend request" ?
+
+                                        <>
+
+                                            <div className={styles.acceptFriendReqContainer}>
+
+                                                {
+                                                    isLoading ?
+                                                        <LoadingCircle height="90%" />
+
+                                                        :
+
+                                                        <button onClick={handleAcceptFriendReq} className={styles.acceptFriendReqBtn} type="button">
+                                                            {
+
+                                                                "Accept Request"
+                                                            }
+                                                        </button>
+
+                                                }
+
+                                            </div>
+
+
+                                        </>
+
+                                        :
+
+                                        null
                     }
 
 

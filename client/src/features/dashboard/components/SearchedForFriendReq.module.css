@@ -132,4 +132,22 @@
     }
 
 
+    .acceptFriendReqContainer{
+
+        background-color: purple;
+
+        & > button{
+            width: 100%;
+            height: 100%;
+
+            background-color: transparent;
+            cursor: pointer;
+        }
+    }
+
+    .acceptFriendReqContainer:hover{
+        background-color: rgb(185, 0, 185);
+    }
+
+
 }
