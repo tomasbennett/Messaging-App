@@ -18,8 +18,6 @@ model User {
   username String @unique
   password String
 
-  messages Message[]
-
   conversations ConversationParticipant[]
 
   profileImgId String? @db.Uuid
@@ -30,12 +28,16 @@ model User {
 
   refreshTokens RefreshToken[]  
 
-  receivedFriendRequests FriendRequest[] @relation("ReceivedRequests")
+  receivedFriendRequests ConversationJoinRequest[] @relation("ReceivedRequests")
 }
 
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
 
-
-model FriendRequest {
+model ConversationJoinRequest {
   id String @id @default(uuid()) @db.Uuid
 
   senderParticipantId String @db.Uuid
@@ -44,9 +46,12 @@ model FriendRequest {
   receiverId String @db.Uuid
   receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id])
 
-  isAccepted Boolean @default(false)
+  conversationId String @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
 
-  createdAt DateTime @default(now())
+  status InviteStatus @default(PENDING)
+
+  sentAt DateTime @default(now())
 
   @@unique([senderParticipantId, receiverId])
 }
@@ -67,6 +72,8 @@ model Conversation {
 
   groupChatImgId String? @db.Uuid
   groupChatImg   File?   @relation("GroupChatImage", fields: [groupChatImgId], references: [id])
+
+  conversationInvitations ConversationJoinRequest[]
 }
 
 model ConversationParticipant {
@@ -78,9 +85,13 @@ model ConversationParticipant {
   userId         String       @db.Uuid
   user           User         @relation(fields: [userId], references: [id])
 
-  sentConversationRequests FriendRequest[] @relation("SentRequests")
+  messages         Message[]    @relation("MessagesSentByParticipant")  
+
+  sentConversationRequests ConversationJoinRequest[] @relation("SentRequests")
 
   lastReadAt       DateTime     @default(now())
+
+  hasLeft           Boolean      @default(false)
 
 
   @@unique([conversationId, userId])
@@ -93,7 +104,7 @@ model Message {
   createdAt DateTime @default(now())
 
   senderId  String   @db.Uuid
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    ConversationParticipant     @relation("MessagesSentByParticipant", fields: [senderId], references: [id])
 
 
   conversationId String       @db.Uuid

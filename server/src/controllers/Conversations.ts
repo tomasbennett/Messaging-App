@@ -157,9 +157,9 @@ router.get(
                 where: {
                     id: conversationId,
                 },
-                include: {
+                select: {
                     participants: {
-                        include: {
+                        select: {
                             user: {
                                 select: {
                                     id: true,
@@ -176,22 +176,30 @@ router.get(
                         orderBy: {
                             createdAt: "desc"
                         },
-                        include: {
+                        select: {
+                            id: true,
+                            createdAt: true,
+                            content: true,
                             sender: {
                                 select: {
-                                    id: true,
-                                    username: true,
-                                    profileImg: {
+                                    user: {
                                         select: {
-                                            supabaseFileId: true,
+                                            id: true,
+                                            username: true,
+                                            profileImg: {
+                                                select: {
+                                                    supabaseFileId: true,
+                                                }
+                                            }
                                         }
-                                    },
+                                    }
                                 }
                             },
                             files: true
                         }
                     },
-                    groupChatImg: true
+                    groupChatImg: true,
+                    chatName: true,
                 }
             });
 
@@ -203,7 +211,7 @@ router.get(
                 });
             }
 
-            const isUserParticipant: boolean = conversation.participants.some((participant) => participant.userId === user.id);
+            const isUserParticipant: boolean = conversation.participants.some((participant) => participant.user.id === user.id);
 
             if (!isUserParticipant) {
                 return res.status(403).json({
@@ -225,15 +233,15 @@ router.get(
 
                 return {
                     messageId: message.id,
-                    senderId: message.sender.id,
+                    senderId: message.sender.user.id,
                     conversationId: conversationId,
                     timestamp: message.createdAt,
                     content: message?.content ?? undefined,
                     files: files,
                     conversationGroupType: isGroupChat ? {
                         type: "group",
-                        senderName: message.sender.username,
-                        senderProfileImgUrl: message.sender.profileImg?.supabaseFileId
+                        senderName: message.sender.user.username,
+                        senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
                     } : {
                         type: "single"
                     }
