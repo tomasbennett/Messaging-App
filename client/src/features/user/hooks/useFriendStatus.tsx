@@ -106,7 +106,6 @@ export function useFriendStatus(
 
     }
 
-
     async function removeFriend() {
         console.log(`Removing friend with ID: ${friendId}`);
 

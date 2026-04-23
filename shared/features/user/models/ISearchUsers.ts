@@ -2,7 +2,7 @@ import z from "zod";
 import { NumberFromStringSchema } from "../../util/models/INumber";
 import { apiPOSTBaseRegex } from "../../api/constants";
 import { usernamePasswordRegex } from "../../auth/constants";
-import { FriendRequestStatusValues } from "../../friendRequest/constants";
+import { FriendRequestStatusValues } from "../../inviteReq/constants";
 import { APISuccessSchema } from "../../api/models/APISuccessResponse";
 
 

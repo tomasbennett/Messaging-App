@@ -18,8 +18,11 @@ import { Server, Socket } from "socket.io";
 // import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
 import { APIErrorSchema, ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
-import { SOCKET_CHAT_RECEIVE_EVENT, SOCKET_CHAT_SEND_EVENT } from "../../shared/features/message/constants";
+import { SOCKET_MESSAGE_RECEIVE_EVENT, SOCKET_MESSAGE_SEND_EVENT } from "../../shared/features/message/constants";
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
+import { SendMessageFrontendSchema } from "../../shared/features/message/models/IFrontendMessages";
+import { MessageSendSocketSchema } from "../../shared/features/sockets/models/IMessageSocket";
+import { CheckAccessTokenPayload } from "./auth/CheckAccessTokenPayload";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -148,12 +151,55 @@ io.on("connection", (socket: Socket) => {
 
   // });
 
+  socket.on(SOCKET_MESSAGE_SEND_EVENT, async (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
+    console.log("Received message send event with data: ", data);
+
+    const messageResult = MessageSendSocketSchema.safeParse(data);
+    if (!messageResult.success) {
+      const errorDetails = messageResult.error.issues.map(e => `${e.path.join(".")}: ${e.message}`).join("; ");
+
+      console.error("Invalid message data: ", errorDetails);
+      return ack({
+        status: 400,
+        message: errorDetails,
+        ok: false
+      });
+    }
+
+    const messageContent = messageResult.data;
+
+    const userResult = await CheckAccessTokenPayload(messageContent.accessToken);
+
+    if (!userResult.ok) {
+      console.error("Authentication failed for message send: ", userResult.message);
+      return ack({
+        status: userResult.status,
+        message: userResult.message,
+        ok: false
+      });
+    }
+
+    const user = userResult.user;
+
+    io.emit(SOCKET_MESSAGE_RECEIVE_EVENT, {
+      content: data,
+      timestamp: new Date(),
+    });
+
+    return ack({
+      status: 200,
+      message: "Message sent successfully",
+      ok: true
+    });
+
+  });
 
 
-  // socket.on("disconnect", () => {
-  //   console.log("A user disconnected: " + socket.id);
 
-  // });
+  socket.on("disconnect", () => {
+    console.log("A user disconnected: " + socket.id);
+
+  });
 
 
 

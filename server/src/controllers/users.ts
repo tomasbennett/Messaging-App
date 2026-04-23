@@ -3,7 +3,7 @@ import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 import { ISearchUsersQueryParams, ISearchedUser, ISearchedUserAPISuccess, SearchUsersQueryParams } from "../../../shared/features/user/models/ISearchUsers";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { prisma } from "../db/prisma";
-import { IFriendRequestStatus } from "../../../shared/features/friendRequest/constants";
+import { IFriendRequestStatus } from "../../../shared/features/inviteReq/constants";
 
 
 

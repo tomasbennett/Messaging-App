@@ -6,35 +6,68 @@ import { prisma } from "../db/prisma";
 
 export const router = Router();
 
+router.post(
+    "/add/:conversationId", 
+    ensureJWTAuthentication, 
+    async (req: Request<{ conversationId: string }, {}, { inviteeUserId: string }>, res: Response<ICustomErrorResponse>, next: NextFunction) => {
+        const { conversationId } = req.params;
+        const { inviteeUserId } = req.body;
+        const user = req.user!;
 
 
-router.delete("/:friendId", ensureJWTAuthentication, async (req: Request<{ friendId: string }>, res: Response<ICustomErrorResponse>, next: NextFunction) => {
-    const { friendId } = req.params;
-    const user = req.user!;
-    
-    
+        try {
 
-    
-    try {
+
+
+
+
+
+
+            
+        } catch (error) {
+            next(error);
+
+        }
+
+    });
+
+router.delete(
+    "/:conversationId",
+    ensureJWTAuthentication,
+    async (req: Request<{ conversationId: string }>, res: Response<ICustomErrorResponse>, next: NextFunction) => {
         
-        const deletedUser = await prisma.friendRequest.delete({
-            where: {
-                id: friendId
+        
+        const { conversationId } = req.params;
+        const user = req.user!;
+
+
+        try {
+
+            const removeFromConversation = await prisma.conversationParticipant.updateMany({
+                where: {
+                    userId: user.id,
+                    conversationId: conversationId,
+                    hasLeft: false
+                },
+                data: {
+                    hasLeft: true
+                }
+            });
+
+            if (removeFromConversation.count === 0) {
+                return res.status(400).json({
+                    ok: false,
+                    status: 400,
+                    message: "Conversation ID not applicable for this user!!!"
+                });
             }
-        });
 
-
-        //IF THERE EXISTS A FRIEND REQUEST THEN DELETE IT
-        //IF THAT IS SUCCESSFUL THEN CHECK WHETHER THERE EXISTS A SHARED CONVERSATOIN HISTORY BETWEEN THEM AND DELETE THAT TOO???
-        //IT CAN ONLY BE A CONVERSATION BETWEEN THEM TWO AND NOW WHEN CREATING GROUPS WE HAVE TO FIND A WAY TO ENSURE THAT THERE ARE MORE THAN TWO PEOPLE INVOLVED
-        //WHAT IF WE JUST DON'T DELETE THEIR CONVERSATION HISTORY AND YOU CAN HAVE A CONVERATION
+            return res.sendStatus(204);
 
 
 
+        } catch (error) {
+            next(error);
 
-
-    } catch (error) {
-        next(error);
-
-    }
-});
+        }
+    });

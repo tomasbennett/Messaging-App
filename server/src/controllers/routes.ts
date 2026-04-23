@@ -3,7 +3,7 @@ import { router as conversationsRouter } from "./Conversations";
 import { router as authRouter } from "./auth";
 import { router as signInRouter } from "./sign-in";
 import { router as usersRouter } from "./users";
-import { router as friendReqRouter } from "./friendReq";
+import { router as inviteReqRouter } from "./joinConvoReq";
 
 export const apiRouter = Router();
 
@@ -11,7 +11,7 @@ apiRouter.use("/conversations", conversationsRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/sign-in", signInRouter);
 apiRouter.use("/users", usersRouter);
-apiRouter.use("/friends", friendReqRouter);
+apiRouter.use("/invites", inviteReqRouter);
 
 
 
