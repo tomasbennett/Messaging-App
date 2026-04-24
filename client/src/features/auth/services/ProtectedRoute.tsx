@@ -30,11 +30,11 @@ export function ProtectedRoute() {
     return (
 
 
-        // <SocketProvider>
+        <SocketProvider>
 
             <Outlet />
 
-        // </SocketProvider>
+        </SocketProvider>
 
         
     );

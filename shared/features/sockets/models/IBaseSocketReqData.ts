@@ -9,3 +9,11 @@ export const BaseSocketUserReqData = z.object({
 
 
 export type IBaseSocketUserReqData = z.infer<typeof BaseSocketUserReqData>;
+
+
+export const BaseSocketEmitData = z.object({
+    userSocketId: z.string()
+});
+
+
+export type IBaseSocketEmitData = z.infer<typeof BaseSocketEmitData>;

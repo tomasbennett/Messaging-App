@@ -1,0 +1,1 @@
+export const SOCKET_CONVERSATION_ROOM_PREFIX: string = "conversation";

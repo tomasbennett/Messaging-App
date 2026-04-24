@@ -4,6 +4,7 @@ import { router as authRouter } from "./auth";
 import { router as signInRouter } from "./sign-in";
 import { router as usersRouter } from "./users";
 import { router as inviteReqRouter } from "./joinConvoReq";
+import { router as messageRouter } from "./message";
 
 export const apiRouter = Router();
 
@@ -12,13 +13,13 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/sign-in", signInRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/invites", inviteReqRouter);
-
+apiRouter.use("/messages", messageRouter);
 
 
 apiRouter.use((req: Request, res: Response, next: NextFunction) => {
     return res.status(404).json({
         ok: false,
         status: 404,
-        message: "The requested endpoint does not exist"
+        message: "The requested endpoint does not exist!!!"
     });
 });

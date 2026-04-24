@@ -1,6 +1,7 @@
 import z from "zod";
 import { allowedTypes, maxFileSizeInBytes } from "../../files/constants";
 import { FileArrayPropertiesSchema } from "../../files/models/IFileArray";
+import { FILES_KEY_NAME } from "../constants";
 
 
 
@@ -48,10 +49,10 @@ export type IMessageContentURL = z.infer<typeof MessageContentURLSchema>;
 
 export const MessageContentFileSchema = z.object({
     content: z.string().optional(),
-    files: z.custom<FileList | undefined>(),
+    [FILES_KEY_NAME]: z.custom<FileList | undefined>(),
 }).superRefine((data, ctx) => {
     const hasContent = !!data.content && data.content.trim() !== "";
-    const hasFiles = !!data.files && data.files instanceof FileList && data.files.length > 0;
+    const hasFiles = !!data[FILES_KEY_NAME] && data[FILES_KEY_NAME] instanceof FileList && data[FILES_KEY_NAME].length > 0;
 
     if (!hasContent && !hasFiles) {
         ctx.addIssue({
@@ -66,7 +67,7 @@ export const MessageContentFileSchema = z.object({
         return;
     }
 
-    const files = data.files as FileList;
+    const files = data[FILES_KEY_NAME] as FileList;
 
     for (let i = 0; i < files.length; i++) {
         const file = files.item(i)!;

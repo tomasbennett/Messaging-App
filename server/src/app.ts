@@ -20,9 +20,11 @@ import { environment } from "../../shared/constants";
 import { APIErrorSchema, ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
 import { SOCKET_MESSAGE_RECEIVE_EVENT, SOCKET_MESSAGE_SEND_EVENT } from "../../shared/features/message/constants";
 import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
-import { SendMessageFrontendSchema } from "../../shared/features/message/models/IFrontendMessages";
+import { IReceiveMessageFrontend, SendMessageFrontendSchema } from "../../shared/features/message/models/IFrontendMessages";
 import { MessageSendSocketSchema } from "../../shared/features/sockets/models/IMessageSocket";
 import { CheckAccessTokenPayload } from "./auth/CheckAccessTokenPayload";
+import { prisma } from "./db/prisma";
+import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../shared/features/conversation/constants";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -111,7 +113,7 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
 const PORT = process.env.PORT || 3000;
 
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: environment === "PROD" ? true : allowedOrigins,
     credentials: true,
@@ -121,6 +123,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket: Socket) => {
   console.log("A user connected: " + socket.id);
+
 
   // socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
   //   const result = SendMessageFrontendSchema.safeParse(data);
@@ -151,48 +154,100 @@ io.on("connection", (socket: Socket) => {
 
   // });
 
-  socket.on(SOCKET_MESSAGE_SEND_EVENT, async (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
-    console.log("Received message send event with data: ", data);
+  // socket.on(SOCKET_MESSAGE_SEND_EVENT, async (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
+  //   console.log("Received message send event with data: ", data);
 
-    const messageResult = MessageSendSocketSchema.safeParse(data);
-    if (!messageResult.success) {
-      const errorDetails = messageResult.error.issues.map(e => `${e.path.join(".")}: ${e.message}`).join("; ");
+  //   const messageResult = MessageSendSocketSchema.safeParse(data);
+  //   if (!messageResult.success) {
+  //     const errorDetails = messageResult.error.issues.map(e => `${e.path.join(".")}: ${e.message}`).join("; ");
 
-      console.error("Invalid message data: ", errorDetails);
-      return ack({
-        status: 400,
-        message: errorDetails,
-        ok: false
-      });
-    }
+  //     console.error("Invalid message data: ", errorDetails);
+  //     return ack({
+  //       status: 400,
+  //       message: errorDetails,
+  //       ok: false
+  //     });
+  //   }
 
-    const messageContent = messageResult.data;
+  //   const messageContent = messageResult.data;
 
-    const userResult = await CheckAccessTokenPayload(messageContent.accessToken);
+  //   const userResult = await CheckAccessTokenPayload(messageContent.accessToken);
 
-    if (!userResult.ok) {
-      console.error("Authentication failed for message send: ", userResult.message);
-      return ack({
-        status: userResult.status,
-        message: userResult.message,
-        ok: false
-      });
-    }
+  //   if (!userResult.ok) {
+  //     console.error("Authentication failed for message send: ", userResult.message);
+  //     return ack({
+  //       status: userResult.status,
+  //       message: userResult.message,
+  //       ok: false
+  //     });
+  //   }
 
-    const user = userResult.user;
+  //   const user = userResult.user;
 
-    io.emit(SOCKET_MESSAGE_RECEIVE_EVENT, {
-      content: data,
-      timestamp: new Date(),
-    });
+  //   const conversationParticipant = await prisma.conversationParticipant.findUnique({
+  //     where: {
+  //       conversationId_userId: {
+  //         conversationId: messageContent.conversationId,
+  //         userId: user.id,
+  //       },
+  //       hasLeft: false
+  //     }
+  //   });
 
-    return ack({
-      status: 200,
-      message: "Message sent successfully",
-      ok: true
-    });
+  //   if (!conversationParticipant) {
+  //     console.error("Failed to upload message to database for user: ", user.id);
+  //     return ack({
+  //       ok: false,
+  //       status: 403,
+  //       message: "Failed to upload message to database"
+  //     });
+  //   }
 
-  });
+  //   const timestamp = new Date();
+
+
+  //   //NOTE THAT FILES BEING UPLOADED TAKES A DIFFERENT PROCESS THAN THIS, THIS IS JUST FOR THE MESSAGE CONTENT, THE FILES GET UPLOADED FIRST AND THEN THEIR IDS GET SENT IN THIS MESSAGE SEND EVENT TO BE LINKED TO THE MESSAGE IN THE DATABASE
+  //   const uploadedMessage = await prisma.message.create({
+  //     data: {
+  //       // conversationId: messageContent.conversationId,
+  //       // senderId: user.id,
+  //       // content: messageContent.content,
+  //     },
+  //     select: {
+  //       id: true,
+  //       files: {
+  //         select: {
+  //           id: true,
+  //           supabaseFileId: true,
+  //         }
+  //       }
+  //     }
+  //   });
+
+  //   const receiveMessageData: IReceiveMessageFrontend = {
+  //     messageId: uploadedMessage.id,
+  //     conversationId: messageContent.conversationId,
+  //     timestamp,
+  //     content: messageContent.content,
+  //     files: uploadedMessage.files.map(f => ({
+  //       fileId: f.id,
+  //       fileUrl: f.supabaseFileId,
+  //     })),
+  //     sender: {
+  //       userId: user.id,
+  //       username: user.username,
+  //     }
+  //   }
+
+  //   io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${messageContent.conversationId}`).emit(SOCKET_MESSAGE_RECEIVE_EVENT, receiveMessageData);
+
+  //   return ack({
+  //     status: 200,
+  //     message: "Message sent successfully",
+  //     ok: true
+  //   });
+
+  // });
 
 
 
