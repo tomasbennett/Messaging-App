@@ -1,5 +1,3 @@
-
-
 import express, { NextFunction, Request, Response } from "express";
 import http from "http";
 import cors from "cors";
@@ -25,6 +23,7 @@ import { MessageSendSocketSchema } from "../../shared/features/sockets/models/IM
 import { CheckAccessTokenPayload } from "./auth/CheckAccessTokenPayload";
 import { prisma } from "./db/prisma";
 import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../shared/features/conversation/constants";
+import { User } from "@prisma/client";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -120,6 +119,8 @@ export const io = new Server(server, {
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   },
 });
+
+
 
 io.on("connection", (socket: Socket) => {
   console.log("A user connected: " + socket.id);
@@ -248,6 +249,7 @@ io.on("connection", (socket: Socket) => {
   //   });
 
   // });
+
 
 
 

@@ -7,3 +7,7 @@ export const FriendRequestStatusValues = [
 
 
 export type IFriendRequestStatus = typeof FriendRequestStatusValues[number];
+
+
+
+export const SOCKET_INVITE_REQ_RECEIVE_EVENT: string = "inviteReqReceive";

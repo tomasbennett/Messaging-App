@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { router as conversationsRouter } from "./Conversations";
+import { router as conversationsRouter } from "./conversations";
 import { router as authRouter } from "./auth";
 import { router as signInRouter } from "./sign-in";
 import { router as usersRouter } from "./users";
