@@ -11,7 +11,7 @@ import { IFileArrayProperties } from "../../../shared/features/files/models/IFil
 import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../../shared/features/conversation/constants";
 import { IBaseSocketEmitData, BaseSocketEmitData } from "../../../shared/features/sockets/models/IBaseSocketReqData";
 import { io } from "../app";
-
+import { connectedUsers } from "../sockets/UserSocketMapping";
 
 
 export const router = Router();
@@ -172,6 +172,13 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
     }
 
 
+    const socketSet = connectedUsers.get(user.id);
+    if (socketSet) {
+        socketSet.add(userSocketId);
+    } else {
+        connectedUsers.set(user.id, new Set([userSocketId]));
+    }
+
     try {
         const usersConversations = await prisma.conversationParticipant.findMany({
             where: {
@@ -237,6 +244,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 
 
         const previewFriendConversations: IFriendPreviewMessages[] = usersConversations.map((conversation) => {
+            
             socket.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversation.conversation.id}`);
 
 
