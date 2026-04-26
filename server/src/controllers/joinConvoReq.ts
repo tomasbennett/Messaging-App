@@ -10,7 +10,6 @@ import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../../shared/features/conver
 import { IBaseSocketEmitData } from "../../../shared/features/sockets/models/IBaseSocketReqData";
 import { connectedUsers } from "../sockets/UserSocketMapping";
 import { IReceivingAnInvite } from "../../../shared/features/inviteReq/models/IReceivingAnInvite";
-import { Socket } from "socket.io";
 import { ILeavingConversation } from "../../../shared/features/inviteReq/models/ILeavingConversation";
 import { IAcceptConversationInvite } from "../../../shared/features/inviteReq/models/IAcceptConversationInvite";
 import { IDeclineConversationInvite } from "../../../shared/features/inviteReq/models/IDeclineConversationInvite";

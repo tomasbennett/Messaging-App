@@ -172,12 +172,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
     }
 
 
-    const socketSet = connectedUsers.get(user.id);
-    if (socketSet) {
-        socketSet.add(userSocketId);
-    } else {
-        connectedUsers.set(user.id, new Set([userSocketId]));
-    }
+    
 
     try {
         const usersConversations = await prisma.conversationParticipant.findMany({

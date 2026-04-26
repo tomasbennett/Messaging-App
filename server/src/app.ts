@@ -24,6 +24,7 @@ import { CheckAccessTokenPayload } from "./auth/CheckAccessTokenPayload";
 import { prisma } from "./db/prisma";
 import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../shared/features/conversation/constants";
 import { User } from "@prisma/client";
+import { connectedUsers } from "./sockets/UserSocketMapping";
 
 const ROOT_DIR = environment === "PROD" ? process.cwd() : path.resolve(process.cwd(), "..");
 const SERVER = path.resolve(ROOT_DIR, "server");
@@ -121,9 +122,33 @@ export const io = new Server(server, {
 });
 
 
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth.token;
+
+  const checkResult = await CheckAccessTokenPayload(token);
+
+  if (!checkResult.ok) {
+    console.error("Socket authentication failed: ", checkResult.message);
+    return next(new Error("Authentication error: " + checkResult.message));
+  }
+
+  socket.data.user = checkResult.user;
+
+  next();
+});
+
+
 
 io.on("connection", (socket: Socket) => {
   console.log("A user connected: " + socket.id);
+  const user: User = socket.data.user;
+
+  const socketSet = connectedUsers.get(user.id);
+  if (socketSet) {
+    socketSet.add(socket.id);
+  } else {
+    connectedUsers.set(user.id, new Set([socket.id]));
+  }
 
 
   // socket.on(SOCKET_CHAT_SEND_EVENT, (data: unknown, ack: (err: ICustomErrorResponse | ICustomSuccessMessage) => void) => {
@@ -255,6 +280,16 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("A user disconnected: " + socket.id);
+
+    const socketIds = connectedUsers.get(user.id);
+    socketIds?.delete(socket.id);
+
+    if (socketIds && socketIds.size === 0) {
+      connectedUsers.delete(user.id);
+      return;
+    }
+
+    return;
 
   });
 
