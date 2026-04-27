@@ -262,8 +262,29 @@ router.delete(
                 socket?.leave(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`); //MAKE THE USER LEAVE THE CONVERSATION ROOM SO THEY STOP RECEIVING REAL-TIME UPDATES FOR THAT CONVERSATION
             });
 
-            io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_LEFT_CONVERSATION, leaveConversationData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI
+            const remainingParticipants = await prisma.conversationParticipant.findMany({
+                where: {
+                    conversationId,
+                    hasLeft: false
+                },
+                select: {
+                    userId: true
+                }
+            });
 
+            if (!remainingParticipants || remainingParticipants.length === 0) {
+                
+                await prisma.conversation.delete({
+                    where: {
+                        id: conversationId
+                    }
+                });
+
+            } else {
+                
+                io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_LEFT_CONVERSATION, leaveConversationData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI
+
+            }
 
             return res.sendStatus(204);
 

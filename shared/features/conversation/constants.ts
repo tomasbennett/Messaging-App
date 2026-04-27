@@ -1,3 +1,8 @@
+export const CONVERSATION_CUSTOM_IMAGE_FILE_KEY = "conversation_custom_file_img" as const;
+
+
+
+
 export const SOCKET_CONVERSATION_ROOM_PREFIX: string = "conversation";
 
 

@@ -4,6 +4,7 @@ import { ISearchUsersQueryParams, ISearchedUser, ISearchedUserAPISuccess, Search
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { prisma } from "../db/prisma";
 import { IFriendRequestStatus } from "../../../shared/features/inviteReq/constants";
+import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
 
 
 
@@ -119,3 +120,41 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
         next(error);
     }
 });
+
+
+
+
+
+router.get("/me/profile", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+
+});
+
+
+router.post("/me/profile", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    const user = req.user!;
+    // Update user profile here
+
+
+    try {
+
+
+
+
+
+
+
+
+        
+    } catch (error) {
+        next(error);
+        
+    }
+
+});
+
+
+// router.post("/me/password/update", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+//     const user = req.user!;
+//     // Update user password here
+
+// });

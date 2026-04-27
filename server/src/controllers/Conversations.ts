@@ -8,10 +8,16 @@ import { ILastMessageContentTypes } from "../../../shared/features/conversation/
 import { IConversationMessage, IReceiveConversationMessagesFrontend } from "../../../shared/features/message/models/IConversationMessage";
 import { IConversationHeaderInfo } from "../../../shared/features/conversation/models/IHeaderInfo";
 import { IFileArrayProperties } from "../../../shared/features/files/models/IFileArray";
-import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../../shared/features/conversation/constants";
+import { CONVERSATION_CUSTOM_IMAGE_FILE_KEY, SOCKET_CONVERSATION_ROOM_PREFIX } from "../../../shared/features/conversation/constants";
 import { IBaseSocketEmitData, BaseSocketEmitData } from "../../../shared/features/sockets/models/IBaseSocketReqData";
 import { io } from "../app";
 import { connectedUsers } from "../sockets/UserSocketMapping";
+import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
+import { CreateNewConversationSchema, ICreateNewConversation } from "../../../shared/features/conversation/models/ICreateNewConversation";
+import upload from "../supabase/multer";
+import { supabase } from "../supabase/client";
+import { IReceivingAnInvite } from "../../../shared/features/inviteReq/models/IReceivingAnInvite";
+import { SOCKET_INVITE_REQ_RECEIVE_EVENT } from "../../../shared/features/inviteReq/constants";
 
 
 export const router = Router();
@@ -172,7 +178,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
     }
 
 
-    
+
 
     try {
         const usersConversations = await prisma.conversationParticipant.findMany({
@@ -239,7 +245,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 
 
         const previewFriendConversations: IFriendPreviewMessages[] = usersConversations.map((conversation) => {
-            
+
             socket.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversation.conversation.id}`);
 
 
@@ -441,6 +447,164 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
         });
 
     } catch (error: unknown) {
+        next(error);
+
+    }
+});
+
+
+
+router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_IMAGE_FILE_KEY), async (req: Request<{}, {}, Omit<ICreateNewConversation, typeof CONVERSATION_CUSTOM_IMAGE_FILE_KEY>>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    const user = req.user!;
+
+    const createNewConversationDataResult = CreateNewConversationSchema.omit({ [CONVERSATION_CUSTOM_IMAGE_FILE_KEY]: true }).safeParse(req.body);
+    if (!createNewConversationDataResult.success) {
+        return res.status(400).json({
+            ok: false,
+            status: 400,
+            message: `Invalid request body: ${createNewConversationDataResult.error.message}`
+        });
+    }
+
+
+    const { name, participantIds } = createNewConversationDataResult.data;
+    const customImageFile = req.file as Express.Multer.File | undefined;
+
+    try {
+
+        let groupChatImgId: string | undefined = undefined;
+
+        if (customImageFile) {
+
+            const { originalname, mimetype, size, buffer } = customImageFile;
+
+            const fileExt = originalname.split(".").pop();
+            const storagePath = `${crypto.randomUUID()}.${fileExt}`;
+
+            const { error } = await supabase.storage
+                .from(process.env.SUPABASE_BUCKET_NAME || "uploads")
+                .upload(storagePath, buffer, {
+                    contentType: mimetype,
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            const prismaFile = await prisma.file.create({
+                data: {
+                    filename: originalname,
+                    filesize: size,
+                    filetype: mimetype,
+                    supabaseFileId: storagePath,
+                }
+            });
+
+            groupChatImgId = prismaFile.id;
+
+        }
+
+
+
+
+
+        const result = await prisma.$transaction(
+            async (tx) => {
+
+                const newConversation =
+                    await tx.conversation.create({
+                        data: {
+                            chatName: name,
+                            participants: {
+                                create: {
+                                    userId: user.id,
+                                    hasLeft: false
+                                }
+                            },
+                            groupChatImgId: groupChatImgId
+                        },
+                        select: {
+                            id: true,
+                            chatName: true,
+                            participants: true
+                        }
+                    });
+
+                const creatorParticipant =
+                    newConversation.participants.find(
+                        p => p.userId === user.id
+                    )!;
+
+                await tx.conversationJoinRequest.createMany({
+                    data: participantIds.map(
+                        receiverId => ({
+                            receiverId,
+                            conversationId:
+                                newConversation.id,
+                            senderParticipantId:
+                                creatorParticipant.id,
+                        })
+                    )
+                });
+
+                return newConversation;
+            }
+        );
+
+        const inviteeSocketIds = new Set<string>();
+
+        participantIds.forEach(participantId => {
+            const userSockets =
+                connectedUsers.get(participantId);
+
+            if (!userSockets) return;
+
+            userSockets.forEach(socketId => {
+                inviteeSocketIds.add(socketId);
+            });
+        });
+
+        if (!inviteeSocketIds || inviteeSocketIds.size === 0) {
+            return res.status(201).json({
+                ok: true,
+                status: 201,
+                message: "Conversation created successfully",
+            });
+        }
+
+        const userImg = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            select: {
+                profileImg: {
+                    select: {
+                        supabaseFileId: true
+                    }
+                },
+            }
+        });
+
+        const conversationInvite: IReceivingAnInvite = {
+            conversationId: result.id,
+            conversationName: result.chatName,
+            inviterUserId: user.id,
+            inviterUsername: user.username,
+            inviterProfilePictureUrl: userImg?.profileImg?.supabaseFileId
+        }
+
+
+        io.to([...inviteeSocketIds]).emit(SOCKET_INVITE_REQ_RECEIVE_EVENT, conversationInvite);
+
+
+        return res.status(201).json({
+            ok: true,
+            status: 201,
+            message: "Conversation created successfully",
+        });
+
+
+
+    } catch (error) {
         next(error);
 
     }
