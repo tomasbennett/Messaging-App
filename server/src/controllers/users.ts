@@ -11,8 +11,9 @@ export const router = Router();
 
 
 
-router.get("/search", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ISearchedUserAPISuccess>, next: NextFunction) => {
+router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Request<{ conversationId: string }>, res: Response<ICustomErrorResponse | ISearchedUserAPISuccess>, next: NextFunction) => {
     const user = req.user!;
+    const { conversationId } = req.params;
     const queryParams = req.query;
 
     const queryResult = SearchUsersQueryParams.safeParse(queryParams);
@@ -24,10 +25,9 @@ router.get("/search", ensureJWTAuthentication, async (req: Request, res: Respons
         })
     }
 
-    const { limit, search } = queryResult.data as {
-        limit: number,
-        search: string
-    };
+    const { limit, search: searchRegex } = queryResult.data;
+    const search = searchRegex as string;
+
 
     try {
         
@@ -43,50 +43,50 @@ router.get("/search", ensureJWTAuthentication, async (req: Request, res: Respons
             },
             take: limit,
             select: {
+                id: true,
                 username: true,
                 profileImg: {
                     select: {
                         supabaseFileId: true
                     }
                 },
-                id: true,
-                sentFriendRequests: {
-                    where: {
-                        receiverId: user.id
-                    },
-                    select: {
-                        isAccepted: true
-                    }
-                },
-                receivedFriendRequests: {
-                    where: {
-                        senderId: user.id
-                    },
-                    select: {
-                        isAccepted: true
-                    }
+            },
+        });
+
+        const invitesForConversation = await prisma.conversationJoinRequest.findMany({
+            where: {
+                conversationId,
+                receiverId: {
+                    in: usersSearched.map((user) => user.id)
                 }
             },
-        
+            take: 1,
+            orderBy: {
+                sentAt: "desc"
+            },
+            select: {
+                id: true,
+                senderParticipantId: true,
+                receiverId: true,
+                status: true,
+            }
         });
+
+
+        
 
 
 
         const searchableUsersFriendReqs: ISearchedUser[] = usersSearched.map((searchedUser) => {
             const friendStatus: IFriendRequestStatus = ((): IFriendRequestStatus => {
-                const sentFriendRequest = searchedUser.sentFriendRequests?.[0];
-                const receivedFriendRequest = searchedUser.receivedFriendRequests?.[0];
+                const inviteStatus = invitesForConversation.find((invite) => invite.receiverId === searchedUser.id)?.status;
 
-                if (!sentFriendRequest && !receivedFriendRequest) {
+                if (!inviteStatus || inviteStatus === "REJECTED") {
                     return "no request sent yet";
                 }
 
-                if (sentFriendRequest?.isAccepted || receivedFriendRequest?.isAccepted) {
+                if (inviteStatus === "ACCEPTED") {
                     return "accepted";
-                }
-
-                if (sentFriendRequest) {
-                    return "user sent you a friend request";
                 }
 
                 return "pending";

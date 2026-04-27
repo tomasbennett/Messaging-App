@@ -67,6 +67,7 @@ router.post(
                     hasLeft: false
                 },
                 select: {
+                    id: true,
                     conversation: {
                         select: {
                             chatName: true
@@ -152,7 +153,7 @@ router.post(
             const newInvite = await prisma.conversationJoinRequest.create({
                 data: {
                     conversationId,
-                    senderParticipantId: user.id,
+                    senderParticipantId: conversationParticipant.id,
                     receiverId: inviteeUserId,
                 }
             });
