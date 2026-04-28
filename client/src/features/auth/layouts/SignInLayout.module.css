@@ -1,4 +1,4 @@
-.signinOuterContainer {
+.outerContainer {
     
 
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -29,7 +29,7 @@
     box-shadow: 0 0 3rem rgba(0, 0, 0, .8);
 }
 
-.signinOuterContainer h2 {
+.outerContainer h2 {
 
     margin-top: 3.5rem;
     margin-bottom: 3rem;
@@ -38,7 +38,7 @@
     font-weight: 1800;
 }
 
-.signinOuterContainer > form{
+.outerContainer > form{
     width: 100%;
     height: 100%;
 

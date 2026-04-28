@@ -4,12 +4,16 @@ import styles from "./SignInLayout.module.css";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { domain } from "../../../constants/EnvironmentAPI";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ISignInError, SignInErrorSchema, ILoginForm, loginFormSchema } from "../../../../../shared/features/auth/models/ILoginSchema";
 import { ISignInContext } from "../models/ISignInContext";
 import { homePageRoute, logInPageRoute, signUpPageRoute } from "../../../constants/routes";
 import { LoginRegisterSuccessUserInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
+import { useMediaQuery } from "react-responsive";
+import { thinScreenMaxWidth } from "../../../constants/screenDimensions";
+import { USER_PROFILE_IMG_FILE_KEY } from "../../../../../shared/features/auth/constants";
+import { LoadingCircle } from "../../../components/LoadingCircle";
 
 
 export function SignInLayout() {
@@ -84,8 +88,12 @@ export function SignInLayout() {
     } = useAuth();
 
 
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
         try {
+            setIsLoading(true);
+
             const response = await fetch(`${domain}/api/sign-in/${submitUrl}`, {
                 method: "POST",
                 headers: {
@@ -104,7 +112,6 @@ export function SignInLayout() {
                     userId: responseDataResult.data.userId,
                     username: responseDataResult.data.username
                 });
-                // navigate(homePageRoute, { replace: true });
                 return;
             }
 
@@ -139,56 +146,123 @@ export function SignInLayout() {
                 message: "Failed to connect to the server."
             });
 
+        } finally {
+            setIsLoading(false);
         }
     }
 
+    const isThinScreen: boolean = useMediaQuery({ maxWidth: thinScreenMaxWidth });
+
     return (
         <>
-            <Outlet />
 
-            <div className={styles.signinOuterContainer}>
-                <h2>{title}</h2>
 
-                {/* <form action={`/sign-in/${submitUrl}`} method="POST"> */}
+            <div className={styles.outerContainer}>
+
+
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {
-                        errors.root && (
-                            <p className={styles.errorMessage}>{errors.root.message}</p>
+                        isThinScreen && (
+                            <h1 className={styles.title}>{title}</h1>
                         )
                     }
-                    <div className={styles.inputGroup}>
+
+                    <div className={styles.imgContainer}>
                         {
-                            errors.username && (
-                                <p className={styles.errorMessage}>{errors.username.message}</p>
-                            )
+                            submitUrl === "login" ?
+
+                                <div className={styles.loginImgContainer}>
+                                    <img
+                                        src={``}
+                                        alt="Login Illustration"
+                                        className={styles.loginImg}
+                                    />
+                                </div>
+
+                                :
+
+                                <div className={styles.signupImgContainer}>
+                                    <img
+                                        src={``}
+                                        alt="Sign Up Profile Image"
+                                        className={styles.signupImg}
+                                    />
+                                    <input {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
+                                </div>
+
+
                         }
-                        <label htmlFor="username">Username</label>
-                        <input
-                            {...register("username")}
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username..."
-                        />
                     </div>
 
-                    <div className={styles.inputGroup}>
+
+                    <div className={styles.textInputsContainer}>
                         {
-                            errors.password && (
-                                <p className={styles.errorMessage}>{errors.password.message}</p>
+                            !isThinScreen && (
+                                <h1 className={styles.title}>{title}</h1>
                             )
                         }
-                        <label htmlFor="password">Password</label>
-                        <input
-                            {...register("password")}
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password..."
-                        />
-                    </div>
 
-                    <button className={styles.submitButton} type="submit">Submit</button>
+                        {
+                            errors.root && (
+                                <p className={styles.errorMessage}>{errors.root.message}</p>
+                            )
+                        }
+
+                        {
+                            errors[USER_PROFILE_IMG_FILE_KEY] && (
+                                <p className={styles.errorMessage}>{errors[USER_PROFILE_IMG_FILE_KEY].message}</p>
+                            )
+                        }
+                        <div className={styles.inputGroup}>
+                            {
+                                errors.username && (
+                                    <p className={styles.errorMessage}>{errors.username.message}</p>
+                                )
+                            }
+                            <label htmlFor="username">Username</label>
+                            <input
+                                {...register("username")}
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username..."
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            {
+                                errors.password && (
+                                    <p className={styles.errorMessage}>{errors.password.message}</p>
+                                )
+                            }
+                            <label htmlFor="password">Password</label>
+                            <input
+                                {...register("password")}
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password..."
+                            />
+                        </div>
+
+                        <div className={styles.submitBtnContainer}>
+
+                            {
+                                isLoading ?
+
+                                    <LoadingCircle height="80%" />
+
+                                    :
+
+                                    <button className={styles.submitButton} type="submit">
+                                        Submit
+                                    </button>
+                            }
+
+
+                        </div>
+
+                    </div>
 
                 </form>
                 {
@@ -206,6 +280,9 @@ export function SignInLayout() {
 
                 }
             </div>
+
+
+            <Outlet />
         </>
     )
 }
