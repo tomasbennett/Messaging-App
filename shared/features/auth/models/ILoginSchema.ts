@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { maxUsernamePasswordLength, minUsernamePasswordLength, usernamePasswordRegex } from "../constants";
+import { USER_PROFILE_IMG_FILE_KEY, maxUsernamePasswordLength, minUsernamePasswordLength, usernamePasswordRegex } from "../constants";
+import { FileSingleOptionalSchema } from "../../files/models/INewOptionalFile";
 
 
 export const usernamePasswordSchema = z.string()
@@ -13,7 +14,8 @@ export type IUsernamePassword = z.infer<typeof usernamePasswordSchema>;
 
 export const loginFormSchema = z.object({
     username: usernamePasswordSchema,
-    password: usernamePasswordSchema
+    password: usernamePasswordSchema,
+    [USER_PROFILE_IMG_FILE_KEY]: FileSingleOptionalSchema
 });
 
 export type ILoginForm = z.infer<typeof loginFormSchema>;

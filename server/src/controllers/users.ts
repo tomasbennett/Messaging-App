@@ -5,7 +5,14 @@ import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErr
 import { prisma } from "../db/prisma";
 import { IFriendRequestStatus } from "../../../shared/features/inviteReq/constants";
 import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
-
+import { IReceiveUserProfileInformation, IUserProfileInformation } from "../../../shared/features/user/models/IUserProfileInformation";
+import { ILoginForm, usernamePasswordSchema } from "../../../shared/features/auth/models/ILoginSchema";
+import { USER_PROFILE_IMG_FILE_KEY } from "../../../shared/features/auth/constants";
+import { supabase } from "../supabase/client";
+import bcrypt from "bcrypt";
+import upload from "../supabase/multer";
+import { IUpdateProfileServerSide, UpdateProfileSchemaServerSide } from "../../../shared/features/user/models/IUpdateProfile";
+import { Prisma } from "@prisma/client";
 
 
 export const router = Router();
@@ -31,7 +38,7 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
 
 
     try {
-        
+
         const usersSearched = await prisma.user.findMany({
             where: {
                 username: {
@@ -74,7 +81,7 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
         });
 
 
-        
+
 
 
 
@@ -115,7 +122,7 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
 
 
 
-        
+
     } catch (error) {
         next(error);
     }
@@ -125,29 +132,150 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
 
 
 
-router.get("/me/profile", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
-
-});
-
-
-router.post("/me/profile", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.get("/me/profile", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | IReceiveUserProfileInformation>, next: NextFunction) => {
     const user = req.user!;
-    // Update user profile here
 
 
     try {
+        const userProfile = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            select: {
+                id: true,
+                username: true,
+                profileImg: {
+                    select: {
+                        supabaseFileId: true
+                    }
+                },
+            }
+        });
+
+        if (!userProfile) {
+            return res.status(404).json({
+                ok: false,
+                status: 404,
+                message: "User not found!!!"
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            message: "Successfully retrieved user profile information!!!",
+            userId: userProfile.id,
+            username: userProfile.username,
+            profileImgUrl: userProfile.profileImg?.supabaseFileId
+        });
 
 
 
 
 
-
-
-
-        
     } catch (error) {
         next(error);
+
+    }
+});
+
+
+router.patch("/me/profile", ensureJWTAuthentication, upload.single(USER_PROFILE_IMG_FILE_KEY), async (req: Request<{}, {}, IUpdateProfileServerSide>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    const user = req.user!;
+    const file = req.file;
+    // Update user profile here
+
+
+
+
+    try {
         
+        
+        const serverSideResult = UpdateProfileSchemaServerSide.safeParse(req.body);
+        if (!serverSideResult.success) {
+            return res.status(400).json({
+                ok: false,
+                status: 400,
+                message: `Invalid request body: ${serverSideResult.error.message}`
+            });
+        }
+
+
+
+        const updateProperties: Prisma.UserUncheckedUpdateInput = {};
+        
+        if (file) {
+            const { originalname, mimetype, size, buffer } = file;
+
+            const fileExt = originalname.split(".").pop();
+            const storagePath = `${crypto.randomUUID()}.${fileExt}`;
+
+            const { error } = await supabase.storage
+                .from(process.env.SUPABASE_BUCKET_NAME || "uploads")
+                .upload(storagePath, buffer, {
+                    contentType: mimetype,
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            const prismaFile = await prisma.file.create({
+                data: {
+                    filename: originalname,
+                    filesize: size,
+                    filetype: mimetype,
+                    supabaseFileId: storagePath
+                }
+            });
+
+            updateProperties.profileImgId = prismaFile.id;
+
+
+        }
+
+        if (serverSideResult.data.username) {
+            const username = serverSideResult.data.username;
+
+            updateProperties.username = username;
+        }
+
+        if (serverSideResult.data.password) {
+            const password = serverSideResult.data.password;
+
+            const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 10);
+            updateProperties.password = hashedPassword;
+        }
+
+        
+        if (Object.keys(updateProperties).length === 0) {
+            return res.status(400).json({
+                ok: false,
+                status: 400,
+                message: "No valid fields provided for update, must provide at least one valid field!!!"
+            });
+        }
+
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: updateProperties
+        });
+
+
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            message: "Successfully updated user profile information!!!"
+        });
+
+
+
+
+    } catch (error) {
+        next(error);
+
     }
 
 });

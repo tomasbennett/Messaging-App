@@ -12,11 +12,13 @@ import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
 import { ICustomSuccessMessage } from "../../../shared/features/api/models/APISuccessResponse";
 import { ILoginForm, ISignInError, usernamePasswordSchema } from "../../../shared/features/auth/models/ILoginSchema";
 import { environment } from "../../../shared/constants";
-import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAccessTokenResponse";
 import { issueSignedInResponse } from "../auth/IssueSignedInResponse";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { refreshTokenCookieKey } from "../constants/constants";
 import { ILoginRegisterSuccessUserInfoSchema } from "../../../shared/features/auth/models/ILoginSuccessUserInfo";
+import upload from "../supabase/multer";
+import { supabase } from "../supabase/client";
+import { USER_PROFILE_IMG_FILE_KEY } from "../../../shared/features/auth/constants";
 
 
 
@@ -81,8 +83,9 @@ router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISi
 });
 
 
-router.post("/register", async (req: Request<{}, {}, ILoginForm>, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>, next: NextFunction) => {
+router.post("/register", upload.single(USER_PROFILE_IMG_FILE_KEY), async (req: Request<{}, {}, Omit<ILoginForm, typeof USER_PROFILE_IMG_FILE_KEY>>, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>, next: NextFunction) => {
     const { username, password } = req.body;
+    const file = req.file;
 
     const usernameResult = usernamePasswordSchema.safeParse(username);
     if (!usernameResult.success) {
@@ -105,10 +108,44 @@ router.post("/register", async (req: Request<{}, {}, ILoginForm>, res: Response<
 
         const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS) : 10);
 
+
+        let profileImgId: string | undefined = undefined;
+
+        if (file) {
+
+            const { originalname, mimetype, size, buffer } = file;
+
+            const fileExt = originalname.split(".").pop();
+            const storagePath = `${crypto.randomUUID()}.${fileExt}`;
+
+            const { error } = await supabase.storage
+                .from(process.env.SUPABASE_BUCKET_NAME || "uploads")
+                .upload(storagePath, buffer, {
+                    contentType: mimetype,
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            const prismaFile = await prisma.file.create({
+                data: {
+                    filename: originalname,
+                    filesize: size,
+                    filetype: mimetype,
+                    supabaseFileId: storagePath,
+                }
+            });
+
+            profileImgId = prismaFile.id;
+
+        }
+
+
         const user = await prisma.user.create({
             data: {
                 username,
-                password: hashedPassword
+                password: hashedPassword,
+                profileImgId
             }
         });
 

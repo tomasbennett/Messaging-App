@@ -4,12 +4,13 @@ import { apiPOSTBaseRegex } from "../../api/constants";
 import { usernamePasswordRegex } from "../../auth/constants";
 import { FriendRequestStatusValues } from "../../inviteReq/constants";
 import { APISuccessSchema } from "../../api/models/APISuccessResponse";
+import { usernamePasswordSchema } from "../../auth/models/ILoginSchema";
 
 
 
 export const SearchUsersQueryParams = z.object({
     limit: NumberFromStringMinMaxLimitSchemaFunc(1, 100),
-    search: usernamePasswordRegex
+    search: usernamePasswordSchema
 });
 
 
@@ -22,7 +23,7 @@ export type ISearchUsersQueryParams = z.infer<typeof SearchUsersQueryParams>;
 
 export const SearchedUser = z.object({
     userId: z.string(),
-    username: usernamePasswordRegex,
+    username: usernamePasswordSchema,
     userProfileImgUrl: z.string().optional(),
     friendStatus: FriendRequestStatusValues
 });
