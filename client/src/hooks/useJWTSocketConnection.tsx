@@ -4,6 +4,7 @@ import { useNewAccessToken } from "./useNewAccessToken";
 import { accessTokenLocalStorageKey } from "../constants/accessTokenLocalStorageKey";
 import { domain } from "../constants/EnvironmentAPI";
 import { SOCKET_INVALID_ACCESS_TOKEN_MESSAGE } from "../../../shared/features/auth/constants";
+import { usePairSocketListeners } from "./usePairSocketListeners";
 
 export function useJWTSocketConnection() {
 
@@ -32,37 +33,28 @@ export function useJWTSocketConnection() {
 
 
 
-
-                
-
-                socket.once("connect", () => {
-                    console.log("Connected to Socket.IO server", socket.id);
-                    return resolve({
-                        returnType: "response",
-                        data: socket
-                    })
-                });
-
-                socket.once(connectionErrorName, (err) => {
+                const handleConnectionError = (err: unknown) => {
+                    
                     console.error("Connection error:", err);
                     return resolve({
                         returnType: "fetchError",
                         error: {
                             ok: false,
                             status: 500,
-                            message: "Socket connection error: " + err.message
+                            message: "Socket connection error: " + (err instanceof Error ? err.message : String(err))
                         }
                     });
-                });
+                }
 
-
-
-
-
-
-
-
-
+                const handleConnect = () => {
+                    console.log("Connected to Socket.IO server", socket.id);
+                    return resolve({
+                        returnType: "response",
+                        data: socket
+                    });
+                }
+                
+                usePairSocketListeners(socket, handleConnect, handleConnectionError);
                 return;
 
             }
@@ -74,15 +66,9 @@ export function useJWTSocketConnection() {
                 }
             });
 
-            socket.once("connect", () => {
-                console.log("Connected to Socket.IO server", socket.id);
-                return resolve({
-                    returnType: "response",
-                    data: socket
-                });
-            });
 
-            socket.once(connectionErrorName, async (err) => {
+
+            const handleConnectionError = async (err: unknown) => {
                 if (!(err instanceof Error)) {
                     console.error("Connection error:", err);
                     return resolve({
@@ -103,6 +89,8 @@ export function useJWTSocketConnection() {
                         return resolve(newAccessToken);
                     }
 
+
+
                     const retrySocket = io(`${domain}`, {
                         withCredentials: true,
                         auth: {
@@ -110,16 +98,21 @@ export function useJWTSocketConnection() {
                         }
                     });
 
-                    retrySocket.once("connect", () => {
-                        console.log("Connected to Socket.IO server on retry", retrySocket.id);
-                        return resolve({
-                            returnType: "response",
-                            data: retrySocket
-                        });
-                    });
 
-                    retrySocket.once(connectionErrorName, (retryErr) => {
+                    const retryHandleConnectionError = (retryErr: unknown) => {
                         console.error("Retry connection error:", retryErr);
+
+                        if (!(retryErr instanceof Error)) {
+                            return resolve({
+                                returnType: "fetchError",
+                                error: {
+                                    ok: false,
+                                    status: 500,
+                                    message: "Socket connection error on retry"
+                                }
+                            });
+                        }
+
                         return resolve({
                             returnType: "fetchError",
                             error: {
@@ -128,8 +121,20 @@ export function useJWTSocketConnection() {
                                 message: "Socket connection error on retry: " + retryErr.message
                             }
                         });
-                    });
+                    }
 
+                    const retryHandleConnect = () => {
+                        console.log("Connected to Socket.IO server on retry", retrySocket.id);
+                        return resolve({
+                            returnType: "response",
+                            data: retrySocket
+                        });
+                    }
+
+
+                    usePairSocketListeners(retrySocket, retryHandleConnect, retryHandleConnectionError);
+
+                    return;
 
                 }
 
@@ -142,7 +147,17 @@ export function useJWTSocketConnection() {
                     }
                 });
 
-            });
+            }
+
+            const handleConnect = () => {
+                console.log("Connected to Socket.IO server", socket.id);
+                return resolve({
+                    returnType: "response",
+                    data: socket
+                });
+            }
+
+            usePairSocketListeners(socket, handleConnect, handleConnectionError);
 
 
         });
