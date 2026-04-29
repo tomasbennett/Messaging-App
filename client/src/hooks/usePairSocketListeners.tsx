@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 export function usePairSocketListeners(
     socket: Socket,
     onSuccess: () => void,
-    onFail: (err: unknown) => void
+    onFail: (err: unknown) => Promise<void> | void
 ) {
     let handleConnect: () => void;
     let handleConnectionError: (err: unknown) => void;

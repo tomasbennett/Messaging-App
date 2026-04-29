@@ -1,4 +1,5 @@
 .backgroundContainer{
+    /* --background-size: 160px; */
     position: relative;
 
     flex: 1 1 0;
@@ -7,4 +8,8 @@
     background-color: var(--general-bcg-colour);
 
     overflow: hidden;
+
+    background-image: url("../assets/i-like-food.svg");
+    background-repeat: repeat;
+    background-size: 180px;
 }

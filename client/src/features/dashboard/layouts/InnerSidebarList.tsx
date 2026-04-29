@@ -11,8 +11,7 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useNavigate } from "react-router-dom";
 import { ReceiveUserFrontendSchema } from "../../../../../shared/features/user/models/IFrontendUser";
-import { ReceiveFriendRequestFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
-import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/inviteReq/models/IUserFriendStatusRelationship";
 import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
@@ -20,7 +19,7 @@ import { errorPageRoute } from "../../../constants/routes";
 import { MessageListIcon } from "../../../assets/icons/MessageListIcon";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { SearchedForUserDetails } from "../components/SearchedForFriendReq";
-import { IFriendRequestStatus } from "../../../../../shared/features/friendRequest/constants";
+import { IFriendRequestStatus } from "../../../../../shared/features/inviteReq/constants";
 import { ISearchUsersQueryParams } from "../../../../../shared/features/user/models/ISearchUsers";
 import { toQueryString } from "../../../util/ToQueryString";
 

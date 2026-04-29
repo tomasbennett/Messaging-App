@@ -20,13 +20,17 @@
     max-height: 55rem;
 
     background: linear-gradient(to bottom right, rgb(189, 231, 255), white);
-    color: rgb(29, 29, 29);
+    color: black;
+
+    /* background-color: rgba(158, 158, 158, 0.692); */
+
+    
 
     padding: 2rem;
 
 
     border-radius: .5rem;
-    box-shadow: 0 0 3rem rgba(0, 0, 0, .8);
+    /* box-shadow: 0 0 3rem rgba(0, 0, 0, .8); */
 }
 
 .outerContainer h2 {
