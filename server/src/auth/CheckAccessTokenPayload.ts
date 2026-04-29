@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
-import { expiredAccessTokenStatus } from "../../../shared/features/auth/constants";
+import { SOCKET_INVALID_ACCESS_TOKEN_MESSAGE, expiredAccessTokenStatus } from "../../../shared/features/auth/constants";
 import { prisma } from "../db/prisma";
 
 
@@ -12,7 +12,7 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
         return {
             ok: false,
             status: expiredAccessTokenStatus,
-            message: "Invalid authorization header when ensuring authentication!!!"
+            message: SOCKET_INVALID_ACCESS_TOKEN_MESSAGE
         }
     }
 
@@ -61,7 +61,7 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
             return {
                 ok: false,
                 status: expiredAccessTokenStatus,
-                message: "Invalid access token!!!"
+                message: SOCKET_INVALID_ACCESS_TOKEN_MESSAGE
             };
         }
 
@@ -69,7 +69,7 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
             return {
                 ok: false,
                 status: expiredAccessTokenStatus,
-                message: "Access token expired!!!"
+                message: SOCKET_INVALID_ACCESS_TOKEN_MESSAGE
             };
         }
 

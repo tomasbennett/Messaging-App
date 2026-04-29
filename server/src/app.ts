@@ -129,7 +129,7 @@ io.use(async (socket, next) => {
 
   if (!checkResult.ok) {
     console.error("Socket authentication failed: ", checkResult.message);
-    return next(new Error("Authentication error: " + checkResult.message));
+    return next(new Error(checkResult.message));
   }
 
   socket.data.user = checkResult.user;

@@ -1,23 +1,19 @@
-import { useNavigate } from "react-router-dom";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { invalidRefreshTokenStatus } from "../../../shared/features/auth/constants";
-import { domain } from "../constants/EnvironmentAPI";
-import { errorPageRoute } from "../constants/routes";
-import { useAuth } from "../features/auth/contexts/AuthContext";
-import { useError } from "../features/error/contexts/ErrorContext";
 import { AccessTokenResponseSchema } from "../../../shared/features/auth/models/IAccessTokenResponse";
+import { domain } from "../constants/EnvironmentAPI";
 import { accessTokenLocalStorageKey } from "../constants/accessTokenLocalStorageKey";
 import { notExpectedFormatError } from "../constants/errorConstants";
 import { IJWTFetchResponses } from "../models/IJWTFetchResponses";
 
 
+
 let refreshTokenPromise: Promise<IJWTFetchResponses<string>> | null = null;
 
 
-export function useJWTFetch() {
-    // const { setAuthLevel } = useAuth();
-    const errorCtx = useError();
-    const navigate = useNavigate();
+export function useNewAccessToken() {
+
+
 
 
     async function refreshAccessToken(): Promise<IJWTFetchResponses<string>> {
@@ -26,24 +22,24 @@ export function useJWTFetch() {
         }
 
         refreshTokenPromise = (async () => {
-            if (!errorCtx) {
-                console.error("Error context is not available in refreshAccessToken");
-                const errorResponse: ICustomErrorResponse = {
-                    ok: false,
-                    status: 500,
-                    message: "Error context is not available in refreshAccessToken"
-                };
-                navigate(errorPageRoute, {
-                    replace: true,
-                    state: {
-                        error: errorResponse
-                    }
-                });
-                return {
-                    returnType: "fetchError",
-                    error: errorResponse
-                };
-            }
+            // if (!errorCtx) {
+            //     console.error("Error context is not available in refreshAccessToken");
+            //     const errorResponse: ICustomErrorResponse = {
+            //         ok: false,
+            //         status: 500,
+            //         message: "Error context is not available in refreshAccessToken"
+            //     };
+            //     navigate(errorPageRoute, {
+            //         replace: true,
+            //         state: {
+            //             error: errorResponse
+            //         }
+            //     });
+            //     return {
+            //         returnType: "fetchError",
+            //         error: errorResponse
+            //     };
+            // }
 
             try {
                 console.log("THE NEW ACCESS TOKEN REQ RUNS");
@@ -72,13 +68,13 @@ export function useJWTFetch() {
                         status: newAccessTokenReq.status,
                         message: "A server error occurred. Please try again later!!!"
                     };
-                    errorCtx.throwError(serverError);
-                    navigate(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: serverError
-                        }
-                    });
+                    // errorCtx.throwError(serverError);
+                    // navigate(errorPageRoute, {
+                    //     replace: true,
+                    //     state: {
+                    //         error: serverError
+                    //     }
+                    // });
                     return {
                         returnType: "fetchError",
                         error: serverError
@@ -99,13 +95,13 @@ export function useJWTFetch() {
 
                 const apiCustomErrorResult = APIErrorSchema.safeParse(accessTokenJSON);
                 if (apiCustomErrorResult.success) {
-                    navigate(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: apiCustomErrorResult.data
-                        }
-                    });
-                    errorCtx.throwError(apiCustomErrorResult.data);
+                    // navigate(errorPageRoute, {
+                    //     replace: true,
+                    //     state: {
+                    //         error: apiCustomErrorResult.data
+                    //     }
+                    // });
+                    // errorCtx.throwError(apiCustomErrorResult.data);
 
                     return {
                         returnType: "fetchError",
@@ -114,12 +110,12 @@ export function useJWTFetch() {
                 }
 
 
-                navigate(errorPageRoute, {
-                    state: {
-                        error: notExpectedFormatError
-                    }
-                });
-                errorCtx.throwError(notExpectedFormatError);
+                // navigate(errorPageRoute, {
+                //     state: {
+                //         error: notExpectedFormatError
+                //     }
+                // });
+                // errorCtx.throwError(notExpectedFormatError);
                 return {
                     returnType: "fetchError",
                     error: notExpectedFormatError
@@ -136,13 +132,13 @@ export function useJWTFetch() {
                         status: 0,
                         message: error.message
                     };
-                    navigate(errorPageRoute, {
-                        replace: true,
-                        state: {
-                            error: fetchError
-                        }
-                    });
-                    errorCtx.throwError(fetchError);
+                    // navigate(errorPageRoute, {
+                    //     replace: true,
+                    //     state: {
+                    //         error: fetchError
+                    //     }
+                    // });
+                    // errorCtx.throwError(fetchError);
 
                     return {
                         returnType: "fetchError",
@@ -156,14 +152,14 @@ export function useJWTFetch() {
                     message: "An unknown error occurred while refreshing access token."
                 };
 
-                errorCtx.throwError(unknownError);
+                // errorCtx.throwError(unknownError);
 
-                navigate(errorPageRoute, {
-                    replace: true,
-                    state: {
-                        error: unknownError
-                    }
-                });
+                // navigate(errorPageRoute, {
+                //     replace: true,
+                //     state: {
+                //         error: unknownError
+                //     }
+                // });
 
                 return {
                     returnType: "fetchError",
@@ -181,109 +177,7 @@ export function useJWTFetch() {
     }
 
 
-    async function jwtFetchHandler(
-        url: string,
-        fetchOptions: RequestInit,
-    ): Promise<IJWTFetchResponses<Response>> {
-
-        
-        try {
-            const localStorageAccessToken = localStorage.getItem(accessTokenLocalStorageKey);
-            
-            if (!localStorageAccessToken) {
-                const newAccessToken = await refreshAccessToken();
-                if (newAccessToken.returnType === "fetchError" || newAccessToken.returnType === "loginError") {
-                    return newAccessToken;
-                }
-                const authFetchOptions: RequestInit = {
-                    ...fetchOptions,
-                    headers: {
-                        ...fetchOptions?.headers,
-                        Authorization: `Bearer ${newAccessToken}`
-                    }
-                };
-
-                const response = await fetch(url, authFetchOptions);
-                return {
-                    returnType: "response",
-                    data: response
-                };
-            }
-
-            const authFetchOptions: RequestInit = {
-                ...fetchOptions,
-                headers: {
-                    ...fetchOptions?.headers,
-                    Authorization: `Bearer ${localStorageAccessToken}`
-                }
-            };
-
-            const response = await fetch(url, authFetchOptions);
-
-            if (response.status === invalidRefreshTokenStatus) {
-                const newAccessToken = await refreshAccessToken();
-                if (newAccessToken.returnType === "fetchError" || newAccessToken.returnType === "loginError") {
-                    return newAccessToken;
-                }
-
-                const retryAuthFetchOptions: RequestInit = {
-                    ...fetchOptions,
-                    headers: {
-                        ...fetchOptions?.headers,
-                        Authorization: `Bearer ${newAccessToken.data}`
-                    }
-                };
-
-                const retryResponse = await fetch(url, retryAuthFetchOptions);
-                return {
-                    returnType: "response",
-                    data: retryResponse
-                };
-            }
-
-            return {
-                returnType: "response",
-                data: response
-            };
-            
-        } catch (error: unknown) {
-            console.error("Error in jwtFetchHandler:", error);
-
-
-            if (error instanceof Error) {
-                const fetchError: ICustomErrorResponse = {
-                    message: error.message,
-                    status: 500,
-                    ok: false
-                };
-
-                return {
-                    returnType: "fetchError",
-                    error: fetchError
-                };
-            }
-
-            const unknownError: ICustomErrorResponse = {
-                message: "An unknown error occurred in jwtFetchHandler",
-                status: 500,
-                ok: false
-            };
-
-            return {
-                returnType: "fetchError",
-                error: unknownError
-            };
-
-
-        }
-
-    }
-
-
-
     return {
-        jwtFetchHandler
-    };
-
-
+        refreshAccessToken
+    }
 }

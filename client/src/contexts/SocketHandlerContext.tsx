@@ -1,6 +1,11 @@
 import React, { useContext, useEffect } from "react";
-import { Socket } from "socket.io-client";
-import { SocketIOHandler } from "../services/SocketIOHandler";
+import { Socket, io } from "socket.io-client";
+import { domain } from "../constants/EnvironmentAPI";
+import { useNewAccessToken } from "../hooks/useNewAccessToken";
+import { useJWTSocketConnection } from "../hooks/useJWTSocketConnection";
+import { useAuth } from "../features/auth/contexts/AuthContext";
+import { useError } from "../features/error/contexts/ErrorContext";
+import { LoadingCircle } from "../components/LoadingCircle";
 
 export const SocketContext = React.createContext<Socket | null>(null);
 
@@ -13,16 +18,48 @@ export const SocketProvider = ({
 }: { children: React.ReactNode }) => {
 
     const [socket, setSocket] = React.useState<Socket | null>(null);
-
-
+    const [isConnecting, setIsConnecting] = React.useState<boolean>(true);
+    const { getSocketHandler } = useJWTSocketConnection();
+    const { setAuthLevel } = useAuth();
+    const errorCtx = useError();
 
     useEffect(() => {
 
-        const socketInstance = new SocketIOHandler();
-        setSocket(socketInstance.getSocket());
+        async function connectSocket() {
+
+            if (!errorCtx) {
+                console.error("Error context is not available in SocketProvider");
+                return;
+            }
+
+            setIsConnecting(true);
+
+
+            const socketAttempt = await getSocketHandler();
+            if (socketAttempt.returnType === "fetchError" || socketAttempt.returnType === "loginError") {
+                console.error("Error connecting to socket:", socketAttempt.error);
+                setAuthLevel({ userType: "none" });
+                errorCtx.throwError(socketAttempt.error);
+                return;
+
+            }
+
+            const newSocket = socketAttempt.data;
+            setSocket(newSocket);
+
+            setIsConnecting(false);
+
+
+
+        }
+
+        connectSocket();
+
 
         return () => {
-            socketInstance.disconnect();
+            if (socket) {
+                socket.disconnect();
+            }
         };
     }, []);
 
@@ -32,7 +69,20 @@ export const SocketProvider = ({
 
     return (
         <SocketContext.Provider value={ctx}>
-            {children}
+
+
+            {
+                isConnecting ?
+
+                    <LoadingCircle height="6rem" />
+
+                :
+
+                children
+
+            }
+
+
         </SocketContext.Provider>
     );
 }
@@ -40,11 +90,11 @@ export const SocketProvider = ({
 
 
 export function useSocket() {
-  const socket = useContext(SocketContext);
+    const socket = useContext(SocketContext);
 
-  if (!socket) {
-    throw new Error("Socket not available");
-  }
+    if (!socket) {
+        throw new Error("Socket not available");
+    }
 
-  return socket;
+    return socket;
 }

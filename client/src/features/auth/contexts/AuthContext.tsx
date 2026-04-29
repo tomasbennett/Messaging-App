@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { IAuthContextType, IAuthLevel } from "../models/IUseCheckAuth";
 import { setLogoutFn } from "../services/LogoutAuthContext";
 import { useError } from "../../error/contexts/ErrorContext";
-import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";

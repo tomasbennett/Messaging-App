@@ -14,7 +14,7 @@ import { ReceiveUserFrontendSchema } from "../../../../../shared/features/user/m
 import { ReceiveFriendRequestFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
 import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
 import { IFriendPreviewMessages } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
-import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { errorPageRoute } from "../../../constants/routes";
 import { MessageListIcon } from "../../../assets/icons/MessageListIcon";

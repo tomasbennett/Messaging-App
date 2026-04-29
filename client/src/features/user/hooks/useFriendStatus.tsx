@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useAuth } from "../../auth/contexts/AuthContext";
-import { IFriendRequestStatus } from "../../../../../shared/features/friendRequest/constants";
-import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { IFriendRequestStatus } from "../../../../../shared/features/inviteReq/constants";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { errorPageRoute } from "../../../constants/routes";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
-import { ReceiveFriendRequestConfirmationFrontendSchema } from "../../../../../shared/features/friendRequest/models/IFrontendFriendRequest";
+import { ReceiveFriendRequestConfirmationFrontendSchema } from "../../../../../shared/features/inviteReq/models/IFrontendFriendRequest";
 import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 
 export function useFriendStatus(

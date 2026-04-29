@@ -9,7 +9,7 @@ import { IConversationMessage, ReceiveConversationMessagesAndHeaderInfoFrontendS
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { InputMessageComponent } from "../components/InputMessage";
 import { MessageComponent } from "../components/Message";
-import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { errorPageRoute } from "../../../constants/routes";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { UserCogsIcon } from "../../../assets/icons/UserCogsIcon";

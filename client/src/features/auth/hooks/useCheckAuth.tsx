@@ -9,7 +9,7 @@ import { errorPageRoute, signUpPageRoute as signInPageRoute } from "../../../con
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { ReceiveUserAuthContextInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
-import { useJWTFetch } from "../../../hooks/useNewAccessToken";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 
 
 
