@@ -1,5 +1,20 @@
-.outerContainer {
-    --dark-grey: rgba(156, 156, 156, 0.356);
+.outerContainer{
+    width: 100%;
+    height: 100%;
+
+    position: relative;
+
+    overflow-y: auto;
+
+}
+
+.innerContainer {
+    
+    
+
+    
+
+    --padding: 2rem;
 
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 
@@ -12,23 +27,24 @@
 
 
     width: 94%;
-    /* min-width: 35rem; */
+    max-width: 155rem;
     height: 90%;
     min-height: 55rem;
+    max-height: 90rem;
 
-    overflow-y: auto;
-
-
-
-    background-color: rgb(20, 20, 20);
-    /* border-right: .2rem solid white; */
+    /* overflow-y: auto; */
 
 
 
-    padding: 2rem;
+    background-color: var(--light-black-colour);
 
 
-    border-radius: 2rem;
+    padding: var(--padding);
+
+    
+
+
+    border-radius: 3rem;
 
     & *{
         outline: .1rem orange solid;
@@ -57,17 +73,27 @@
 }
 
 .imgContainer {
+    --img-container-padding: 4rem;
+    --padding: 2rem;
+
     position: relative;
 
 
     flex: 1 1 0;
     height: 100%;
 
-    padding: 4rem;
+    padding: var(--img-container-padding);
+    /* padding-left: calc(var(--img-container-padding) + var(--padding));
+    padding-top: calc(var(--img-container-padding) + var(--padding));
+    padding-bottom: calc(var(--img-container-padding) + var(--padding)); */
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    /* background-image: url("../../../assets/i-like-food.svg");
+    background-repeat: repeat;
+    background-size: 180px; */
 
     overflow: hidden;
 
@@ -79,20 +105,60 @@
     }
 }
 
-.signupImgContainer {
-    position: relative;
-    display: inline-block; /* container sizes to image */
+.imgContainer.thinScreen {
+    
 
-    /* width: 100%; */
-    /* flex: 1 1 0;
-    height: 100%; */
+    img {
+        max-width: 30rem;
+        max-height: 30rem;
+    }
+}
+
+
+
+.signupImgContainer {
+
+    position: relative;
+    /* display: inline-block; container sizes to image */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    
+
+    border-radius: .8rem;
+
+    padding: var(--padding);
 
     max-height: 100%;
     max-width: 100%;
-    /* overflow: hidden; */
+
 }
 
-/* IMAGE */
+
+.loginImgContainer{
+    position: relative;
+    /* display: inline-block; container sizes to image */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+
+    
+
+    border-radius: .8rem;
+
+    padding: var(--padding);
+
+    max-height: 100%;
+    max-width: 100%;
+}
+
+
 .signupImg {
     display: block;
     width: 100%;
@@ -110,6 +176,24 @@
     max-height: 30rem;
 }
 
+.loginImg{
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    max-width: 50rem;
+    max-height: 50rem;
+
+    object-fit: contain;
+    /* border-radius: 50%; */
+}
+
+.loginImg.thinScreen{
+    max-width: 30rem;
+    max-height: 30rem;
+}
+
+
 .uploadBtn input {
     display: none;
 }
@@ -117,15 +201,14 @@
 
 .uploadBtn {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: var(--padding);
+    right: var(--padding);
 
     width: 8rem;
     aspect-ratio: 1;
 
     border-radius: 50%;
     background: rgb(255, 116, 139);
-    /* border: 2px solid black; */
 
     display: flex;
     align-items: center;
@@ -147,6 +230,25 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .textInputsContainer {
     flex: 1 1 0;
     height: 100%;
@@ -157,8 +259,18 @@
 
     row-gap: 1.6rem;
 
-    /* overflow: hidden; */
+    /* padding: var(--padding);
+    padding-left: 0; */
 
+}
+
+
+.textInputsContainer.thinScreen{
+    flex-grow: 2;
+    flex-shrink: 1;
+    flex-basis: 0;
+
+    width: 100%;
 }
 
 
@@ -172,7 +284,6 @@
 
     font-size: 2.8rem;
     font-weight: bold;
-    /* margin-bottom: 2rem; */
 }
 
 .title.thinScreen{
@@ -219,6 +330,10 @@
     }
 }
 
+.errorsContainer.thinScreen{
+    min-height: 7.5rem;
+}
+
 .inputGroupContainer {
     width: 90%;
     min-width: 30rem;
@@ -243,7 +358,17 @@
     flex: 2 1 0;
 
     display: flex;
+
+    align-items: flex-end;
+    justify-content: center;
+
+    row-gap: 1rem;
 }
+
+.bottomContainer.thinScreen {
+    flex: 1 1 0;
+}
+
 
 
 
@@ -258,7 +383,6 @@
 }
 
 .inputGroup label {
-    /* font-size: 1.4rem; */
     margin-bottom: 1rem;
 }
 
@@ -294,14 +418,18 @@
     
     margin-top: 2rem;
     
-    background: rgb(0, 119, 255);
+    background: var(--dark-blue);
 
     height: 4.3rem;
 }
 
+
+.submitBtnContainer.thinScreen{
+    margin-top: 0rem;
+}
+
 .submitButton {
     width: 100%;
-    /* padding: 1.2rem; */
     height: 100%;
 
     background-color: transparent;
@@ -323,16 +451,6 @@
 
 
 
-.bottomContainer{
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-
-    row-gap: 1rem;
-}
-
-
-
 
 .switchSignInParagraph {
     margin-top: auto;
@@ -348,7 +466,7 @@
 }
 
 .switchSignInParagraph a {
-    color: rgb(39, 39, 255);
+    color: var(--dark-blue);
     text-decoration: none;
     font-weight: bold;
     transition: 0.25s;

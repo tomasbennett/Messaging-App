@@ -165,148 +165,157 @@ export function SignInLayout() {
     return (
         <>
 
-
             <div className={styles.outerContainer}>
+                
+                <div className={styles.innerContainer}>
 
 
-                <form className={`${styles.form} ${screenWidthClassName}`} onSubmit={handleSubmit(onSubmit)}>
-                    {
-                        isThinScreen && (
-                            <h1 className={`${styles.title} ${screenWidthClassName}`}>{title}</h1>
-                        )
-                    }
-
-                    <div className={styles.imgContainer}>
+                    <form className={`${styles.form} ${screenWidthClassName}`} onSubmit={handleSubmit(onSubmit)}>
+                        
+                        
                         {
-                            submitUrl === "login" ?
-
-                                <div className={styles.loginImgContainer}>
-                                    <img
-                                        src={`${loginImg}`}
-                                        alt="Login Illustration"
-                                        className={styles.loginImg}
-                                    />
-                                </div>
-
-                                :
-
-                                <div className={styles.signupImgContainer}>
-                                    
-                                    <img
-                                        src={`${signupImg}`}
-                                        alt="Sign Up Profile Image"
-                                        className={`${styles.signupImg} ${screenWidthClassName}`}
-                                    />
-
-                                    <label className={styles.uploadBtn}>
-                                        +
-                                        <input hidden {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
-                                    </label>
-                                
-                                </div>
-
-
-                        }
-                    </div>
-
-
-                    <div className={styles.textInputsContainer}>
-                        {
-                            !isThinScreen && (
-                                <h1 className={styles.title}>{title}</h1>
+                            isThinScreen && (
+                                <h1 className={`${styles.title} ${screenWidthClassName}`}>{title}</h1>
                             )
                         }
 
-                        <div className={styles.errorsContainer}>
-                            
-                            {
-                                errors.root && (
-                                    <p className={styles.errorMessage}>{errors.root.message}</p>
-                                )
-                            }
 
-                            {
-                                errors[USER_PROFILE_IMG_FILE_KEY] && (
-                                    <p className={styles.errorMessage}>{errors[USER_PROFILE_IMG_FILE_KEY].message}</p>
-                                )
-                            }
-                            {
-                                errors.username && (
-                                    <p className={styles.errorMessage}>{errors.username.message}</p>
-                                )
-                            }
-                            {
-                                errors.password && (
-                                    <p className={styles.errorMessage}>{errors.password.message}</p>
-                                )
-                            }
-
-                        </div>
-
-                        <div className={`${styles.inputGroupContainer} ${screenWidthClassName}`}>
-
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="username">Username</label>
-                                <input
-                                    {...register("username")}
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    placeholder="Enter your username..."
-                                />
-                            </div>
-
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    {...register("password")}
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Enter your password..."
-                                />
-                            </div>
-
-                            <div className={styles.submitBtnContainer}>
-
-                                {
-                                    isLoading ?
-
-                                        <LoadingCircle height="60%" />
-
-                                        :
-
-                                        <button className={styles.submitButton} type="submit">
-                                            Submit
-                                        </button>
-                                }
-
-
-                            </div>
-
-                        </div>
-
-                        <div className={styles.bottomContainer}>
-
+                        <div className={styles.imgContainer}>
                             {
                                 submitUrl === "login" ?
 
-                                    <p className={styles.switchSignInParagraph}>
-                                        Don't have an account?
-                                        <Link to={signUpPageRoute}>Sign up here</Link>
-                                    </p>
+                                    <div className={styles.loginImgContainer}>
+                                        <img
+                                            src={`${loginImg}`}
+                                            alt="Login Illustration"
+                                            className={`${styles.loginImg} ${screenWidthClassName}`}
+                                        />
+                                    </div>
+
                                     :
-                                    <p className={styles.switchSignInParagraph}>
-                                        Already have an account?
-                                        <Link to={logInPageRoute}>Log in here</Link>
-                                    </p>
+
+                                    <div className={styles.signupImgContainer}>
+                                        
+                                        <img
+                                            src={`${signupImg}`}
+                                            alt="Sign Up Profile Image"
+                                            className={`${styles.signupImg} ${screenWidthClassName}`}
+                                        />
+
+                                        <label className={styles.uploadBtn}>
+                                            +
+                                            <input hidden {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
+                                        </label>
+                                    
+                                    </div>
+
 
                             }
-
                         </div>
-                    </div>
 
-                </form>
+
+                        <div className={`${styles.textInputsContainer} ${screenWidthClassName}`}>
+                            {
+                                !isThinScreen && (
+                                    <h1 className={styles.title}>{title}</h1>
+                                )
+                            }
+
+                            <div className={`${styles.errorsContainer} ${screenWidthClassName}`}>
+                                
+                                {
+                                    errors.root && (
+                                        <p className={styles.errorMessage}>{errors.root.message}</p>
+                                    )
+                                }
+
+                                {
+                                    errors[USER_PROFILE_IMG_FILE_KEY] && (
+                                        <p className={styles.errorMessage}>{errors[USER_PROFILE_IMG_FILE_KEY].message}</p>
+                                    )
+                                }
+                                {
+                                    errors.username && (
+                                        <p className={styles.errorMessage}>{errors.username.message}</p>
+                                    )
+                                }
+                                {
+                                    errors.password && (
+                                        <p className={styles.errorMessage}>{errors.password.message}</p>
+                                    )
+                                }
+
+                            </div>
+
+                            <div className={`${styles.inputGroupContainer} ${screenWidthClassName}`}>
+
+                                <div className={styles.inputGroup}>
+                                    <label htmlFor="username">Username</label>
+                                    <input
+                                        {...register("username")}
+                                        type="text"
+                                        id="username"
+                                        name="username"
+                                        placeholder="Enter your username..."
+                                    />
+                                </div>
+
+                                <div className={styles.inputGroup}>
+                                    <label htmlFor="password">Password</label>
+                                    <input
+                                        {...register("password")}
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Enter your password..."
+                                    />
+                                </div>
+
+                                <div className={`${styles.submitBtnContainer} ${screenWidthClassName}`}>
+
+                                    {
+                                        isLoading ?
+
+                                            <LoadingCircle height="60%" />
+
+                                            :
+
+                                            <button className={styles.submitButton} type="submit">
+                                                Submit
+                                            </button>
+                                    }
+
+
+                                </div>
+
+                            </div>
+
+                            <div className={`${styles.bottomContainer} ${screenWidthClassName}`}>
+
+                                {
+                                    submitUrl === "login" ?
+
+                                        <p className={styles.switchSignInParagraph}>
+                                            Don't have an account?
+                                            <Link to={signUpPageRoute}>Sign up here</Link>
+                                        </p>
+                                        :
+                                        <p className={styles.switchSignInParagraph}>
+                                            Already have an account?
+                                            <Link to={logInPageRoute}>Log in here</Link>
+                                        </p>
+
+                                }
+
+                            </div>
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
             </div>
 
 

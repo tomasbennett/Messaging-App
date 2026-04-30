@@ -2,7 +2,7 @@
 import { Navigate, Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { GeneralHomeLayout } from './layouts/GeneralHomeLayout'
 import { SignInLayout } from './features/auth/layouts/SignInLayout'
-import { NotAuthenticatedRoute, ProtectedRoute } from './features/auth/services/ProtectedRoute'
+import { NotAuthenticatedRoute, ProtectedRoute } from './features/auth/components/ProtectedRoute'
 import { ErrorElement } from './features/error/services/ErrorElement'
 import { ErrorPageLayout } from './features/error/layouts/ErrorLayout'
 import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'

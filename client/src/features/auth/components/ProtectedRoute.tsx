@@ -4,7 +4,7 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 import { homePageRoute, logInPageRoute } from "../../../constants/routes";
 import { SocketProvider } from "../../../contexts/SocketHandlerContext";
 import { useAuth } from "../contexts/AuthContext";
-
+import styles from "./ProtectedRoute.module.css";
 
 
 
@@ -15,7 +15,13 @@ export function ProtectedRoute() {
     if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%', flex: '1 1 0' }}>
-                <LoadingCircle height="5rem" />
+
+                <div className={styles.loadingContainer} >
+
+                    <LoadingCircle height="4rem" />
+
+                </div>
+                
             </div>
         )
 
@@ -50,7 +56,13 @@ export function NotAuthenticatedRoute() {
     if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%', flex: '1 1 0' }}>
-                <LoadingCircle height="5rem" />
+                
+                <div className={styles.loadingContainer} >
+
+                    <LoadingCircle height="4rem" />
+
+                </div>
+                
             </div>
         )
     }
