@@ -157,6 +157,11 @@ export function SignInLayout() {
 
     const isThinScreen: boolean = useMediaQuery({ maxWidth: thinScreenMaxWidth });
 
+    const screenWidthClassName = useMemo<string>(() => {
+        return isThinScreen ? styles.thinScreen : styles.wideScreen;
+    }, [isThinScreen]);
+
+
     return (
         <>
 
@@ -164,10 +169,10 @@ export function SignInLayout() {
             <div className={styles.outerContainer}>
 
 
-                <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+                <form className={`${styles.form} ${screenWidthClassName}`} onSubmit={handleSubmit(onSubmit)}>
                     {
                         isThinScreen && (
-                            <h1 className={styles.title}>{title}</h1>
+                            <h1 className={`${styles.title} ${screenWidthClassName}`}>{title}</h1>
                         )
                     }
 
@@ -186,12 +191,18 @@ export function SignInLayout() {
                                 :
 
                                 <div className={styles.signupImgContainer}>
+                                    
                                     <img
                                         src={`${signupImg}`}
                                         alt="Sign Up Profile Image"
-                                        className={styles.signupImg}
+                                        className={`${styles.signupImg} ${screenWidthClassName}`}
                                     />
-                                    <input {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
+
+                                    <label className={styles.uploadBtn}>
+                                        +
+                                        <input hidden {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
+                                    </label>
+                                
                                 </div>
 
 
@@ -232,7 +243,7 @@ export function SignInLayout() {
 
                         </div>
 
-                        <div className={styles.inputGroupContainer}>
+                        <div className={`${styles.inputGroupContainer} ${screenWidthClassName}`}>
 
                             <div className={styles.inputGroup}>
                                 <label htmlFor="username">Username</label>
