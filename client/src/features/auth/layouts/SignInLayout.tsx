@@ -202,7 +202,7 @@ export function SignInLayout() {
                                             className={`${styles.signupImg} ${screenWidthClassName}`}
                                         />
 
-                                        <label className={styles.uploadBtn}>
+                                        <label className={`${styles.uploadBtn} ${screenWidthClassName}`}>
                                             +
                                             <input hidden {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
                                         </label>
