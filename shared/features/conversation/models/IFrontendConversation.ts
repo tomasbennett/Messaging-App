@@ -3,6 +3,7 @@ import { BaseConversationSchema } from "./IBaseConversation";
 import { FileSingleOptionalSchema } from "../../files/models/INewOptionalFile";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
 import { GroupProfileUnionSchema } from "../discriminatedUnions/IGroupProfileUnion";
+import { allowedImgTypes, maxFileSizeInBytes } from "../../files/constants";
 
 
 
@@ -13,7 +14,7 @@ export const CreateConversationFrontendSchema = BaseConversationSchema
     participants: true,
 })
 .extend({
-    groupChatProfilePictureFile: FileSingleOptionalSchema
+    groupChatProfilePictureFile: FileSingleOptionalSchema(allowedImgTypes, maxFileSizeInBytes)
 });
 
 

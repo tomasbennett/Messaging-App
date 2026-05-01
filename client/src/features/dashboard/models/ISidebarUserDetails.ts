@@ -1,4 +1,4 @@
-import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+import { IUserFriendStatusRelationship } from "../../../../../shared/features/inviteReq/models/IUserFriendStatusRelationship";
 
 export type ISidebarFriendsUserDetails = {
     conversationId: string;

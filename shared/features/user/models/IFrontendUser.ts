@@ -2,6 +2,7 @@ import z from "zod";
 import { BaseUserSchema } from "./IUser";
 import { FileSingleOptionalSchema } from "../../files/models/INewOptionalFile";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
+import { allowedImgTypes, maxFileSizeInBytes } from "../../files/constants";
 
 
 
@@ -20,7 +21,7 @@ export const SendUserFrontendSchema = BaseUserSchema
     password: true,
 })
 .extend({
-    profilePictureFile: FileSingleOptionalSchema
+    profilePictureFile: FileSingleOptionalSchema(allowedImgTypes, maxFileSizeInBytes)
 });
 
 

@@ -9,7 +9,8 @@
     "build:server": "npm install && cd server && npm install && tsc",
     "build": "npm run build:client && npm run build:server",
     "start:server": "node ./server/dist/server/src/app.js",
-    "build-and-start": "npm run build && npm run start:server"
+    "build-and-start": "npm run build && npm run start:server",
+    "compile-time-errors": "npx tsc --build tsconfig.base.json --noEmit"
   },
   "keywords": [],
   "author": "",

@@ -11,7 +11,7 @@ import { homePageRoute, logInPageRoute, signUpPageRoute } from "../../../constan
 import { LoginRegisterSuccessUserInfoSchema } from "../../../../../shared/features/auth/models/ILoginSuccessUserInfo";
 import { useAuth } from "../contexts/AuthContext";
 import { useMediaQuery } from "react-responsive";
-import { thinScreenMaxWidth } from "../../../constants/screenDimensions";
+import { mediumScreenMaxWidth, thinScreenMaxWidth, wideScreenMINWidth } from "../../../constants/screenDimensions";
 import { USER_PROFILE_IMG_FILE_KEY } from "../../../../../shared/features/auth/constants";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 
@@ -156,10 +156,12 @@ export function SignInLayout() {
     }
 
     const isThinScreen: boolean = useMediaQuery({ maxWidth: thinScreenMaxWidth });
+    const isMediumScreen: boolean = useMediaQuery({ maxWidth: mediumScreenMaxWidth });
 
     const screenWidthClassName = useMemo<string>(() => {
-        return isThinScreen ? styles.thinScreen : styles.wideScreen;
-    }, [isThinScreen]);
+
+        return isThinScreen ? styles.thinScreen : isMediumScreen ? styles.mediumScreen : styles.wideScreen;
+    }, [isThinScreen, isMediumScreen]);
 
 
     return (

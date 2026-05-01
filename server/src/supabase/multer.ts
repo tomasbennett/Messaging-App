@@ -1,5 +1,5 @@
 import multer from "multer";
-import { maxFileSizeInBytes, allowedTypes } from "../../../shared/features/files/constants";
+import { maxFileSizeInBytes, allowedAllFileTypes as allowedTypes } from "../../../shared/features/files/constants";
 
 
 

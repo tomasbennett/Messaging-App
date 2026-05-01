@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useNavigate } from "react-router-dom";
-import { IUserFriendStatusRelationship } from "../../../../../shared/features/friendRequest/models/IUserFriendStatusRelationship";
+import { IUserFriendStatusRelationship } from "../../../../../shared/features/inviteReq/models/IUserFriendStatusRelationship";
 import { IPropsSearchForFriendsUserDetails } from "../models/ISidebarUserDetails";
 import { useFriendStatus } from "../../user/hooks/useFriendStatus";
 

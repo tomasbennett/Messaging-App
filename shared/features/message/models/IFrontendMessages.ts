@@ -1,7 +1,6 @@
 import z from "zod";
 import { DateFromStringSchema } from "../../util/models/IDateFromStringSchema";
 import { BaseMessageSchema } from "./IBaseMessage";
-import { allowedTypes, maxFileSizeInBytes } from "../../files/constants";
 import { MessageContentFileSchema, MessageContentURLSchema } from "./IMessageContent";
 
 export const ReceiveMessageFrontendSchema = BaseMessageSchema.extend({

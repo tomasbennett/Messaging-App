@@ -1,74 +1,31 @@
 import z from "zod";
-import { allowedTypes, maxFileSizeInBytes } from "../constants";
+// import { allowedAllFileTypes as allowedTypes, maxFileSizeInBytes } from "../constants";
 
+export function FileSingleOptionalSchema(allowedFileTypes: string[], maxFileSizeInBytes: number) {
+    return z.custom<FileList | undefined>()
+        .superRefine((files, ctx) => {
 
-export const FileSingleOptionalSchema = z.custom<FileList | undefined>()
-    .superRefine((files, ctx) => {
+            if (!files || (typeof files === undefined)) {
+                return;
+            }
 
-        if (!files || (typeof files === undefined)) {
-            return;
-        }
+            if (!(files instanceof FileList)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Input must be a FileList or undefined.",
+                });
+                return;
+            }
 
-        if (!(files instanceof FileList)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Input must be a FileList or undefined.",
-            });
-            return;
-        }
+            if (files.length !== 1) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Exactly one file must be uploaded.",
+                });
+                return;
+            }
 
-        if (files.length !== 1) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Exactly one file must be uploaded.",
-            });
-            return;
-        }
-
-        const file = files.item(0)!;
-
-        if (file.size > maxFileSizeInBytes) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
-                    } MB`,
-            });
-        }
-
-        if (!allowedTypes.includes(file.type)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "File type is not allowed.",
-            });
-        }
-    });
-
-
-export const FilesMultipleOptionalSchema = z.custom<FileList | undefined>()
-    .superRefine((files, ctx) => {
-        if (!files || (typeof files === undefined)) {
-            return;
-        }
-
-
-        if (!(files instanceof FileList)) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Input required to be a FileList or undefined.",
-            });
-            return;
-        }
-
-        if (files.length < 1) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "A minimum of one file must be uploaded.",
-            });
-            return;
-        }
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files.item(i)!;
+            const file = files.item(0)!;
 
             if (file.size > maxFileSizeInBytes) {
                 ctx.addIssue({
@@ -76,15 +33,62 @@ export const FilesMultipleOptionalSchema = z.custom<FileList | undefined>()
                     message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
                         } MB`,
                 });
-                return;
             }
 
-            if (!allowedTypes.includes(file.type)) {
+            if (!allowedFileTypes.includes(file.type)) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     message: "File type is not allowed.",
                 });
+            }
+        });
+}
+
+
+export function FilesMultipleOptionalSchema(allowedFileTypes: string[], maxFileSizeInBytes: number) {
+    return z.custom<FileList | undefined>()
+        .superRefine((files, ctx) => {
+            if (!files || (typeof files === undefined)) {
                 return;
             }
-        }
-    });
+
+
+            if (!(files instanceof FileList)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Input required to be a FileList or undefined.",
+                });
+                return;
+            }
+
+            if (files.length < 1) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "A minimum of one file must be uploaded.",
+                });
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files.item(i)!;
+
+                if (file.size > maxFileSizeInBytes) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
+                            } MB`,
+                    });
+                    return;
+                }
+
+                if (!allowedFileTypes.includes(file.type)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "File type is not allowed.",
+                    });
+                    return;
+                }
+            }
+        });
+
+}

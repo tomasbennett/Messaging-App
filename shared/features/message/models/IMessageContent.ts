@@ -1,5 +1,5 @@
 import z from "zod";
-import { allowedTypes, maxFileSizeInBytes } from "../../files/constants";
+import { allowedAllFileTypes as allowedTypes, maxFileSizeInBytes } from "../../files/constants";
 import { FileArrayPropertiesSchema } from "../../files/models/IFileArray";
 import { FILES_KEY_NAME } from "../constants";
 

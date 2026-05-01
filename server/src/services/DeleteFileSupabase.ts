@@ -18,7 +18,7 @@ export async function deleteSupaBaseFile(
     try {
 
 
-        const fileRecord = await prisma.files.delete({
+        const fileRecord = await prisma.file.delete({
             where: { id: fileId },
             select: { supabaseFileId: true }
         });
