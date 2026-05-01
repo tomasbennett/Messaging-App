@@ -191,7 +191,7 @@ export function SignInLayout() {
                         }
 
 
-                        <div className={styles.imgContainer}>
+                        <div className={`${styles.imgContainer} ${screenWidthClassName}`}>
                             {
                                 submitUrl === "login" ?
 
@@ -205,29 +205,37 @@ export function SignInLayout() {
 
                                     :
 
-                                    <div className={styles.signupImgContainer}>
+                                    <>
 
-                                        <img
-                                            src={`${preview ?? signupImg}`}
-                                            alt="Sign Up Profile Image"
-                                            className={`${styles.signupImg} ${screenWidthClassName}`}
-                                        />
+                                        <div className={`${styles.signupImgContainer} ${screenWidthClassName}`}>
 
-                                        <label className={`${styles.uploadBtn} ${screenWidthClassName}`}>
-                                            +
-                                            <input
-                                                hidden
-                                                className={styles.inputProfileImg}
-                                                type="file"
-                                                {...fileInput}
-                                                onChange={(e) => {
-                                                    fileInput.onChange(e);
-                                                    handleFileChange(e);
-                                                }}
+                                            <img
+                                                src={`${preview ?? signupImg}`}
+                                                alt="Sign Up Profile Image"
+                                                className={`${styles.signupImg} ${screenWidthClassName}`}
                                             />
-                                        </label>
 
-                                    </div>
+                                        </div>
+
+                                        <div className={`${styles.uploadBtnContainer} ${screenWidthClassName}`}>
+
+                                            <label className={`${styles.uploadBtn} ${screenWidthClassName}`}>
+                                                +
+                                                <input
+                                                    hidden
+                                                    className={styles.inputProfileImg}
+                                                    type="file"
+                                                    {...fileInput}
+                                                    onChange={(e) => {
+                                                        fileInput.onChange(e);
+                                                        handleFileChange(e);
+                                                    }}
+                                                />
+                                            </label>
+
+                                        </div>
+
+                                    </>
 
 
                             }

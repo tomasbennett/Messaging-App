@@ -78,7 +78,9 @@
 
 .imgContainer {
     --img-container-padding: 4rem;
-    --padding: 2rem;
+    --padding: 0rem;
+
+    --img-max-width: 50rem;
 
     position: relative;
 
@@ -101,30 +103,50 @@
 
     overflow: hidden;
 
-    img {
+    /* img {
         width: 100%;
         height: auto;
 
         object-fit: contain;
-    }
+    } */
 }
 
 .imgContainer.thinScreen {
-    
+    --img-max-width: 17rem;
 
     img {
-        max-width: 20rem;
+        /* max-width: 20rem; */
         /* max-height: 20rem; */
     }
 }
 
+
+.uploadBtnContainer{
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    aspect-ratio: 1;
+
+    border-radius: 50%;
+
+    width: min(calc(100% - var(--img-container-padding) * 2), var(--img-max-width));
+
+    overflow: visible;
+}
+
+.uploadBtnContainer.thinScreen{
+
+}
 
 
 .signupImgContainer {
 
     position: relative;
     /* display: inline-block; container sizes to image */
-    display: inline-flex;
+    display: flex;
     justify-content: center;
     align-items: center;
 
@@ -132,13 +154,25 @@
 
     
 
-    border-radius: .8rem;
+    border-radius: 50%;
 
-    padding: var(--padding);
+    /* padding: var(--padding); */
 
-    max-height: 100%;
-    max-width: 100%;
+    width: min(100%, var(--img-max-width));
+    /* height: min(100%, 50rem); */
 
+    aspect-ratio: 1;
+
+    /* max-width: 50rem;
+    max-height: 50rem; */
+
+}
+
+.signupImgContainer.thinScreen{
+    /* max-width: 17rem;
+    max-height: 17rem; */
+
+    /* width: min(100%, var(--img-max-width)); */
 }
 
 
@@ -164,20 +198,17 @@
 
 
 .signupImg {
-    display: block;
+    /* display: block; */
     width: 100%;
     height: 100%;
 
-    max-width: 50rem;
-    max-height: 50rem;
+    
 
     object-fit: cover;
-    border-radius: 50%;
 }
 
 .signupImg.thinScreen {
-    max-width: 17rem;
-    max-height: 17rem;
+    
 }
 
 .loginImg{
