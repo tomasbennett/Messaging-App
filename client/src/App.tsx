@@ -13,7 +13,6 @@ import { ConversationLayout } from './features/messages/layouts/Conversation'
 import { NoConversationSelected } from './features/dashboard/components/NoConversationSelected'
 import { AsideMenuLayout } from './features/dashboard/layouts/AsideMenuLayout'
 import { FriendMessageProvider } from './features/messages/contexts/PreviewFriendConversationContext'
-import { NavLink } from 'react-router-dom'
 import { accountPageRoute, myAccountPageRoute } from './constants/routes'
 
 

@@ -17,6 +17,7 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 
 import loginImg from "../../../assets/github-profile-img.jpg";
 import signupImg from "../../../assets/DEFAULT_USER_IMG.png";
+import { useImageUpload } from "../../../hooks/useImageUpload";
 
 
 
@@ -164,17 +165,25 @@ export function SignInLayout() {
     }, [isThinScreen, isMediumScreen]);
 
 
+    const {
+        preview,
+        handleFileChange,
+        file
+    } = useImageUpload();
+
+    const fileInput = register(USER_PROFILE_IMG_FILE_KEY);
+
     return (
         <>
 
             <div className={styles.outerContainer}>
-                
+
                 <div className={styles.innerContainer}>
 
 
                     <form className={`${styles.form} ${screenWidthClassName}`} onSubmit={handleSubmit(onSubmit)}>
-                        
-                        
+
+
                         {
                             isThinScreen && (
                                 <h1 className={`${styles.title} ${screenWidthClassName}`}>{title}</h1>
@@ -197,18 +206,27 @@ export function SignInLayout() {
                                     :
 
                                     <div className={styles.signupImgContainer}>
-                                        
+
                                         <img
-                                            src={`${signupImg}`}
+                                            src={`${preview ?? signupImg}`}
                                             alt="Sign Up Profile Image"
                                             className={`${styles.signupImg} ${screenWidthClassName}`}
                                         />
 
                                         <label className={`${styles.uploadBtn} ${screenWidthClassName}`}>
                                             +
-                                            <input hidden {...register(USER_PROFILE_IMG_FILE_KEY)} type="file" className={styles.inputProfileImg} />
+                                            <input
+                                                hidden
+                                                className={styles.inputProfileImg}
+                                                type="file"
+                                                {...fileInput}
+                                                onChange={(e) => {
+                                                    fileInput.onChange(e);
+                                                    handleFileChange(e);
+                                                }}
+                                            />
                                         </label>
-                                    
+
                                     </div>
 
 
@@ -224,7 +242,7 @@ export function SignInLayout() {
                             }
 
                             <div className={`${styles.errorsContainer} ${screenWidthClassName}`}>
-                                
+
                                 {
                                     errors.root && (
                                         <p className={styles.errorMessage}>{errors.root.message}</p>

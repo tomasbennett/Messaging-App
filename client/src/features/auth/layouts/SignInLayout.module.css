@@ -171,7 +171,7 @@
     max-width: 50rem;
     max-height: 50rem;
 
-    object-fit: contain;
+    object-fit: cover;
     border-radius: 50%;
 }
 
@@ -188,7 +188,7 @@
     max-width: 50rem;
     max-height: 50rem;
 
-    object-fit: contain;
+    object-fit: cover;
     /* border-radius: 50%; */
 }
 
