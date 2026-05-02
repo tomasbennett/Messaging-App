@@ -18,6 +18,7 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 import loginImg from "../../../assets/github-profile-img.jpg";
 import signupImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { useImageUpload } from "../../../hooks/useImageUpload";
+import { accessTokenLocalStorageKey } from "../../../constants/accessTokenLocalStorageKey";
 
 
 
@@ -95,7 +96,29 @@ export function SignInLayout() {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
+
+
     const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
+
+        const file = data[USER_PROFILE_IMG_FILE_KEY]?.[0];
+        const formData = new FormData();
+
+        formData.append("username", data.username);
+        formData.append("password", data.password);
+        if (file) { formData.append(USER_PROFILE_IMG_FILE_KEY, file); }
+
+
+        abortControllerRef.current = new AbortController();
+
         try {
             setIsLoading(true);
 
@@ -104,19 +127,29 @@ export function SignInLayout() {
                 headers: {
                     "Content-Type": "application/json"
                 },
+                signal: abortControllerRef.current.signal,
                 credentials: "include",
-                body: JSON.stringify(data)
+                body: formData
             });
+
+            if (abortControllerRef.current.signal.aborted) {
+                console.log("Request was aborted, not processing response!!!");
+                return;
+            }
 
             const responseData = await response.json();
             const responseDataResult = LoginRegisterSuccessUserInfoSchema.safeParse(responseData);
 
             if (responseDataResult.success && response.ok) {
-                setAuthLevel({
-                    userType: "user",
-                    userId: responseDataResult.data.userId,
-                    username: responseDataResult.data.username
-                });
+
+                localStorage.setItem(accessTokenLocalStorageKey, responseDataResult.data.accessToken);
+                // setAuthLevel({
+                //     userType: "user",
+                //     userId: responseDataResult.data.userId,
+                //     username: responseDataResult.data.username
+                // });
+                console.log("Successful sign in, navigating to home page...");
+                console.dir(responseDataResult.data);
                 return;
             }
 
@@ -153,6 +186,7 @@ export function SignInLayout() {
 
         } finally {
             setIsLoading(false);
+
         }
     }
 
