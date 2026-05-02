@@ -252,6 +252,10 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
             const isMessageInConversation: boolean = conversation.conversation.messages.length >= 1;
 
             const isRead: boolean = isMessageInConversation ? conversation.lastReadAt >= conversation.conversation.messages[0]?.createdAt : true;
+
+
+            
+
             const groupChatProfilePicture: IGroupProfileUnion = conversation.conversation.groupChatImg ? {
                 type: "custom",
                 groupChatProfileImgUrl: conversation.conversation.groupChatImg.supabaseFileId

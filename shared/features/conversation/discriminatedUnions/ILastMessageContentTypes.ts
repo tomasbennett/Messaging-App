@@ -1,4 +1,6 @@
 import z from "zod";
+import { NumberFromStringMinMaxLimitSchemaFunc } from "../../util/models/INumber";
+import { maxFileSizeInBytes } from "../../files/constants";
 
 
 
@@ -9,7 +11,7 @@ export const LastMessageContentTypesSchema = z.discriminatedUnion("messageType",
     }),
     z.object({
         messageType: z.literal("file"),
-        fileSize: z.number(),
+        fileSize: NumberFromStringMinMaxLimitSchemaFunc(0, maxFileSizeInBytes),
     }),
 ]);
 

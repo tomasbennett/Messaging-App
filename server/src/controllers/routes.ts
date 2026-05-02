@@ -5,6 +5,7 @@ import { router as signInRouter } from "./sign-in";
 import { router as usersRouter } from "./users";
 import { router as inviteReqRouter } from "./joinConvoReq";
 import { router as messageRouter } from "./message";
+import { router as downloadsRouter } from "./downloads";
 
 export const apiRouter = Router();
 
@@ -14,6 +15,7 @@ apiRouter.use("/sign-in", signInRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/invites", inviteReqRouter);
 apiRouter.use("/messages", messageRouter);
+apiRouter.use("/downloads", downloadsRouter);
 
 
 apiRouter.use((req: Request, res: Response, next: NextFunction) => {

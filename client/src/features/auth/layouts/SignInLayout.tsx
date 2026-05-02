@@ -112,8 +112,14 @@ export function SignInLayout() {
         const file = data[USER_PROFILE_IMG_FILE_KEY]?.[0];
         const formData = new FormData();
 
-        formData.append("username", data.username);
-        formData.append("password", data.password);
+        for (const [key, value] of Object.entries(data)) {
+            if (key === USER_PROFILE_IMG_FILE_KEY || value === undefined) continue;
+
+            if (typeof value === "string") {
+                formData.append(key, value);
+            }
+        }
+
         if (file) { formData.append(USER_PROFILE_IMG_FILE_KEY, file); }
 
 
