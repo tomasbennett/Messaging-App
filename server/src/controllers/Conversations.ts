@@ -18,7 +18,11 @@ import upload from "../supabase/multer";
 import { supabase } from "../supabase/client";
 import { IReceivingAnInvite } from "../../../shared/features/inviteReq/models/IReceivingAnInvite";
 import { SOCKET_INVITE_REQ_RECEIVE_EVENT } from "../../../shared/features/inviteReq/constants";
-
+import { ISignedSupabaseUrl } from "../../../shared/features/files/models/ISignedSupabaseUrl";
+import { Prisma } from "@prisma/client";
+import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
+import { allowedImgTypes } from "../../../shared/features/files/constants";
+import { IInlineOrDownloadableFile } from "../../../shared/features/files/discriminatedUnions/InlineVsDownloadableFiles";
 
 export const router = Router();
 
@@ -254,7 +258,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
             const isRead: boolean = isMessageInConversation ? conversation.lastReadAt >= conversation.conversation.messages[0]?.createdAt : true;
 
 
-            
+
 
             const groupChatProfilePicture: IGroupProfileUnion = conversation.conversation.groupChatImg ? {
                 type: "custom",
@@ -309,7 +313,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 });
 
 
-
+//CAN'T DOWNLOAD ANYTHING FROM THE PREVIEWS SO NO NEED FOR DOWNLOAD ROUTER HERE!!!
 
 
 
@@ -394,32 +398,90 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
 
         const isGroupChat: boolean = conversation.participants.length > 2;
 
-        const receivableMessages: IConversationMessage[] = conversation.messages.map((message) => {
 
-            const files: IFileArrayProperties[] = message.files.map((file) => ({
-                fileId: file.id,
-                fileUrl: file.supabaseFileId,
-            }));
 
-            return {
-                messageId: message.id,
-                senderId: message.sender.user.id,
-                conversationId: conversationId,
-                timestamp: message.createdAt,
-                content: message?.content ?? undefined,
-                files: files,
-                conversationGroupType: isGroupChat ? {
-                    type: "group",
-                    senderName: message.sender.user.username,
-                    senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
-                } : {
-                    type: "single"
+        // const receivableMessages: IConversationMessage[] = conversation.messages.map((message) => {
+
+        //     const files: IFileArrayProperties[] = message.files.map((file) => ({
+        //         fileId: file.id,
+        //         fileUrl: file.supabaseFileId,
+        //     }));
+
+        //     return {
+        //         messageId: message.id,
+        //         senderId: message.sender.user.id,
+        //         conversationId: conversationId,
+        //         timestamp: message.createdAt,
+        //         content: message?.content ?? undefined,
+        //         files: files,
+        //         conversationGroupType: isGroupChat ? {
+        //             type: "group",
+        //             senderName: message.sender.user.username,
+        //             senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
+        //         } : {
+        //             type: "single"
+        //         }
+        //     }
+
+        // });
+
+        const receivableMessages: IConversationMessage[] = await Promise.all(
+            conversation.messages.map(async (message) => {
+
+                const files = await Promise.all(
+                    message.files.map(async (file) => {
+                        let fileDetails: IInlineOrDownloadableFile;
+
+                        if (allowedImgTypes.includes(file.filetype)) {
+
+                            const generatedSignedUrl = await GenerateSupabasePublicURL([file.supabaseFileId]);
+
+                            if (!generatedSignedUrl.ok) {
+                                throw new Error(
+                                    "Failed to generate signed URL for file with ID: " + file.id
+                                );
+                            }
+
+                            fileDetails = {
+                                fileType: "inline",
+                                signedUrl: generatedSignedUrl.supabasePublicURLs[0],
+                            };
+
+                        } else {
+                            fileDetails = {
+                                fileType: "downloadable",
+                                supabaseId: file.supabaseFileId,
+                                filename: file.filename,
+                                mimetype: file.filetype,
+                                fileSizeInBytes: file.filesize
+                            };
+                        }
+
+                        return {
+                            fileId: file.id,
+                            fileDetails
+                        };
+
+                    }));
+
+
+                return {
+                    messageId: message.id,
+                    senderId: message.sender.user.id,
+                    conversationId: conversationId,
+                    timestamp: message.createdAt,
+                    content: message?.content ?? undefined,
+                    files: files,
+                    conversationGroupType: isGroupChat ? {
+                        type: "group",
+                        senderName: message.sender.user.username,
+                        senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
+                    } : {
+                        type: "single"
+                    }
                 }
-            }
-
-        });
-
-
+            })
+        )
 
 
 
@@ -455,6 +517,77 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
 
     }
 });
+
+
+router.get("/:conversationId/download/:fileId", ensureJWTAuthentication, async (req: Request<{ conversationId: string, fileId: string }>, res: Response<ICustomErrorResponse | ISignedSupabaseUrl>, next: NextFunction) => {
+    //CHECK USING THE SAME LOGIC THAT USER IS APPLICABLE TO DOWNLOAD AND THEN SIGN OFF ON A URL FOR NOW  
+    const { conversationId, fileId } = req.params;
+    const user = req.user!;
+
+    try {
+        const conversation = await prisma.conversation.findUnique({
+            where: {
+                id: conversationId
+            },
+            select: {
+                participants: {
+                    where: {
+                        userId: user.id,
+                        hasLeft: false
+                    }
+                },
+                messages: {
+                    where: {
+                        files: {
+                            some: {
+                                id: fileId
+                            }
+                        }
+                    },
+                    select: {
+                        files: true
+                    }
+                }
+            }
+        });
+
+        if (!conversation || conversation.participants.length === 0 || conversation.messages.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                status: 404,
+                message: "Conversation not found, user is not a participant or file not found in any messages!!!"
+            });
+        }
+
+        const file = conversation.messages[0].files.find((file) => file.id === fileId)!;
+
+        const generatedPublicUrl = await GenerateSupabasePublicURL([file.supabaseFileId]);
+
+        if (!generatedPublicUrl.ok) {
+            return res.status(500).json({
+                ok: false,
+                status: 500,
+                message: generatedPublicUrl.error
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            message: "File download URL generated successfully!!!",
+            signedUrl: generatedPublicUrl.supabasePublicURLs[0]
+        });
+
+
+
+    } catch (error: unknown) {
+        next(error);
+
+    }
+
+});
+
+
 
 
 

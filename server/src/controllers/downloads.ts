@@ -12,50 +12,50 @@ export const router = Router();
 
 
 
-router.get("/:supabaseId/inline", ensureJWTAuthentication, async (req: Request<{ supabaseId: string }>, res: Response<ICustomErrorResponse | Buffer>, next: NextFunction) => {
-    const { supabaseId } = req.params;
-    const user = req.user!;
+// router.get("/:supabaseId/inline", ensureJWTAuthentication, async (req: Request<{ supabaseId: string }>, res: Response<ICustomErrorResponse | Buffer>, next: NextFunction) => {
+//     const { supabaseId } = req.params;
+//     const user = req.user!;
 
-    try {
+//     try {
 
-        //CHECK IF THE USER CAN ACCESS HERE, NEEDS TO HAPPEN EVERYWHERE ELSE NOT THIS EXACT ROUTER
-
-
-        const file = await prisma.file.findUnique({
-            where: {
-                supabaseFileId: supabaseId
-            }
-        });
-
-        if (!file) {
-            return res.status(404).json({
-                ok: false,
-                message: "File not found in prisma db!!!",
-                status: 404
-            });
-        }
-
-        const supabaseFileRes = await fetchSupaBaseFile(supabaseId);
-        if (!supabaseFileRes.ok) {
-            return res.status(supabaseFileRes.status).json(supabaseFileRes);
-        }
+//         //CHECK IF THE USER CAN ACCESS HERE, NEEDS TO HAPPEN EVERYWHERE ELSE NOT THIS EXACT ROUTER
 
 
+//         const file = await prisma.file.findUnique({
+//             where: {
+//                 supabaseFileId: supabaseId
+//             }
+//         });
 
-        const arrayBuffer = await (supabaseFileRes.blob as Blob).arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+//         if (!file) {
+//             return res.status(404).json({
+//                 ok: false,
+//                 message: "File not found in prisma db!!!",
+//                 status: 404
+//             });
+//         }
+
+//         const supabaseFileRes = await fetchSupaBaseFile(supabaseId);
+//         if (!supabaseFileRes.ok) {
+//             return res.status(supabaseFileRes.status).json(supabaseFileRes);
+//         }
 
 
-        const fileBuffer = buffer;
-        res.setHeader("Content-Type", (supabaseFileRes.blob as Blob).type);
-        res.setHeader("Content-Length", buffer.length.toString());
-        res.setHeader("Content-Disposition", `inline; filename="${file.filename}"`);
-        res.send(fileBuffer);
+
+//         const arrayBuffer = await (supabaseFileRes.blob as Blob).arrayBuffer();
+//         const buffer = Buffer.from(arrayBuffer);
 
 
-    } catch (error) {
-        next(error);
+//         const fileBuffer = buffer;
+//         res.setHeader("Content-Type", (supabaseFileRes.blob as Blob).type);
+//         res.setHeader("Content-Length", buffer.length.toString());
+//         res.setHeader("Content-Disposition", `inline; filename="${file.filename}"`);
+//         res.send(fileBuffer);
 
-    }
 
-});
+//     } catch (error) {
+//         next(error);
+
+//     }
+
+// });

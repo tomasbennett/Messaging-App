@@ -10,6 +10,10 @@ import { io } from "../app";
 import { supabase } from "../supabase/client";
 import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../../shared/features/conversation/constants";
 import { IReceiveMessageFrontend } from "../../../shared/features/message/models/IFrontendMessages";
+import { IFileArrayProperties } from "../../../shared/features/files/models/IFileArray";
+import { IInlineOrDownloadableFile } from "../../../shared/features/files/discriminatedUnions/InlineVsDownloadableFiles";
+import { allowedImgTypes } from "../../../shared/features/files/constants";
+import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
 
 
 export const router = Router();
@@ -91,10 +95,49 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                         }
                     });
 
-                    return { fileId: prismaFile.id, fileUrl: storagePath };
+                    return { fileId: prismaFile.id, fileUrl: storagePath, fileType: mimetype, fileName: originalname, fileSizeInBytes: size };
 
                 })
             );
+
+            const messageFileDetails = uploadedFiles
+                ? await Promise.all(
+                    uploadedFiles.map(async (file) => {
+
+                        let fileDetails: IInlineOrDownloadableFile;
+
+                        if (allowedImgTypes.includes(file.fileType)) {
+
+                            const generatedSignedUrl = await GenerateSupabasePublicURL([file.fileUrl]);
+
+                            if (!generatedSignedUrl.ok) {
+                                throw new Error(
+                                    "Failed to generate signed URL for file with ID: " + file.fileId
+                                );
+                            }
+
+                            fileDetails = {
+                                fileType: "inline",
+                                signedUrl: generatedSignedUrl.supabasePublicURLs[0],
+                            };
+
+                        } else {
+                            fileDetails = {
+                                fileType: "downloadable",
+                                supabaseId: file.fileUrl,
+                                filename: file.fileName,
+                                mimetype: file.fileType,
+                                fileSizeInBytes: file.fileSizeInBytes
+                            };
+                        }
+
+                        return {
+                            fileId: file.fileId,
+                            fileDetails
+                        };
+                    })
+                )
+                : undefined;
 
             const receiveMessageData: IReceiveMessageFrontend = {
                 messageId: newMessage.id,
@@ -105,10 +148,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                     username: sender.username
                 },
                 timestamp: createdAt,
-                files: uploadedFiles?.map(file => ({
-                    fileId: file.fileId,
-                    fileUrl: file.fileUrl
-                })) ?? undefined
+                files: messageFileDetails
             }
 
             io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).except(userSocketId).emit(`${SOCKET_MESSAGE_RECEIVE_EVENT}`, receiveMessageData);

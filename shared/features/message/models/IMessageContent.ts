@@ -1,6 +1,6 @@
 import z from "zod";
 import { allowedAllFileTypes as allowedTypes, maxFileSizeInBytes } from "../../files/constants";
-import { FileArrayPropertiesSchema } from "../../files/models/IFileArray";
+import { FileArrayPropertiesSchema, IFileArrayProperties } from "../../files/models/IFileArray";
 import { FILES_KEY_NAME } from "../constants";
 
 
@@ -25,15 +25,15 @@ export const MessageContentURLSchema = z.object({
         return;
     }
 
-    const files = data.files as { fileUrl: string; fileId: string }[];
+    const files = data.files as IFileArrayProperties[];
 
     for (let i = 0; i < files.length; i++) {
-        const fileUrl = files[i].fileUrl;
+        const fileId = files[i].fileId;
 
-        if (fileUrl.length < 1) {
+        if (fileId.length < 1) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: "File URL cannot be empty. At least one of the file URLs provided is empty.",
+                message: "File ID is required for each file URL",
                 path: ["content"],
             });
             return;

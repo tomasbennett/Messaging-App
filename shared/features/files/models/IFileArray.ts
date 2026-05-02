@@ -1,10 +1,11 @@
 import z from "zod";
+import { InlineOrDownloadableFileSchema } from "../discriminatedUnions/InlineVsDownloadableFiles";
 
 
 
 export const FileArrayPropertiesSchema = z.object({
     fileId: z.string().min(1, { message: "File ID is required" }),
-    fileUrl: z.string().min(1, { message: "File URL is required" }),
+    fileDetails: InlineOrDownloadableFileSchema,
 });
 
 

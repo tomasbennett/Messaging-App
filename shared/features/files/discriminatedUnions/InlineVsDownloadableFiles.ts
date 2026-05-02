@@ -5,13 +5,13 @@ import { NumberFromStringMinMaxLimitSchemaFunc } from "../../util/models/INumber
 
 
 
-export const InlineOrDownloadableFileSchema = z.discriminatedUnion("type", [
+export const InlineOrDownloadableFileSchema = z.discriminatedUnion("fileType", [
     z.object({
-        type: z.literal("inline"),
+        fileType: z.literal("inline"),
         signedUrl: z.string(),
     }),
     z.object({
-        type: z.literal("downloadable"),
+        fileType: z.literal("downloadable"),
         supabaseId: z.string(),
         filename: z.string(),
         mimetype: z.string(),
