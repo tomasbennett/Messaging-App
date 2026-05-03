@@ -272,5 +272,12 @@ export function useFriendStatus(
         }
     }
 
-    return { addFriend, removeFriend, acceptRequest, isLoading };
+    async function declineRequest() {
+        // Similar to removeFriend but with a different endpoint or body if needed
+        
+
+
+    }
+
+    return { addFriend, removeFriend, acceptRequest, declineRequest, isLoading };
 }

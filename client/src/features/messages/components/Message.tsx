@@ -7,6 +7,7 @@ import { Navigate } from "react-router-dom";
 import { logInPageRoute } from "../../../constants/routes";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useMemo } from "react";
+import { domain } from "../../../constants/EnvironmentAPI";
 
 
 
@@ -78,19 +79,19 @@ export function MessageComponent({
                     <div className={styles.filesContainer}>
                         {
                             files.map((file, index) => {
-                                const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.fileUrl);
+                                // const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.fileUrl);
 
-                                if (isImage) {
+                                if (file.fileDetails.fileType === "inline") {
                                     return (
                                         <div key={file.fileId} className={styles.imgContainer}>
-                                            <img src={file.fileUrl} alt={`Message image: ${file.fileUrl}`} />
+                                            <img src={file.fileDetails.signedUrl} alt={`Message image: ${file.fileDetails.signedUrl}`} />
                                         </div>
                                     )
                                 }
 
                                 return (
 
-                                    <a key={index} href={file.fileUrl} target="_blank" rel="noopener noreferrer" className={styles.fileLink}>
+                                    <a key={index} href={`${domain}/api/conversations/${conversationId}/download/${file.fileDetails.supabaseId}`} target="_blank" rel="noopener noreferrer" className={styles.fileLink}>
                                         <div className={styles.fileContainer}>
 
                                             <div className={styles.fileSVGContainer}>
@@ -99,8 +100,8 @@ export function MessageComponent({
 
                                             <div className={styles.fileRightSideContainer}>
 
-                                                <p className={styles.fileName}>{file.fileUrl.split("/").pop()}</p>
-                                                <p className={styles.fileType}>{file.fileUrl.split(".").pop()?.toUpperCase()} File</p>
+                                                <p className={styles.fileName}>{file.fileDetails.filename}</p>
+                                                <p className={styles.fileType}>{file.fileDetails.mimetype} File</p>
 
                                             </div>
 
