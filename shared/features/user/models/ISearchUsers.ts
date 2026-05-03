@@ -10,7 +10,8 @@ import { usernamePasswordSchema } from "../../auth/models/ILoginSchema";
 
 export const SearchUsersQueryParams = z.object({
     limit: NumberFromStringMinMaxLimitSchemaFunc(1, 100),
-    search: usernamePasswordSchema
+    search: usernamePasswordSchema,
+    offset: NumberFromStringSchema
 });
 
 

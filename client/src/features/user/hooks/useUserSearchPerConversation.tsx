@@ -5,42 +5,42 @@ import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useError } from "../../error/contexts/ErrorContext";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { IUserFriendStatusRelationship, ReceiveUserFriendStatusRelationshipSchema } from "../../../../../shared/features/inviteReq/models/IUserFriendStatusRelationship";
-import { ISearchUsersQueryParams } from "../../../../../shared/features/user/models/ISearchUsers";
+import { ISearchUsersQueryParams, ISearchedUser, SearchedUsersAPISuccess } from "../../../../../shared/features/user/models/ISearchUsers";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { toQueryString } from "../../../util/ToQueryString";
 import { useAuth } from "../../auth/contexts/AuthContext";
 
-export function useUserSearchPerConversation() {
+export function useUserSearchPerConversation(
+    conversationId: string
+) {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const [isSearchFriendsLoading, setIsSearchFriendsLoading] = useState<boolean>(false);
-    const [searchResults, setSearchResults] = useState<IUserFriendStatusRelationship[]>([
+    const [searchResults, setSearchResults] = useState<ISearchedUser[]>([
         {
-            otherUserId: "1",
+            userId: "1",
             friendStatus: "no request sent yet",
-            otherUserUsername: "Axel_Taker",
+            username: "Axel_Taker",
         },
         {
-            otherUserId: "2",
+            userId: "2",
             friendStatus: "accepted",
-            otherUserUsername: "AAAHHHHHH",
+            username: "AAAHHHHHH",
         },
         {
-            otherUserId: "3",
+            userId: "3",
             friendStatus: "pending",
-            otherUserUsername: "BA",
+            username: "BA",
         },
         {
-            otherUserId: "4",
+            userId: "4",
             friendStatus: "no request sent yet",
-            otherUserUsername: "falcon9999999999",
+            username: "falcon9999999999",
         },
     ]);
     const [inputSearchText, setInputSearchText] = useState<string>("");
 
     const errorCtx = useError();
-    const nav = useNavigate();
     const { jwtFetchHandler } = useJWTFetch();
     const { setAuthLevel } = useAuth();
 
@@ -53,6 +53,23 @@ export function useUserSearchPerConversation() {
         };
     }, []);
 
+
+    const [offset, setOffset] = useState<number>(0);
+    const [hasMoreResults, setHasMoreResults] = useState<boolean>(true);
+    const limit = 10;
+    const previousSearchTextRef = useRef<string>("");
+
+    const resetSearch = () => {
+        setOffset(0);
+        setHasMoreResults(true);
+        setSearchResults([]);
+    };
+
+    useEffect(() => {
+        searchForFriends(inputSearchText);
+
+    }, [inputSearchText]);
+
     const searchForFriends = async (searchText: string) => {
         if (searchText.trim() === "") {
             return;
@@ -61,6 +78,16 @@ export function useUserSearchPerConversation() {
         if (!errorCtx) {
             return;
         }
+
+        const isNewSearch = searchText !== previousSearchTextRef.current;
+
+        const currentOffset: number = isNewSearch ? 0 : offset;
+
+        if (isNewSearch) {
+            resetSearch();
+            previousSearchTextRef.current = searchText;
+        }
+
 
         abortControllerRef.current?.abort();
         const controller = new AbortController();
@@ -71,13 +98,14 @@ export function useUserSearchPerConversation() {
             setIsSearchFriendsLoading(true);
 
             const userSearchParams = {
-                limit: 10,
-                search: searchText
+                limit,
+                search: searchText,
+                offset: currentOffset
             } satisfies ISearchUsersQueryParams;
 
             const urlParams = toQueryString(userSearchParams);
 
-            const response = await jwtFetchHandler(`${domain}/api/users/search?${urlParams}}`, {
+            const response = await jwtFetchHandler(`${domain}/api/${conversationId}/search?${urlParams}`, {
                 method: "GET",
                 signal: controller.signal
             });
@@ -101,22 +129,27 @@ export function useUserSearchPerConversation() {
 
             if (response.returnType === "fetchError") {
                 errorCtx.throwError(response.error);
-                nav(errorPageRoute, {
-                    replace: true,
-                    state: {
-                        error: response.error
-                    }
-                });
+                // nav(errorPageRoute, {
+                //     replace: true,
+                //     state: {
+                //         error: response.error
+                //     }
+                // });
                 return;
             }
 
             const searchResponse = response.data;
             const searchResJSON = await searchResponse.json();
 
-            const searchResult = ReceiveUserFriendStatusRelationshipSchema.safeParse(searchResJSON);
+            const searchResult = SearchedUsersAPISuccess.safeParse(searchResJSON);
 
             if (searchResult.success) {
-                setSearchResults(searchResult.data.userFriendStatusRelationships);
+                const searchedUsers = searchResult.data.searchedUsers;
+                setHasMoreResults(searchedUsers.length === limit);
+                // setOffset(prev => isNewSearch ? searchedUsers.length : prev + searchedUsers.length); //COULD BE CURRENTOFFSET + searchedUsers.length
+                setOffset(currentOffset + searchedUsers.length);
+
+                setSearchResults(prev => isNewSearch ? searchedUsers : [...prev, ...searchedUsers]);
                 return;
             }
 
@@ -160,5 +193,21 @@ export function useUserSearchPerConversation() {
 
     };
 
-    return { isSearchFriendsLoading, searchResults, inputSearchText, setInputSearchText, searchForFriends };
+    const loadMoreResults = () => {
+        if (isSearchFriendsLoading || !hasMoreResults) {
+            return;
+        }
+
+        searchForFriends(inputSearchText);
+    }
+
+    return { 
+        isSearchFriendsLoading, 
+        searchResults, 
+        inputSearchText, 
+        setInputSearchText,
+        loadMoreResults,
+        hasMoreResults
+    };
 }
+

@@ -33,8 +33,8 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
         })
     }
 
-    const { limit, search: searchRegex } = queryResult.data;
-    const search = searchRegex as string;
+    const { limit, search, offset } = queryResult.data;
+    // const search = searchRegex as string;
 
 
     try {
@@ -50,6 +50,7 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
                 }
             },
             take: limit,
+            skip: offset,
             select: {
                 id: true,
                 username: true,
@@ -60,6 +61,17 @@ router.get("/:conversationId/search", ensureJWTAuthentication, async (req: Reque
                 },
             },
         });
+
+        if (usersSearched.length === 0) {
+            const searchedUsersSuccess: ISearchedUserAPISuccess = {
+                ok: true,
+                status: 200,
+                message: `Successfully sent back empty list of users under search parameter: ${search}`,
+                searchedUsers: []
+            }
+
+            return res.status(searchedUsersSuccess.status).json(searchedUsersSuccess);
+        }
 
         const invitesForConversation = await prisma.conversationJoinRequest.findMany({
             where: {
