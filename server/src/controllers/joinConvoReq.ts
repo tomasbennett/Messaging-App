@@ -298,7 +298,10 @@ router.delete(
 
 
 
-router.post("/:conversationId/acceptInvite", ensureJWTAuthentication, async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.post(
+    "/:conversationId/acceptInvite", 
+    ensureJWTAuthentication, 
+    async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
 
     const { conversationId } = req.params;
     const { userSocketId } = req.body;
@@ -395,7 +398,10 @@ router.post("/:conversationId/acceptInvite", ensureJWTAuthentication, async (req
 
 
 
-router.post("/:conversationId/declineInvite", ensureJWTAuthentication, async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.post(
+    "/:conversationId/declineInvite", 
+    ensureJWTAuthentication, 
+    async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
 
     const { conversationId } = req.params;
     const { userSocketId } = req.body;

@@ -1,283 +1,284 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useError } from "../../error/contexts/ErrorContext";
-import { useAuth } from "../../auth/contexts/AuthContext";
-import { IFriendRequestStatus } from "../../../../../shared/features/inviteReq/constants";
-import { useJWTFetch } from "../../../hooks/useJWTFetch";
-import { domain } from "../../../constants/EnvironmentAPI";
-import { errorPageRoute } from "../../../constants/routes";
-import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { notExpectedFormatError } from "../../../constants/errorConstants";
-import { ReceiveFriendRequestConfirmationFrontendSchema } from "../../../../../shared/features/inviteReq/models/IFrontendFriendRequest";
-import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
+// import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useError } from "../../error/contexts/ErrorContext";
+// import { useAuth } from "../../auth/contexts/AuthContext";
+// import { IFriendRequestStatus } from "../../../../../shared/features/inviteReq/constants";
+// import { useJWTFetch } from "../../../hooks/useJWTFetch";
+// import { domain } from "../../../constants/EnvironmentAPI";
+// import { errorPageRoute } from "../../../constants/routes";
+// import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
+// import { notExpectedFormatError } from "../../../constants/errorConstants";
+// import { ReceiveFriendRequestConfirmationFrontendSchema } from "../../../../../shared/features/inviteReq/models/IFrontendFriendRequest";
+// import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 
-export function useFriendStatus(
-    friendId: string,
-    updateFriendStatus: (newStatus: IFriendRequestStatus) => void,
-) {
+// export function useFriendStatus(
+//     friendId: string,
+//     updateFriendStatus: (newStatus: IFriendRequestStatus) => void,
+//     conversationId: string
+// ) {
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const errorCtx = useError();
-    const nav = useNavigate();
-    const { setAuthLevel } = useAuth();
-    const { jwtFetchHandler } = useJWTFetch();
-
-
-    async function addFriend() {
-        console.log(`Adding friend with ID: ${friendId}`);
-
-        if (!errorCtx) {
-            console.error("Error context is not available");
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-
-            const response = await jwtFetchHandler(`${domain}/api/friends/add`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    friendUserId: friendId
-                })
-            });
+//     const [isLoading, setIsLoading] = useState<boolean>(false);
+//     const errorCtx = useError();
+//     const nav = useNavigate();
+//     const { setAuthLevel } = useAuth();
+//     const { jwtFetchHandler } = useJWTFetch();
 
 
-            if (response.returnType === "loginError") {
-                errorCtx.throwError(response.error);
-                setAuthLevel({ userType: "none" });
-                return;
-            }
+//     async function addFriend() {
+//         console.log(`Adding friend with ID: ${friendId}`);
 
-            if (response.returnType === "fetchError") {
-                errorCtx.throwError(response.error);
-                nav(errorPageRoute, {
-                    replace: true,
-                    state: {
-                        error: response.error
-                    }
-                });
-                return;
-            }
+//         if (!errorCtx) {
+//             console.error("Error context is not available");
+//             return;
+//         }
 
-            const addFriendResponse = response.data;
-            const addFriendResponseJSON = await addFriendResponse.json();
+//         try {
+//             setIsLoading(true);
 
-            const addFriendResult = ReceiveFriendRequestConfirmationFrontendSchema.safeParse(addFriendResponseJSON);
-            if (addFriendResult.success) {
-                updateFriendStatus("pending");
-                return;
-            }
+//             const response = await jwtFetchHandler(`${domain}/api/friends/add`, {
+//                 method: "POST",
+//                 headers: {
+//                     "Content-Type": "application/json"
+//                 },
+//                 body: JSON.stringify({
+//                     friendUserId: friendId
+//                 })
+//             });
 
 
-            const customErrorResult = APIErrorSchema.safeParse(addFriendResponseJSON);
-            if (customErrorResult.success) {
-                errorCtx.throwError(customErrorResult.data);
-                return;
-            }
+//             if (response.returnType === "loginError") {
+//                 errorCtx.throwError(response.error);
+//                 setAuthLevel({ userType: "none" });
+//                 return;
+//             }
 
-            errorCtx.throwError(notExpectedFormatError);
-            return;
+//             if (response.returnType === "fetchError") {
+//                 errorCtx.throwError(response.error);
+//                 nav(errorPageRoute, {
+//                     replace: true,
+//                     state: {
+//                         error: response.error
+//                     }
+//                 });
+//                 return;
+//             }
 
+//             const addFriendResponse = response.data;
+//             const addFriendResponseJSON = await addFriendResponse.json();
 
-        } catch (error: unknown) {
-
-            if (error instanceof Error) {
-                errorCtx.throwError({
-                    message: error.message,
-                    status: 0,
-                    ok: false
-                });
-                return;
-            }
-
-            errorCtx.throwError({
-                message: "An unknown error occurred while sending the friend request.",
-                status: 0,
-                ok: false
-            });
-            return;
-
-        } finally {
-            setIsLoading(false);
-        }
-
-    }
-
-    async function removeFriend() {
-        console.log(`Removing friend with ID: ${friendId}`);
-
-        if (!errorCtx) {
-            console.error("Error context is not available");
-            return;
-        }
-
-        try {
-            setIsLoading(true);
+//             const addFriendResult = ReceiveFriendRequestConfirmationFrontendSchema.safeParse(addFriendResponseJSON);
+//             if (addFriendResult.success) {
+//                 updateFriendStatus("pending");
+//                 return;
+//             }
 
 
-            const response = await jwtFetchHandler(`${domain}/api/friends/${friendId}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
+//             const customErrorResult = APIErrorSchema.safeParse(addFriendResponseJSON);
+//             if (customErrorResult.success) {
+//                 errorCtx.throwError(customErrorResult.data);
+//                 return;
+//             }
 
-            if (!response) {
-                return;
-            }
-
-            if (response.returnType === "loginError") {
-                errorCtx.throwError(response.error);
-                setAuthLevel({ userType: "none" });
-                return;
-            }
-
-            if (response.returnType === "fetchError") {
-                errorCtx.throwError(response.error);
-                // nav(errorPageRoute, {
-                //     state: {
-                //         error: response.error
-                //     }
-                // });
-                return;
-            }
-
-            const removeFriendResponse = response.data;
-
-            if (removeFriendResponse.status === 204) {
-                updateFriendStatus("no request sent yet");
-                return;
-            }
-
-            const removeFriendResponseJSON = await removeFriendResponse.json();
-
-            const customErrorResult = APIErrorSchema.safeParse(removeFriendResponseJSON);
-            if (customErrorResult.success) {
-                errorCtx.throwError(customErrorResult.data);
-                return;
-            }
-
-            errorCtx.throwError(notExpectedFormatError);
-            return;
+//             errorCtx.throwError(notExpectedFormatError);
+//             return;
 
 
+//         } catch (error: unknown) {
 
-        } catch (error: unknown) {
+//             if (error instanceof Error) {
+//                 errorCtx.throwError({
+//                     message: error.message,
+//                     status: 0,
+//                     ok: false
+//                 });
+//                 return;
+//             }
 
-            if (error instanceof Error) {
-                errorCtx.throwError({
-                    message: error.message,
-                    status: 0,
-                    ok: false
-                });
-                return;
-            }
+//             errorCtx.throwError({
+//                 message: "An unknown error occurred while sending the friend request.",
+//                 status: 0,
+//                 ok: false
+//             });
+//             return;
 
-            errorCtx.throwError({
-                message: "An unknown error occurred while sending the friend request.",
-                status: 0,
-                ok: false
-            });
-            return;
+//         } finally {
+//             setIsLoading(false);
+//         }
 
-        } finally {
-            setIsLoading(false);
-        }
+//     }
 
-    }
+//     async function removeFriend() {
+//         console.log(`Removing friend with ID: ${friendId}`);
 
-    async function acceptRequest() {
-        if (!errorCtx) {
-            console.error("Error context is not available");
-            return;
-        }
+//         if (!errorCtx) {
+//             console.error("Error context is not available");
+//             return;
+//         }
 
-        try {
-            setIsLoading(true);
-
-            const response = await jwtFetchHandler(`${domain}/api/friends/${friendId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    senderId: friendId
-                })
-            });
-
-            if (!response) {
-                return;
-            }
-
-            if (response.returnType === "loginError") {
-                errorCtx.throwError(response.error);
-                setAuthLevel({ userType: "none" });
-                return;
-            }
-
-            if (response.returnType === "fetchError") {
-                errorCtx.throwError(response.error);
-                // nav(errorPageRoute, {
-                //     state: {
-                //         error: response.error
-                //     }
-                // });
-                return;
-            }
-
-            const aacceptFriendReqResponse = response.data;
-            const acceptFriendReqJSON = await aacceptFriendReqResponse.json();
-
-            const acceptFriendResult = APISuccessSchema.safeParse(acceptFriendReqJSON);
-            if (acceptFriendResult.success) {
-                updateFriendStatus("accepted");
-                return;
-            }
+//         try {
+//             setIsLoading(true);
 
 
-            const customErrorResult = APIErrorSchema.safeParse(acceptFriendReqJSON);
-            if (customErrorResult.success) {
-                errorCtx.throwError(customErrorResult.data);
-                return;
-            }
+//             const response = await jwtFetchHandler(`${domain}/api/friends/${friendId}`, {
+//                 method: "DELETE",
+//                 headers: {
+//                     "Content-Type": "application/json"
+//                 }
+//             });
 
-            errorCtx.throwError(notExpectedFormatError);
-            return;
+//             if (!response) {
+//                 return;
+//             }
+
+//             if (response.returnType === "loginError") {
+//                 errorCtx.throwError(response.error);
+//                 setAuthLevel({ userType: "none" });
+//                 return;
+//             }
+
+//             if (response.returnType === "fetchError") {
+//                 errorCtx.throwError(response.error);
+//                 // nav(errorPageRoute, {
+//                 //     state: {
+//                 //         error: response.error
+//                 //     }
+//                 // });
+//                 return;
+//             }
+
+//             const removeFriendResponse = response.data;
+
+//             if (removeFriendResponse.status === 204) {
+//                 updateFriendStatus("no request sent yet");
+//                 return;
+//             }
+
+//             const removeFriendResponseJSON = await removeFriendResponse.json();
+
+//             const customErrorResult = APIErrorSchema.safeParse(removeFriendResponseJSON);
+//             if (customErrorResult.success) {
+//                 errorCtx.throwError(customErrorResult.data);
+//                 return;
+//             }
+
+//             errorCtx.throwError(notExpectedFormatError);
+//             return;
 
 
 
-        } catch (error: unknown) {
+//         } catch (error: unknown) {
 
-            if (error instanceof Error) {
-                errorCtx.throwError({
-                    message: error.message,
-                    status: 0,
-                    ok: false
-                });
-                return;
-            }
+//             if (error instanceof Error) {
+//                 errorCtx.throwError({
+//                     message: error.message,
+//                     status: 0,
+//                     ok: false
+//                 });
+//                 return;
+//             }
 
-            errorCtx.throwError({
-                message: "An unknown error occurred while sending the friend request.",
-                status: 0,
-                ok: false
-            });
-            return;
+//             errorCtx.throwError({
+//                 message: "An unknown error occurred while sending the friend request.",
+//                 status: 0,
+//                 ok: false
+//             });
+//             return;
 
-        } finally {
-            setIsLoading(false);
-        }
-    }
+//         } finally {
+//             setIsLoading(false);
+//         }
 
-    async function declineRequest() {
-        // Similar to removeFriend but with a different endpoint or body if needed
+//     }
+
+//     async function acceptRequest() {
+//         if (!errorCtx) {
+//             console.error("Error context is not available");
+//             return;
+//         }
+
+//         try {
+//             setIsLoading(true);
+
+//             const response = await jwtFetchHandler(`${domain}/api/friends/${friendId}`, {
+//                 method: "POST",
+//                 headers: {
+//                     "Content-Type": "application/json"
+//                 },
+//                 body: JSON.stringify({
+//                     senderId: friendId
+//                 })
+//             });
+
+//             if (!response) {
+//                 return;
+//             }
+
+//             if (response.returnType === "loginError") {
+//                 errorCtx.throwError(response.error);
+//                 setAuthLevel({ userType: "none" });
+//                 return;
+//             }
+
+//             if (response.returnType === "fetchError") {
+//                 errorCtx.throwError(response.error);
+//                 // nav(errorPageRoute, {
+//                 //     state: {
+//                 //         error: response.error
+//                 //     }
+//                 // });
+//                 return;
+//             }
+
+//             const aacceptFriendReqResponse = response.data;
+//             const acceptFriendReqJSON = await aacceptFriendReqResponse.json();
+
+//             const acceptFriendResult = APISuccessSchema.safeParse(acceptFriendReqJSON);
+//             if (acceptFriendResult.success) {
+//                 updateFriendStatus("accepted");
+//                 return;
+//             }
+
+
+//             const customErrorResult = APIErrorSchema.safeParse(acceptFriendReqJSON);
+//             if (customErrorResult.success) {
+//                 errorCtx.throwError(customErrorResult.data);
+//                 return;
+//             }
+
+//             errorCtx.throwError(notExpectedFormatError);
+//             return;
+
+
+
+//         } catch (error: unknown) {
+
+//             if (error instanceof Error) {
+//                 errorCtx.throwError({
+//                     message: error.message,
+//                     status: 0,
+//                     ok: false
+//                 });
+//                 return;
+//             }
+
+//             errorCtx.throwError({
+//                 message: "An unknown error occurred while sending the friend request.",
+//                 status: 0,
+//                 ok: false
+//             });
+//             return;
+
+//         } finally {
+//             setIsLoading(false);
+//         }
+//     }
+
+//     async function declineRequest() {
+//         // Similar to removeFriend but with a different endpoint or body if needed
         
 
 
-    }
+//     }
 
-    return { addFriend, removeFriend, acceptRequest, declineRequest, isLoading };
-}
+//     return { addFriend, removeFriend, acceptRequest, declineRequest, isLoading };
+// }

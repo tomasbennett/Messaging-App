@@ -92,7 +92,7 @@ export const SocketProvider = ({
 export function useSocket() {
     const socket = useContext(SocketContext);
 
-    if (!socket) {
+    if (!socket || !(socket?.id)) {
         throw new Error("Socket not available");
     }
 
