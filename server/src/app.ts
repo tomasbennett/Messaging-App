@@ -4,8 +4,6 @@ import cors from "cors";
 import path from "path";
 import dotenv from "dotenv";
 
-import session from "express-session";
-import passport from "passport";
 import cookieParser from "cookie-parser";
 
 import { apiRouter as apiRouter } from "./controllers/routes";
@@ -16,13 +14,7 @@ import { Server, Socket } from "socket.io";
 // import "./passport/passportConfig";
 import { environment } from "../../shared/constants";
 import { APIErrorSchema, ICustomErrorResponse } from "../../shared/features/api/models/APIErrorResponse";
-import { SOCKET_MESSAGE_RECEIVE_EVENT, SOCKET_MESSAGE_SEND_EVENT } from "../../shared/features/message/constants";
-import { ICustomSuccessMessage } from "../../shared/features/api/models/APISuccessResponse";
-import { IReceiveMessageFrontend, SendMessageFrontendSchema } from "../../shared/features/message/models/IFrontendMessages";
-import { MessageSendSocketSchema } from "../../shared/features/sockets/models/IMessageSocket";
 import { CheckAccessTokenPayload } from "./auth/CheckAccessTokenPayload";
-import { prisma } from "./db/prisma";
-import { SOCKET_CONVERSATION_ROOM_PREFIX } from "../../shared/features/conversation/constants";
 import { User } from "@prisma/client";
 import { connectedUsers } from "./sockets/UserSocketMapping";
 

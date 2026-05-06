@@ -112,31 +112,36 @@ export function SignInLayout() {
         const file = data[USER_PROFILE_IMG_FILE_KEY]?.[0];
         const formData = new FormData();
 
-        for (const [key, value] of Object.entries(data)) {
-            if (key === USER_PROFILE_IMG_FILE_KEY || value === undefined) continue;
-
-            if (typeof value === "string") {
-                formData.append(key, value);
-            }
+        if (file) {
+            console.log("Appending file to formData:", file);
+            formData.append(USER_PROFILE_IMG_FILE_KEY, file); 
         }
 
-        if (file) { formData.append(USER_PROFILE_IMG_FILE_KEY, file); }
-
-
+        
+        
         abortControllerRef.current = new AbortController();
+
+        const fetchBody: RequestInit = {
+            method: "POST",
+            signal: abortControllerRef.current.signal,
+            credentials: "include",
+        }
+
+        if (submitUrl === "login") {
+            fetchBody.headers = {
+                "Content-Type": "application/json"
+            };
+            fetchBody.body = JSON.stringify(data);
+        }
+
+        if (submitUrl === "register") {
+            fetchBody.body = formData;
+        }
 
         try {
             setIsLoading(true);
 
-            const response = await fetch(`${domain}/api/sign-in/${submitUrl}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                signal: abortControllerRef.current.signal,
-                credentials: "include",
-                body: formData
-            });
+            const response = await fetch(`${domain}/api/sign-in/${submitUrl}`, fetchBody);
 
             if (abortControllerRef.current.signal.aborted) {
                 console.log("Request was aborted, not processing response!!!");

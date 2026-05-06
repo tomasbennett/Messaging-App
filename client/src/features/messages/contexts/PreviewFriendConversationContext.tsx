@@ -10,6 +10,8 @@ import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErr
 import { errorPageRoute } from "../../../constants/routes";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
+import { useSocket } from "../../../contexts/SocketHandlerContext";
+import { IBaseSocketEmitData } from "../../../../../shared/features/sockets/models/IBaseSocketReqData";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -29,6 +31,22 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
     const { jwtFetchHandler } = useJWTFetch();
     const { setAuthLevel } = useAuth();
 
+    const socket = useSocket();
+    if (!socket.id) {
+        setAuthLevel({ userType: "none" });
+        errorCtx?.throwError({
+            message: "Socket connection not established. Please sign in again.",
+            status: 401,
+            ok: false
+        });
+        return;
+
+    }
+
+    const reqSocketBody: IBaseSocketEmitData = {
+        userSocketId: socket.id,
+    }
+    
     useEffect(() => {
         abortController.current?.abort();
         const controller = new AbortController();
@@ -42,11 +60,13 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
             }
 
 
+
             try {
 
-                const response = await jwtFetchHandler(`${domain}/api/conversations/preview`, {
-                    method: "GET",
-                    signal: controller.signal
+                const response = await jwtFetchHandler(`${domain}/api/conversations/my_conversations`, {
+                    method: "POST",
+                    signal: controller.signal,
+                    body: JSON.stringify(reqSocketBody)
                 });
 
                 if (controller !== abortController.current) return;
@@ -70,62 +90,62 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
                 const friendsMessagesResult = ReceiveFriendPreviewMessagesFrontendSchema.safeParse(friendsMessagesJSON);
                 if (friendsMessagesResult.success) {
-                    // setFriendMessages(friendsMessagesResult.data.friendPreviewsData);
-                    setFriendMessages([
-                        {
-                            conversation: {
-                                conversationId: "1",
-                                name: "Callummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
-                                isRead: true,
-                                groupChatProfilePicture: {
-                                    type: "participants",
-                                    participants: [
-                                        {
-                                            participantId: "1",
-                                        }
-                                    ]
-                                }
-                            },
-                            latestMessage: {
-                                timestamp: new Date(),
-                                content: {
-                                    messageType: "text",
-                                    textContent: "This was the previous message man I wish I could do Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim, illum magnam rerum excepturi nobis repellendus quia? Dolore consectetur commodi est doloremque aliquam, sequi recusandae quidem dicta cumque ipsa voluptatem. Atque iusto ut minus fuga eaque aperiam maxime, sapiente dignissimos labore soluta odit perspiciatis dicta delectus ipsa corporis mollitia voluptatum nobis."
-                                }
-                            }
-                        },
-                        {
-                            conversation: {
-                                conversationId: "2",
-                                name: "Tirefd",
-                                isRead: false,
-                                groupChatProfilePicture: {
-                                    type: "participants",
-                                    participants: [
-                                        {
-                                            participantId: "1",
-                                        },
-                                        {
-                                            participantId: "2",
-                                        },
-                                        {
-                                            participantId: "3",
-                                        },
-                                        {
-                                            participantId: "4",
-                                        }
-                                    ]
-                                }
-                            },
-                            latestMessage: {
-                                timestamp: new Date(),
-                                content: {
-                                    messageType: "file",
-                                    fileSize: 13000000
-                                }
-                            }
-                        }
-                    ])
+                    setFriendMessages(friendsMessagesResult.data.friendPreviewsData);
+                    // setFriendMessages([
+                    //     {
+                    //         conversation: {
+                    //             conversationId: "1",
+                    //             name: "Callummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+                    //             isRead: true,
+                    //             groupChatProfilePicture: {
+                    //                 type: "participants",
+                    //                 participants: [
+                    //                     {
+                    //                         participantId: "1",
+                    //                     }
+                    //                 ]
+                    //             }
+                    //         },
+                    //         latestMessage: {
+                    //             timestamp: new Date(),
+                    //             content: {
+                    //                 messageType: "text",
+                    //                 textContent: "This was the previous message man I wish I could do Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim, illum magnam rerum excepturi nobis repellendus quia? Dolore consectetur commodi est doloremque aliquam, sequi recusandae quidem dicta cumque ipsa voluptatem. Atque iusto ut minus fuga eaque aperiam maxime, sapiente dignissimos labore soluta odit perspiciatis dicta delectus ipsa corporis mollitia voluptatum nobis."
+                    //             }
+                    //         }
+                    //     },
+                    //     {
+                    //         conversation: {
+                    //             conversationId: "2",
+                    //             name: "Tirefd",
+                    //             isRead: false,
+                    //             groupChatProfilePicture: {
+                    //                 type: "participants",
+                    //                 participants: [
+                    //                     {
+                    //                         participantId: "1",
+                    //                     },
+                    //                     {
+                    //                         participantId: "2",
+                    //                     },
+                    //                     {
+                    //                         participantId: "3",
+                    //                     },
+                    //                     {
+                    //                         participantId: "4",
+                    //                     }
+                    //                 ]
+                    //             }
+                    //         },
+                    //         latestMessage: {
+                    //             timestamp: new Date(),
+                    //             content: {
+                    //                 messageType: "file",
+                    //                 fileSize: 13000000
+                    //             }
+                    //         }
+                    //     }
+                    // ])
                     
                     return;
                 }
