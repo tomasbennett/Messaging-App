@@ -112,6 +112,9 @@ export function SignInLayout() {
         const file = data[USER_PROFILE_IMG_FILE_KEY]?.[0];
         const formData = new FormData();
 
+        formData.append("username", data.username);
+        formData.append("password", data.password);
+
         if (file) {
             console.log("Appending file to formData:", file);
             formData.append(USER_PROFILE_IMG_FILE_KEY, file); 
@@ -298,23 +301,23 @@ export function SignInLayout() {
 
                                 {
                                     errors.root && (
-                                        <p className={styles.errorMessage}>{errors.root.message}</p>
+                                        <p className={styles.errorMessage}>{`Root error: ${errors.root.message}`}</p>
                                     )
                                 }
 
                                 {
                                     errors[USER_PROFILE_IMG_FILE_KEY] && (
-                                        <p className={styles.errorMessage}>{errors[USER_PROFILE_IMG_FILE_KEY].message}</p>
+                                        <p className={styles.errorMessage}>{`File error: ${errors[USER_PROFILE_IMG_FILE_KEY].message}`}</p>
                                     )
                                 }
                                 {
                                     errors.username && (
-                                        <p className={styles.errorMessage}>{errors.username.message}</p>
+                                        <p className={styles.errorMessage}>{`Username error: ${errors.username.message}`}</p>
                                     )
                                 }
                                 {
                                     errors.password && (
-                                        <p className={styles.errorMessage}>{errors.password.message}</p>
+                                        <p className={styles.errorMessage}>{`Password error: ${errors.password.message}`}</p>
                                     )
                                 }
 
