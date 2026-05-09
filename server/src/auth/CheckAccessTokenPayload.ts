@@ -8,6 +8,8 @@ import { prisma } from "../db/prisma";
 
 
 export async function CheckAccessTokenPayload(header: string | undefined): Promise<{ ok: true, user: User } | ICustomErrorResponse> {
+
+    
     if (!header || !header.startsWith("Bearer ")) {
         return {
             ok: false,

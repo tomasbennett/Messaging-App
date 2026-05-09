@@ -26,7 +26,7 @@ export function useJWTSocketConnection() {
                 const socket = io(`${domain}`, {
                     withCredentials: true,
                     auth: {
-                        token: newAccessToken.data
+                        token: "Bearer " + newAccessToken.data
                     }
                 });
 
@@ -62,7 +62,7 @@ export function useJWTSocketConnection() {
             const socket = io(`${domain}`, {
                 withCredentials: true,
                 auth: {
-                    token: localStorageAccessToken
+                    token: "Bearer " + localStorageAccessToken
                 }
             });
 
@@ -94,7 +94,7 @@ export function useJWTSocketConnection() {
                     const retrySocket = io(`${domain}`, {
                         withCredentials: true,
                         auth: {
-                            token: newAccessToken.data
+                            token: "Bearer " + newAccessToken.data
                         }
                     });
 

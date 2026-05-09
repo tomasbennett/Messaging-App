@@ -8,4 +8,16 @@
     justify-content: center;
 
     overflow: hidden;
+
+    background-image: url("../../../assets/i-like-food.svg");
+    background-repeat: repeat;
+    background-size: 210px;
+}
+
+.noConversationSelectedText{
+    padding: 2rem;
+
+    background-color: var(--light-black-colour);
+
+    border-radius: 1rem;
 }

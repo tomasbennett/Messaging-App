@@ -66,6 +66,9 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 const response = await jwtFetchHandler(`${domain}/api/conversations/my_conversations`, {
                     method: "POST",
                     signal: controller.signal,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify(reqSocketBody)
                 });
 

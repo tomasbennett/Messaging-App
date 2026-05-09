@@ -157,11 +157,11 @@ export function SignInLayout() {
             if (responseDataResult.success && response.ok) {
 
                 localStorage.setItem(accessTokenLocalStorageKey, responseDataResult.data.accessToken);
-                // setAuthLevel({
-                //     userType: "user",
-                //     userId: responseDataResult.data.userId,
-                //     username: responseDataResult.data.username
-                // });
+                setAuthLevel({
+                    userType: "user",
+                    userId: responseDataResult.data.userId,
+                    username: responseDataResult.data.username
+                });
                 console.log("Successful sign in, navigating to home page...");
                 console.dir(responseDataResult.data);
                 return;

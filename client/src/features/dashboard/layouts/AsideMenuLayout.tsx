@@ -7,6 +7,7 @@ import { MessageIcon } from "../../../assets/icons/MessageIcon";
 import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
 import { useMemo } from "react";
 import { UserIcon } from "../../../assets/icons/UserIcon";
+import { InviteConversationIcon } from "../../../assets/icons/InviteConversationIcon";
 
 interface IAsideMenuLayoutProps {
     children: React.ReactNode;
@@ -57,7 +58,6 @@ export function AsideMenuLayout({
 
                             <AsideMenuOption
                                 navigateTo={homePageRoute}
-                                // label={"Messages"}
                                 icon={<MessageIcon />}
                                 notification={
                                     unreadMessagesCount > 0 ? unreadMessagesCount : undefined
@@ -66,9 +66,16 @@ export function AsideMenuLayout({
 
                             <AsideMenuOption
                                 navigateTo={myAccountPageRoute}
-                                // label={"my account"}
                                 icon={<UserIcon />}
                             />
+
+                            <AsideMenuOption
+                                navigateTo="invite"
+                                icon={<InviteConversationIcon />}
+
+                            />
+
+                            
 
 
                         </ul>

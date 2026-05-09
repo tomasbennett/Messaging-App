@@ -117,6 +117,8 @@ export const io = new Server(server, {
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
 
+  console.log("Socket authentication attempt with token: ", token);
+
   const checkResult = await CheckAccessTokenPayload(token);
 
   if (!checkResult.ok) {
