@@ -13,13 +13,13 @@ import { ConversationLayout } from './features/messages/layouts/Conversation'
 import { NoConversationSelected } from './features/dashboard/components/NoConversationSelected'
 import { AsideMenuLayout } from './features/dashboard/layouts/AsideMenuLayout'
 import { FriendMessageProvider } from './features/messages/contexts/PreviewFriendConversationContext'
-import { accountPageRoute, myAccountPageRoute } from './constants/routes'
+import { accountPageRoute, conversationPageRoute, myAccountPageRoute, newConversationPageRoute, singleConversationPageRoute } from './constants/routes'
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: 
+    element:
       <AuthProvider>
         <GeneralHomeLayout />
       </AuthProvider>,
@@ -70,10 +70,14 @@ const router = createBrowserRouter([
                     element: <NoConversationSelected />
                   },
                   {
-                    path: ":conversationId",
+                    path: `${singleConversationPageRoute}`,
                     element: <ConversationLayout />
                   }
                 ]
+              },
+              {
+                path: newConversationPageRoute,
+                element: <div>New Conversation Page</div>
               },
               {
                 path: accountPageRoute,
@@ -118,7 +122,7 @@ function App() {
 
         {/* <AuthProvider> */}
 
-          <RouterProvider router={router} />
+        <RouterProvider router={router} />
 
         {/* </AuthProvider> */}
 

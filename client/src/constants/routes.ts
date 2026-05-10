@@ -11,3 +11,7 @@ export const logInPageRoute: string = "/login";
 
 export const accountPageRoute: string = `/account`;
 export const myAccountPageRoute: string = `${accountPageRoute}/me`;
+
+export const conversationPageRoute: string = "/conversation";
+export const singleConversationPageRoute: string = `${conversationPageRoute}/:conversationId`;
+export const newConversationPageRoute: string = `${conversationPageRoute}/new`;

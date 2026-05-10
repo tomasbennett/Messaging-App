@@ -4,12 +4,13 @@ import styles from "./AsideMenuOption.module.css";
 
 interface IAsideMenuOptionProps {
   icon: React.ReactNode;
-  // label: string;
+  // onClick: () => void | Promise<void>;
   navigateTo: string;
+  label: string;
   notification?: string | number;
 }
 
-export function AsideMenuOption({ icon, navigateTo, notification }: IAsideMenuOptionProps) {
+export function AsideMenuOption({ icon, navigateTo, notification, label }: IAsideMenuOptionProps) {
 
   const linkClassName = ({ isActive }: { isActive: boolean }) => {
     let className = styles.linkBase;

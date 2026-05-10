@@ -59,20 +59,22 @@ export function AsideMenuLayout({
                             <AsideMenuOption
                                 navigateTo={homePageRoute}
                                 icon={<MessageIcon />}
+                                label="Dashboard"
                                 notification={
                                     unreadMessagesCount > 0 ? unreadMessagesCount : undefined
                                 }
                             />
 
+
+
+
+
+                            {/* This could have the users profile picture if requested cleverly with a secondary request to the conversations but this would require tricky magic with an abort controller on the current running conversations if they are still being requested */}
+
                             <AsideMenuOption
                                 navigateTo={myAccountPageRoute}
                                 icon={<UserIcon />}
-                            />
-
-                            <AsideMenuOption
-                                navigateTo="invite"
-                                icon={<InviteConversationIcon />}
-
+                                label="My Account"
                             />
 
                             
