@@ -1,6 +1,6 @@
 import { Router, NextFunction, Response, Request } from "express";
 import { ensureJWTAuthentication } from "../auth/ensureJWTAuthentication";
-import { ISearchUsersQueryParams, ISearchedUser, ISearchedUserAPISuccess, SearchUsersQueryParams } from "../../../shared/features/user/models/ISearchUsers";
+import { ISearchUsersQueryParams, ISearchedUser, ISearchedUserAPISuccess, ISearchedUserNewConversation, ISearchedUserNewConversationAPISuccess, SearchUsersQueryParams } from "../../../shared/features/user/models/ISearchUsers";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { prisma } from "../db/prisma";
 import { IFriendRequestStatus } from "../../../shared/features/inviteReq/constants";
@@ -16,6 +16,96 @@ import { Prisma } from "@prisma/client";
 
 
 export const router = Router();
+
+
+
+router.get("/search", ensureJWTAuthentication, async (req: Request, res: Response<ICustomErrorResponse | ISearchedUserNewConversationAPISuccess>, next: NextFunction) => {
+    const user = req.user!;
+    const queryParams = req.query;
+
+    const queryResult = SearchUsersQueryParams.safeParse(queryParams);
+    if (!queryResult.success) {
+        return res.status(404).json({
+            ok: false,
+            status: 404,
+            message: "Query parameters must specify a search username and a limit of how many users you would like returned!!!"
+        })
+    }
+
+    const { limit, search, offset } = queryResult.data;
+
+
+
+    try {
+
+        const usersSearched = await prisma.user.findMany({
+            where: {
+                username: {
+                    contains: search,
+                    mode: "insensitive"
+                },
+                NOT: {
+                    id: user.id
+                }
+            },
+            take: limit,
+            skip: offset,
+            select: {
+                id: true,
+                username: true,
+                profileImg: {
+                    select: {
+                        supabaseFileId: true
+                    }
+                },
+            },
+        });
+
+        if (usersSearched.length === 0) {
+            const searchedUsersSuccess: ISearchedUserAPISuccess = {
+                ok: true,
+                status: 200,
+                message: `Successfully sent back empty list of users under search parameter: ${search}`,
+                searchedUsers: []
+            }
+
+            return res.status(searchedUsersSuccess.status).json(searchedUsersSuccess);
+        }
+
+
+
+
+
+
+
+
+        const searchableUsersFriendReqs: ISearchedUserNewConversation[] = usersSearched.map((searchedUser) => {
+
+            return {
+                userId: searchedUser.id,
+                username: searchedUser.username,
+                userProfileImgUrl: searchedUser.profileImg?.supabaseFileId,
+            }
+        });
+
+
+        const searchedUsersSuccess: ISearchedUserNewConversationAPISuccess = {
+            ok: true,
+            status: 200,
+            message: `Successfully sent back list of users under search parameter: ${search}`,
+            searchedUsers: searchableUsersFriendReqs
+        }
+
+        return res.status(searchedUsersSuccess.status).json(searchedUsersSuccess);
+
+
+
+
+    } catch (error: unknown) {
+        next(error);
+
+    }
+});
 
 
 

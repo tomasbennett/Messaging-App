@@ -33,6 +33,13 @@ export const SearchedUser = z.object({
 export type ISearchedUser = z.infer<typeof SearchedUser>;
 
 
+export const SearchedUserNewConversation = SearchedUser.omit({ friendStatus: true });
+
+export type ISearchedUserNewConversation = z.infer<typeof SearchedUserNewConversation>;
+
+
+
+
 
 
 
@@ -43,3 +50,11 @@ export const SearchedUsersAPISuccess = APISuccessSchema.extend({
 
 
 export type ISearchedUserAPISuccess = z.infer<typeof SearchedUsersAPISuccess>;
+
+
+export const SearchedUserNewConversationAPISuccess = APISuccessSchema.extend({
+    searchedUsers: z.array(SearchedUserNewConversation)
+});
+
+
+export type ISearchedUserNewConversationAPISuccess = z.infer<typeof SearchedUserNewConversationAPISuccess>;
