@@ -21,6 +21,11 @@
   --light-black-colour: rgb(20, 20, 20);
   --dark-blue: rgb(0, 119, 255);
 
+  --dark-pink-btn-bcg: rgb(255, 116, 139);
+
+  --dark-transparent-red-error-bcg: rgba(255, 110, 110, 0.164);
+  --light-red-error-colour: rgb(255, 105, 105);
+
 }
 
 *,

@@ -243,7 +243,7 @@
     aspect-ratio: 1;
 
     border-radius: 50%;
-    background: rgb(255, 116, 139);
+    background: var(--dark-pink-btn-bcg);
 
     display: flex;
     align-items: center;
@@ -357,7 +357,7 @@
 
         padding: 2rem 1rem;
 
-        background-color: rgba(255, 110, 110, 0.164);
+        background-color: var(--dark-transparent-red-error-bcg);
 
         border-radius: 1rem;
 
@@ -369,7 +369,7 @@
 
 
 
-        color: rgb(255, 105, 105);
+        color: var(--light-red-error-colour);
 
         margin-bottom: .5rem;
     }

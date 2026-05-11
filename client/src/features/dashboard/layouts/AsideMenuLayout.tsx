@@ -1,13 +1,14 @@
 import styles from "./AsideMenuLayout.module.css";
 import githubImage from "../../../assets/github-profile-img.jpg";
 import { NavLink, Outlet } from "react-router-dom";
-import { homePageRoute, myAccountPageRoute } from "../../../constants/routes";
+import { homePageRoute, myAccountPageRoute, newConversationPageRoute } from "../../../constants/routes";
 import { AsideMenuOption } from "../components/AsideMenuOption";
 import { MessageIcon } from "../../../assets/icons/MessageIcon";
 import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
 import { useMemo } from "react";
 import { UserIcon } from "../../../assets/icons/UserIcon";
 import { InviteConversationIcon } from "../../../assets/icons/InviteConversationIcon";
+import { AddMessageIcon } from "../../../assets/icons/AddMessageIcon";
 
 interface IAsideMenuLayoutProps {
     children: React.ReactNode;
@@ -65,6 +66,12 @@ export function AsideMenuLayout({
                                 }
                             />
 
+                            <AsideMenuOption
+                                navigateTo={newConversationPageRoute}
+                                icon={<AddMessageIcon />}
+                                label="New Conversation"
+
+                            />
 
 
 

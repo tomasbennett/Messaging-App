@@ -14,6 +14,7 @@ import { NoConversationSelected } from './features/dashboard/components/NoConver
 import { AsideMenuLayout } from './features/dashboard/layouts/AsideMenuLayout'
 import { FriendMessageProvider } from './features/messages/contexts/PreviewFriendConversationContext'
 import { accountPageRoute, conversationPageRoute, myAccountPageRoute, newConversationPageRoute, singleConversationPageRoute } from './constants/routes'
+import { NewConversationLayout } from './features/conversations/layouts/NewConversationLayout'
 
 
 const router = createBrowserRouter([
@@ -77,7 +78,7 @@ const router = createBrowserRouter([
               },
               {
                 path: newConversationPageRoute,
-                element: <div>New Conversation Page</div>
+                element: <NewConversationLayout />
               },
               {
                 path: accountPageRoute,

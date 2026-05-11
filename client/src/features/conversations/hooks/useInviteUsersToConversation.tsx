@@ -230,6 +230,7 @@ export function useInviteUsersToConversation() {
         setSearchText,
         searchResults,
         loadMoreUsers,
+        selectedUsersToJoin,
         prepUser
     }
 

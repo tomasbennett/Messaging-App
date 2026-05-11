@@ -1,0 +1,324 @@
+.outerContainer {
+    height: 100%;
+    width: 100%;
+
+    padding: 3rem;
+
+    background-image: url("../../../assets/i-like-food.svg");
+    background-repeat: repeat;
+    background-size: 210px;
+
+}
+
+
+.innerContainer {
+    height: 100%;
+    width: 100%;
+
+
+    background-color: var(--darker-header-bcg-colour);
+
+    border-radius: 2rem;
+}
+
+
+.form {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+
+    overflow: hidden;
+
+    padding: 3rem 2rem;
+
+    &>* {
+        flex: 1 1 0;
+    }
+}
+
+
+.chatImgOuterContainer {
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+
+
+
+}
+
+.chatImgInnerContainer {
+    /* APPLY WIDTH MEASUREMENTS HERE */
+
+    position: relative;
+
+
+    aspect-ratio: 1;
+    width: 28rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+    border-radius: 50%;
+
+    overflow: visible;
+
+
+    .imgOverflowContainer {
+        height: 100%;
+        flex: 1 1 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        overflow: hidden;
+
+
+        .img {
+            width: 100%;
+            height: 100%;
+    
+            object-fit: cover;
+        }
+    }
+
+
+
+
+    .imgLabel {
+        /* ADJUST WIDTH HERE */
+
+        position: absolute;
+
+        bottom: 0;
+        right: 0;
+
+        aspect-ratio: 1;
+        width: 6rem;
+
+        background-color: var(--dark-pink-btn-bcg);
+
+        font-weight: bolder;
+        font-size: 3.5rem;
+
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        cursor: pointer;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+.chatTextOuterContainer {
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    row-gap: 1rem;
+
+    overflow: hidden;
+
+    & > *{
+        /* ADJUST MIN AND MAX WIDTH FOR ALL CONTENTS HERE AS THEY WILL ALL BE THE SAME */
+        flex-shrink: 0;
+
+        width: min(40rem, 100%);
+    
+    
+    }
+}
+
+
+.title{
+    font-weight: bolder;
+
+    font-size: 2.4rem;
+}
+
+
+.errorContainer{
+    height: 20rem;
+
+    /* background-color: red; */
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    row-gap: 1rem;
+
+    overflow-y: auto;
+
+    .errorMessage{
+        padding: 2rem 1rem;
+
+        background-color: var(--dark-transparent-red-error-bcg);
+
+        border-radius: 1rem;
+
+        font-style: italic;
+
+
+
+
+
+        color: var(--light-red-error-colour);
+    }
+}
+
+
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    /* width: 100%; */
+    
+}
+
+.inputGroup input {
+    padding: 1.8rem 0;
+    padding-left: 1.6rem;
+
+    font-size: 1.6rem;
+
+
+
+    border-radius: 3rem;
+
+    background-color: var(--dark-grey);
+
+
+}
+
+.inputGroup input::placeholder {
+    color: white;
+    font-size: 1.4rem;
+}
+
+
+.searchParticipantsInputResultContainer{
+    flex: 1 1 0;
+
+    margin-bottom: 1rem;
+
+
+    display: flex;
+    flex-direction: column;
+    /* row-gap: 1rem; */
+
+
+}
+
+
+.searchParticipantsOuterContainer{
+    flex: 1 1 0;
+
+}
+
+
+.searchParticipantsInnerContainer{
+    width: 100%;
+
+    padding: 1rem;
+    
+    border-radius: 2rem;
+
+}
+
+
+.searchParticipantsInnerContainer.active{
+
+
+
+    background-color: var(--dark-grey);
+
+
+
+
+
+
+}
+
+.searchParticipantsInnerContainer.inactive{
+
+}
+
+
+.initialLoadingContainer{
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+
+
+
+
+
+.submitBtnContainer{
+    height: 5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* padding: 1rem; */
+
+    overflow: hidden;
+
+    background-color: var(--dark-blue);
+
+    border-radius: 3rem;
+
+    .submitBtn {
+        width: 100%;
+        height: 100%;
+    
+        background-color: transparent;
+    
+        color: white;
+        border: none;
+        
+        font-size: 1.6rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.25s;
+    }
+    
+    .submitBtn:hover {
+        background: rgb(0, 166, 221);
+    }
+}
