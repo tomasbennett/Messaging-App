@@ -16,7 +16,7 @@ export function useInviteUsersToConversation() {
 
     const [searchText, setSearchText] = useState<string>("");
     const [searchResults, setSearchResults] = useState<IPrepInvitations[]>([]);
-    const [selectedUsersToJoin, setSelectedUsersToJoin] = useState<{ userId: string }[]>([]);
+    const [selectedUsersToJoin, setSelectedUsersToJoin] = useState<IPrepInvitations[]>([]);
 
     const [isMoreLoadable, setIsMoreLoadable] = useState<boolean>(true);
     const [isMoreLoading, setIsMoreLoading] = useState<boolean>(false);
@@ -193,30 +193,38 @@ export function useInviteUsersToConversation() {
         
     }
 
-    function prepUser(userId: string) {
+    function prepUser(user: IPrepInvitations) {
 
-        if (selectedUsersToJoin.some(preselectedUser => preselectedUser.userId === userId)) {
+        if (selectedUsersToJoin.some(preselectedUser => preselectedUser.userId === user.userId)) {
             console.log("User already has been selected for invitation to this new conversation!!!");
             return;
         }
 
         setSelectedUsersToJoin(prev => {
-            return [...prev, { userId }]
+            return [...prev, user]
         });
 
         setSearchResults(prev => {
-            return prev.map(user => {
-                if (user.userId === userId) {
+            return prev.map(searchedUser => {
+                if (searchedUser.userId === user.userId) {
                     return {
-                        userId: user.userId,
-                        username: user.username,
-                        userProfileImgUrl: user.userProfileImgUrl,
+                        userId: searchedUser.userId,
+                        username: searchedUser.username,
+                        userProfileImgUrl: searchedUser.userProfileImgUrl,
                         prepstatus: "invite_prepped"
                     }
                 }
 
-                return user;
+                return searchedUser;
             });
+        });
+
+    }
+
+
+    function removeUser(userId: string) {
+        setSelectedUsersToJoin(prev => {
+            return prev.filter(preppedUser => preppedUser.userId !== userId)
         });
 
     }
@@ -231,7 +239,9 @@ export function useInviteUsersToConversation() {
         searchResults,
         loadMoreUsers,
         selectedUsersToJoin,
-        prepUser
+        prepUser,
+        searchText,
+        removeUser
     }
 
 }

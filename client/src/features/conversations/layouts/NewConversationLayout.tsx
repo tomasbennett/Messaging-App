@@ -19,6 +19,7 @@ import { useImageUpload } from "../../../hooks/useImageUpload";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useMediaQuery } from "react-responsive";
 import { mediumScreenMaxWidth, thinScreenMaxWidth } from "../../../constants/screenDimensions";
+import { PreppedParticipant } from "../components/PreppedParticipant";
 
 
 
@@ -30,7 +31,12 @@ export function NewConversationLayout({
         isLoading,
         isMoreLoadable,
         isMoreLoading,
-        selectedUsersToJoin
+        selectedUsersToJoin,
+        setSearchText,
+        searchResults,
+        searchText,
+        prepUser,
+        removeUser
     } = useInviteUsersToConversation();
 
     const {
@@ -186,13 +192,24 @@ export function NewConversationLayout({
     }, [isThinScreen, isMediumScreen]);
 
     const searchParticipantsBoxStatusClassName = useMemo<string>(() => {
-        if (!isLoading || selectedUsersToJoin.length > 0) {
+        if (isLoading || searchResults.length > 0 || !isMoreLoadable) {
             return styles.active
         }
 
         return styles.inactive
 
-    }, [selectedUsersToJoin, isLoading]);
+    }, [searchResults, isLoading, isMoreLoadable]);
+
+    const preppedParticipantsStatusClassName = useMemo<string>(() => {
+        if (selectedUsersToJoin.length > 0) {
+            return styles.active;
+        }
+
+        return styles.inactive;
+
+    }, [selectedUsersToJoin]);
+
+
 
 
     return (
@@ -280,6 +297,10 @@ export function NewConversationLayout({
                                     type="text"
                                     placeholder="Search for users you want to invite..."
                                     className={styles.searchUserInput}
+                                    value={searchText}
+                                    onChange={(e) => {
+                                        setSearchText(e.target.value);
+                                    }}
                                 />
 
                             </div>
@@ -289,17 +310,76 @@ export function NewConversationLayout({
                                 <div className={`${styles.searchParticipantsInnerContainer} ${searchParticipantsBoxStatusClassName}`}>
 
                                     {
-                                        !isLoading ?
+                                        isLoading ?
 
                                             <div className={styles.initialLoadingContainer}>
                                                 <LoadingCircle height="3rem" />
                                             </div>
 
-                                            : null
+                                            :
+
+                                            selectedUsersToJoin.length > 0 ? (
+                                                <>
+
+                                                    <ul className={styles.selectedParticipantsListContainer}>
+                                                        {
+                                                            selectedUsersToJoin.map(preppedParticipant => {
+
+                                                                return <PreppedParticipant
+                                                                    key={preppedParticipant.userId}
+                                                                    userId={preppedParticipant.userId}
+                                                                    username={preppedParticipant.username}
+                                                                    userProfileImgUrl={preppedParticipant.userProfileImgUrl}
+                                                                    prepstatus={preppedParticipant.prepstatus}
+                                                                    prepUser={prepUser}
+                                                                    removeUser={removeUser} />
+                                                            })
+                                                        }
+                                                    </ul>
+
+                                                    <div className={styles.loadMoreContainer}>
+                                                        {
+                                                            isMoreLoadable ?
+                                                                <button className={styles.loadMoreBtn} type="button">
+                                                                    Load More...
+                                                                </button>
+                                                                :
+                                                                <p className={styles.noMoreSearchResults}>
+                                                                    No more results for this search
+                                                                </p>
+                                                        }
+                                                    </div>
+
+                                                </>
+                                            )
+
+                                                :
+
+                                                null
 
 
                                     }
 
+                                </div>
+
+                                <div className={`${preppedParticipantsStatusClassName} ${styles.preppedParticipantContainer}`}>
+                                    {
+                                        selectedUsersToJoin.length > 0 &&
+                                        <ul className={styles.preppedParticipantsList}>
+                                            {
+                                                selectedUsersToJoin.map(preppedUser => {
+                                                    return <PreppedParticipant
+                                                        key={preppedUser.userId}
+                                                        userId={preppedUser.userId}
+                                                        username={preppedUser.username}
+                                                        userProfileImgUrl={preppedUser.userProfileImgUrl}
+                                                        prepstatus={preppedUser.prepstatus}
+                                                        prepUser={prepUser}
+                                                        removeUser={removeUser} />
+                                                })
+                                            }
+                                        </ul>
+                                    }
                                 </div>
 
                             </div>
