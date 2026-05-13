@@ -1,3 +1,5 @@
+
+
 .outerContainer {
     height: 100%;
     width: 100%;
@@ -8,12 +10,16 @@
     background-repeat: repeat;
     background-size: 210px;
 
+    overflow-y: auto;
+
 }
 
 
 .innerContainer {
     height: 100%;
     width: 100%;
+
+    min-height: 80rem;
 
 
     background-color: var(--darker-header-bcg-colour);
@@ -416,7 +422,6 @@
 
 
 .loadMoreContainer{
-    /* margin: 0 auto; */
     margin-top: 2rem;
 
     width: 100%;
@@ -427,7 +432,6 @@
     overflow: hidden;
 
     
-    background-color: var(--dark-pink-btn-bcg);
     border-radius: 2rem;
     
     cursor: pointer;
@@ -445,12 +449,18 @@
     }
     
     .loadMoreBtn{
-        background-color: transparent;
+        background-color: var(--dark-pink-btn-bcg);
 
         cursor: pointer;
 
         flex: 1 1 0;
         height: 100%;
+
+        transition: .2s linear background-color;
+    }
+
+    .loadMoreBtn:hover{
+        background-color: rgb(255, 41, 77);
     }
 
     .noMoreSearchResults{
