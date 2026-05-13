@@ -1,0 +1,1 @@
+export const emptySearchTextAbort = "empty_search_text";

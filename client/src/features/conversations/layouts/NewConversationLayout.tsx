@@ -36,7 +36,8 @@ export function NewConversationLayout({
         searchResults,
         searchText,
         prepUser,
-        removeUser
+        removeUser,
+        loadMoreUsers
     } = useInviteUsersToConversation();
 
     const {
@@ -192,11 +193,12 @@ export function NewConversationLayout({
     }, [isThinScreen, isMediumScreen]);
 
     const searchParticipantsBoxStatusClassName = useMemo<string>(() => {
+        console.log(searchResults.length);
         if (isLoading || searchResults.length > 0 || !isMoreLoadable) {
-            return styles.active
+            return styles.active;
         }
 
-        return styles.inactive
+        return styles.inactive;
 
     }, [searchResults, isLoading, isMoreLoadable]);
 
@@ -318,12 +320,12 @@ export function NewConversationLayout({
 
                                             :
 
-                                            selectedUsersToJoin.length > 0 ? (
+                                            searchResults.length > 0 ? (
                                                 <>
 
                                                     <ul className={styles.selectedParticipantsListContainer}>
                                                         {
-                                                            selectedUsersToJoin.map(preppedParticipant => {
+                                                            searchResults.map(preppedParticipant => {
 
                                                                 return <PreppedParticipant
                                                                     key={preppedParticipant.userId}
@@ -339,10 +341,26 @@ export function NewConversationLayout({
 
                                                     <div className={styles.loadMoreContainer}>
                                                         {
-                                                            isMoreLoadable ?
-                                                                <button className={styles.loadMoreBtn} type="button">
-                                                                    Load More...
-                                                                </button>
+                                                            !isMoreLoadable ?
+                                                                <>
+
+                                                                    {
+                                                                        isMoreLoading ?
+                                                                            <div className={styles.loadMoreLoadingContainer}>
+                                                                                <LoadingCircle height="60%" />
+                                                                            </div>
+
+                                                                            :
+
+
+                                                                            <button onClick={() => {
+                                                                                loadMoreUsers();
+                                                                            }} className={styles.loadMoreBtn} type="button">
+                                                                                Load More...
+                                                                            </button>
+                                                                    }
+
+                                                                </>
                                                                 :
                                                                 <p className={styles.noMoreSearchResults}>
                                                                     No more results for this search
@@ -390,7 +408,7 @@ export function NewConversationLayout({
                         <div className={styles.submitBtnContainer}>
                             {
                                 isSubmissionLoading ?
-                                    <LoadingCircle height="80%" />
+                                    <LoadingCircle height="60%" />
 
                                     :
 
@@ -402,9 +420,9 @@ export function NewConversationLayout({
 
                 </form>
 
-            </div>
+            </div >
 
 
-        </div>
+        </div >
     )
 }

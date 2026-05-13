@@ -29,7 +29,7 @@ export function PreppedParticipant({
 
                 <div className={styles.rightSideContainer}>
                     <p className={styles.username}>
-                        {username}
+                        <span>{username}</span>
                     </p>
 
                     {

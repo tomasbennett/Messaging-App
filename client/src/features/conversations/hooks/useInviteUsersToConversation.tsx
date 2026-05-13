@@ -9,14 +9,47 @@ import { useNavigate } from "react-router-dom";
 import { errorPageRoute } from "../../../constants/routes";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
+import { emptySearchTextAbort } from "../../../constants/AbortFetch";
 
 export function useInviteUsersToConversation() {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [searchText, setSearchText] = useState<string>("");
-    const [searchResults, setSearchResults] = useState<IPrepInvitations[]>([]);
-    const [selectedUsersToJoin, setSelectedUsersToJoin] = useState<IPrepInvitations[]>([]);
+    const [searchResults, setSearchResults] = useState<IPrepInvitations[]>([
+        {
+            userId: "1",
+            username: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam dolorum aut qui deserunt nemo amet unde nisi optio excepturi explicabo repudiandae, placeat omnis, vero ipsum cupiditate totam assumenda a ipsa ullam eligendi cumque neque ab! Illum vero eius velit aut libero. Saepe culpa, nobis officia dolorum quod quas minus repellendus!",
+            prepstatus: "no_invite_prepped"
+        },
+        {
+            userId: "2",
+            username: "Cannon Basics",
+            prepstatus: "invite_prepped"
+        },
+        {
+            userId: "3",
+            username: "JAMAL__DESPERADO",
+            prepstatus: "invite_prepped"
+        },
+        {
+            userId: "4",
+            username: "CharredRemains123",
+            prepstatus: "no_invite_prepped"
+        }
+    ]);
+    const [selectedUsersToJoin, setSelectedUsersToJoin] = useState<IPrepInvitations[]>([
+        {
+            userId: "2",
+            username: "Cannon Basics",
+            prepstatus: "invite_prepped"
+        },
+        {
+            userId: "3",
+            username: "JAMAL__DESPERADO",
+            prepstatus: "invite_prepped"
+        },
+    ]);
 
     const [isMoreLoadable, setIsMoreLoadable] = useState<boolean>(true);
     const [isMoreLoading, setIsMoreLoading] = useState<boolean>(false);
@@ -32,16 +65,13 @@ export function useInviteUsersToConversation() {
 
     const nav = useNavigate();
 
-    const isAbortedWithoutNewRequestFlag = useRef<boolean>(false);
-
     useEffect(() => {
-        setSearchResults([]);
-        setOffset(0);
-        setIsMoreLoadable(true);
         
         if (searchText.trim() === "") {
-            abortControllerRef.current?.abort();
-            isAbortedWithoutNewRequestFlag.current = true;
+            // setSearchResults([]);
+            setOffset(0);
+            setIsMoreLoadable(true);
+            abortControllerRef.current?.abort(emptySearchTextAbort);
             return;
         }
 
@@ -91,14 +121,14 @@ export function useInviteUsersToConversation() {
                 signal: controller.signal
             });
 
-            if (isAbortedWithoutNewRequestFlag.current) {
-                console.log("Aborted without a new request sent do not impact state except for loading!!!");
-                isAbortedWithoutNewRequestFlag.current = false;
-                return;
-            }
-
+            
             if (controller !== abortControllerRef.current) {
                 console.log("Not current fetch request!!!");
+                return;
+            }
+            
+            if (controller.signal.aborted && controller.signal.reason === emptySearchTextAbort) {
+                console.log("Aborted without a new request sent do not impact state except for loading!!!");
                 return;
             }
 
