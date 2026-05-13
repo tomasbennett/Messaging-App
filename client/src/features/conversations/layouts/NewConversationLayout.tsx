@@ -222,11 +222,18 @@ export function NewConversationLayout({
 
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className={styles.form}>
+                    className={`${styles.form} ${screenWidthClassName}`}>
 
-                    <div className={styles.chatImgOuterContainer}>
+                    {
+                        isThinScreen && (
+                            <h2 className={`${styles.title} ${screenWidthClassName}`}>{title}</h2>
+                        )
+                    }
 
-                        <div className={styles.chatImgInnerContainer}>
+
+                    <div className={`${styles.chatImgOuterContainer} ${screenWidthClassName}`}>
+
+                        <div className={`${styles.chatImgInnerContainer} ${screenWidthClassName}`}>
 
                             <div className={styles.imgOverflowContainer}>
 
@@ -250,11 +257,15 @@ export function NewConversationLayout({
 
                     </div>
 
-                    <div className={styles.chatTextOuterContainer}>
+                    <div className={`${styles.chatTextOuterContainer} ${screenWidthClassName}`}>
 
-                        <h2 className={styles.title}>{title}</h2>
+                        {
+                            !isThinScreen && (
+                                <h2 className={styles.title}>{title}</h2>
+                            )
+                        }
 
-                        <div className={styles.errorContainer}>
+                        <div className={`${styles.errorContainer} ${screenWidthClassName}`}>
                             {
                                 errors.root && (
                                     <p className={styles.errorMessage}>
@@ -315,7 +326,7 @@ export function NewConversationLayout({
                                         isLoading ?
 
                                             <div className={styles.initialLoadingContainer}>
-                                                <LoadingCircle height="3rem" />
+                                                <LoadingCircle height="5rem" />
                                             </div>
 
                                             :
@@ -341,7 +352,7 @@ export function NewConversationLayout({
 
                                                     <div className={styles.loadMoreContainer}>
                                                         {
-                                                            !isMoreLoadable ?
+                                                            isMoreLoadable ?
                                                                 <>
 
                                                                     {
