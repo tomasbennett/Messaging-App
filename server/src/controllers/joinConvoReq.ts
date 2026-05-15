@@ -13,10 +13,206 @@ import { IReceivingAnInvite } from "../../../shared/features/inviteReq/models/IR
 import { ILeavingConversation } from "../../../shared/features/inviteReq/models/ILeavingConversation";
 import { IAcceptConversationInvite } from "../../../shared/features/inviteReq/models/IAcceptConversationInvite";
 import { IDeclineConversationInvite } from "../../../shared/features/inviteReq/models/IDeclineConversationInvite";
+import { IPendingConversationInvitesAPISuccess } from "../../../shared/features/inviteReq/models/IPendingConversationInvites";
+import { IPendingInviteSentvsReceivedDisUnion } from "../../../shared/features/inviteReq/discriminatedUnions/IPendingInviteSentvsReceived";
+import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
 
 
 export const router = Router();
 
+
+router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Response<IPendingConversationInvitesAPISuccess | ICustomErrorResponse>, next: NextFunction) => {
+    const user = req.user!;
+
+    try {
+
+        //SO I WANT INVITES SENT TO THIS USER AND INVITES SENT FROM THIS USER AND THE DETAILS THAT COME WITH THAT
+        //THE DETAILS SHOULD BE WHETHER THE INVITE IS ONE YOU HAVE SENT AND IS PENDING OR IS ONE YOU HAVE RECEIVED AND IS PENDING
+        //IF IT IS ONE YOU HAVE SENT OR RECEIVED IT SHOULD SHOW THE CONVERSATION IMAGE AND NAME 
+        //FOR SPECIFICALLY RECEIVED INVITES YOU CAN INCLUDE THE USERNAME OF THE PERSON WHO SENT IT IF POSSIBLE
+        // const invitesReceived = await prisma.conversationJoinRequest.findMany({
+        //     where: {
+        //         status: "PENDING",
+        //         receiverId: user.id
+        //     }
+        // });
+
+        //SO SMALL ERROR IN BEHAVIOUR HERE IS THAT WHEN A USER LEAVES A CONVERSATION WHICH WE CAN'T DO RIGHT NOW
+        //THE INVITES WILL STILL SHOW FOR CONVERSATIONS YOU HAVE LEFT AS THERE IS NO WAY FOR THAT USER TO REMOVE AN INVITE APPLICABILITY BASED ON WHETHER THE INVITER IS STILL IN THE CONVERSATION
+        //THEY WILL STILL HAVE THE INVITE AND CAN STILL ACCEPT IT AS OF RIGHT NOW AND IF CHANGED YOU WOULD PROBABLY NEED TO DO FURTHER CHECKS ELSEWHERE
+        // const invitesSent = await prisma.conversationJoinRequest.findMany({
+        //     where: {
+        //         status: "PENDING",
+        //         senderParticipant: {
+        //             userId: user.id,
+        //             hasLeft: false
+        //         }
+        //     }
+        // });
+
+        const [invitesReceived, invitesSent] = await prisma.$transaction([
+            prisma.conversationJoinRequest.findMany({
+                where: {
+                    status: "PENDING",
+                    receiverId: user.id
+                },
+                select: {
+                    conversation: {
+                        select: {
+                            chatName: true,
+                            id: true,
+
+                        }
+                    },
+                    senderParticipant: {
+                        select: {
+                            user: {
+                                select: {
+                                    username: true,
+                                    id: true,
+                                    profileImg: {
+                                        select: {
+                                            supabaseFileId: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }),
+            prisma.conversationJoinRequest.findMany({
+                where: {
+                    status: "PENDING",
+                    senderParticipant: {
+                        userId: user.id,
+                        hasLeft: false
+                    }
+                },
+                select: {
+                    receiver: {
+                        select: {
+                            username: true,
+                            id: true,
+                            profileImg: {
+                                select: {
+                                    supabaseFileId: true
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ]);
+        //I'VE ACTUALLY CHANGED IT SO THAT THE INVITE STILL EXISTS FOR THE RECEIVER BUT JUST WON'T SHOW ON THE LIST OF INVITES SENT BY THE SENDER
+
+
+        const sentToUserValidProfileImgUrls: string[] = invitesSent
+            .filter(i => i.receiver.profileImg?.supabaseFileId)
+            .map(iUrl => iUrl.receiver.profileImg!.supabaseFileId!);
+
+        const senderUserValidProfileImgUrls: string[] = invitesReceived
+            .filter(i => i.senderParticipant.user.profileImg?.supabaseFileId)
+            .map(i => i.senderParticipant.user.profileImg!.supabaseFileId!);
+
+
+
+        const [generatedSenderImgUrlsRes, generatedUserSentToImgUrlRes] = await Promise.all([
+            GenerateSupabasePublicURL(senderUserValidProfileImgUrls),
+            GenerateSupabasePublicURL(sentToUserValidProfileImgUrls),
+        ]);
+
+        if (!generatedSenderImgUrlsRes.ok) {
+            return res.status(500).json({
+                ok: false,
+                status: 500,
+                message: generatedSenderImgUrlsRes.error
+            });
+        }
+
+        if (!generatedUserSentToImgUrlRes.ok) {
+            return res.status(500).json({
+                ok: false,
+                status: 500,
+                message: generatedUserSentToImgUrlRes.error
+            });
+        }
+
+
+        const publicSenderProfileImgUrls = generatedSenderImgUrlsRes.supabasePublicURLs;
+        const publicSentToProfileImgUrls = generatedUserSentToImgUrlRes.supabasePublicURLs;
+
+        const pendingInvites: IPendingInviteSentvsReceivedDisUnion[] = [];
+
+
+        let invitesSentIndx: number = 0;
+        let invitesReceivedIndx: number = 0;
+
+
+
+
+        invitesReceived.forEach(invite => {
+            if (invite.senderParticipant.user.profileImg?.supabaseFileId) {
+                pendingInvites.push({
+                    type: "receivedInvite",
+                    conversationId: invite.conversation.id,
+                    conversationName: invite.conversation.chatName,
+                    inviterUserId: invite.senderParticipant.user.id,
+                    inviterUsername: invite.senderParticipant.user.username,
+                    inviterProfilePictureUrl: publicSenderProfileImgUrls[invitesReceivedIndx++]
+                });
+                
+                return;
+            }
+
+
+            pendingInvites.push({
+                type: "receivedInvite",
+                conversationId: invite.conversation.id,
+                conversationName: invite.conversation.chatName,
+                inviterUserId: invite.senderParticipant.user.id,
+                inviterUsername: invite.senderParticipant.user.username,
+                inviterProfilePictureUrl: undefined
+            })
+        });
+
+        invitesSent.forEach(invite => {
+            if (invite.receiver.profileImg?.supabaseFileId) {
+                pendingInvites.push({
+                    type: "sentInvite",
+                    userId: invite.receiver.id,
+                    username: invite.receiver.username,
+                    userProfileImgUrl: publicSentToProfileImgUrls[invitesSentIndx++]
+                });
+                
+                return;
+            }
+
+            pendingInvites.push({
+                type: "sentInvite",
+                userId: invite.receiver.id,
+                username: invite.receiver.username,
+                userProfileImgUrl: undefined
+            })
+        });
+
+
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            message: "Successfully retrieving all pending invites either sent to or received by user: " + user.username,
+            pendingInvites
+        })
+
+
+    } catch (error) {
+        next(error);
+
+    }
+
+
+
+});
 
 
 router.post(
@@ -273,7 +469,7 @@ router.delete(
             });
 
             if (!remainingParticipants || remainingParticipants.length === 0) {
-                
+
                 await prisma.conversation.delete({
                     where: {
                         id: conversationId
@@ -281,7 +477,7 @@ router.delete(
                 });
 
             } else {
-                
+
                 io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_LEFT_CONVERSATION, leaveConversationData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI
 
             }
@@ -299,166 +495,166 @@ router.delete(
 
 
 router.post(
-    "/:conversationId/acceptInvite", 
-    ensureJWTAuthentication, 
+    "/:conversationId/acceptInvite",
+    ensureJWTAuthentication,
     async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
 
-    const { conversationId } = req.params;
-    const { userSocketId } = req.body;
-    const user = req.user!;
+        const { conversationId } = req.params;
+        const { userSocketId } = req.body;
+        const user = req.user!;
 
-    const userSocketIds = connectedUsers.get(user.id);
-    if (!userSocketIds || !userSocketIds.has(userSocketId)) {
-        return res.status(401).json({
-            ok: false,
-            status: 401,
-            message: "Unauthorized, your user socket ID did not match with your access token socket IDs!!!"
-        });
-    }
-
-    const sockets = [...userSocketIds]
-        .map(id => io.sockets.sockets.get(id))
-        .filter(Boolean);
-
-    if (!sockets || sockets.length === 0) {
-        return res.status(401).json({
-            ok: false,
-            status: 401,
-            message: "Unauthorized, no active socket connection found for the provided user socket ID!!!"
-        });
-    }
-
-
-
-    try {
-
-        const joinRequest = await prisma.conversationJoinRequest.findFirst({
-            where: {
-                conversationId,
-                receiverId: user.id,
-                status: "PENDING"
-            }
-        });
-
-        if (!joinRequest) {
-            return res.status(404).json({
+        const userSocketIds = connectedUsers.get(user.id);
+        if (!userSocketIds || !userSocketIds.has(userSocketId)) {
+            return res.status(401).json({
                 ok: false,
-                status: 404,
-                message: "No pending invite request found for this conversation and user!!!"
+                status: 401,
+                message: "Unauthorized, your user socket ID did not match with your access token socket IDs!!!"
             });
         }
 
-        await prisma.$transaction([
-            prisma.conversationJoinRequest.update({
-                where: { id: joinRequest.id },
-                data: { status: "ACCEPTED" }
-            }),
-            prisma.conversationParticipant.upsert({
+        const sockets = [...userSocketIds]
+            .map(id => io.sockets.sockets.get(id))
+            .filter(Boolean);
+
+        if (!sockets || sockets.length === 0) {
+            return res.status(401).json({
+                ok: false,
+                status: 401,
+                message: "Unauthorized, no active socket connection found for the provided user socket ID!!!"
+            });
+        }
+
+
+
+        try {
+
+            const joinRequest = await prisma.conversationJoinRequest.findFirst({
                 where: {
-                    conversationId_userId: {
-                        conversationId,
-                        userId: user.id
-                    }
-                },
-                update: {
-                    hasLeft: false
-                },
-                create: {
                     conversationId,
-                    userId: user.id,
-                    hasLeft: false
+                    receiverId: user.id,
+                    status: "PENDING"
                 }
-            })
-        ]);
+            });
 
-        sockets.forEach((socket) => {
-            socket?.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`); //MAKE THE USER JOIN THE CONVERSATION ROOM TO START RECEIVING REAL-TIME UPDATES FOR THAT CONVERSATION
-        });
+            if (!joinRequest) {
+                return res.status(404).json({
+                    ok: false,
+                    status: 404,
+                    message: "No pending invite request found for this conversation and user!!!"
+                });
+            }
 
-        const acceptedInviteData: IAcceptConversationInvite = {
-            conversationId,
-            userAcceptingId: user.id
-        };
+            await prisma.$transaction([
+                prisma.conversationJoinRequest.update({
+                    where: { id: joinRequest.id },
+                    data: { status: "ACCEPTED" }
+                }),
+                prisma.conversationParticipant.upsert({
+                    where: {
+                        conversationId_userId: {
+                            conversationId,
+                            userId: user.id
+                        }
+                    },
+                    update: {
+                        hasLeft: false
+                    },
+                    create: {
+                        conversationId,
+                        userId: user.id,
+                        hasLeft: false
+                    }
+                })
+            ]);
 
-        io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, acceptedInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI WITH THE NEW PARTICIPANT
+            sockets.forEach((socket) => {
+                socket?.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`); //MAKE THE USER JOIN THE CONVERSATION ROOM TO START RECEIVING REAL-TIME UPDATES FOR THAT CONVERSATION
+            });
 
-        return res.status(200).json({
-            ok: true,
-            status: 200,
-            message: "Invite accepted and joined the conversation successfully!!!"
-        });
+            const acceptedInviteData: IAcceptConversationInvite = {
+                conversationId,
+                userAcceptingId: user.id
+            };
 
-    } catch (error: unknown) {
+            io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, acceptedInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI WITH THE NEW PARTICIPANT
 
-        next(error);
+            return res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Invite accepted and joined the conversation successfully!!!"
+            });
+
+        } catch (error: unknown) {
+
+            next(error);
 
 
-    }
-});
+        }
+    });
 
 
 
 router.post(
-    "/:conversationId/declineInvite", 
-    ensureJWTAuthentication, 
+    "/:conversationId/declineInvite",
+    ensureJWTAuthentication,
     async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
 
-    const { conversationId } = req.params;
-    const { userSocketId } = req.body;
-    const user = req.user!;
+        const { conversationId } = req.params;
+        const { userSocketId } = req.body;
+        const user = req.user!;
 
-    const userSocketIds = connectedUsers.get(user.id);
-    if (!userSocketIds || !userSocketIds.has(userSocketId)) {
-        return res.status(401).json({
-            ok: false,
-            status: 401,
-            message: "Unauthorized, your user socket ID did not match with your access token socket IDs!!!"
-        });
-    }
-
-    try {
-
-        const joinRequest = await prisma.conversationJoinRequest.findFirst({
-            where: {
-                conversationId,
-                receiverId: user.id,
-                status: "PENDING"
-            }
-        });
-
-        if (!joinRequest) {
-            return res.status(404).json({
+        const userSocketIds = connectedUsers.get(user.id);
+        if (!userSocketIds || !userSocketIds.has(userSocketId)) {
+            return res.status(401).json({
                 ok: false,
-                status: 404,
-                message: "No pending invite request found for this conversation and user!!!"
+                status: 401,
+                message: "Unauthorized, your user socket ID did not match with your access token socket IDs!!!"
             });
         }
 
-        await prisma.conversationJoinRequest.update({
-            where: { id: joinRequest.id },
-            data: { status: "REJECTED" }
-        });
+        try {
 
-        const declineInviteData: IDeclineConversationInvite = {
-            conversationId,
-            userDecliningId: user.id
-        };
+            const joinRequest = await prisma.conversationJoinRequest.findFirst({
+                where: {
+                    conversationId,
+                    receiverId: user.id,
+                    status: "PENDING"
+                }
+            });
 
-        io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_DECLINED_CONVERSATION_INVITE, declineInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI IN CASE THEY WANT TO SHOW DECLINED INVITES DIFFERENTLY THAN ACCEPTED ONES
+            if (!joinRequest) {
+                return res.status(404).json({
+                    ok: false,
+                    status: 404,
+                    message: "No pending invite request found for this conversation and user!!!"
+                });
+            }
 
-        return res.status(200).json({
-            ok: true,
-            status: 200,
-            message: "Invite declined successfully!!!"
-        });
+            await prisma.conversationJoinRequest.update({
+                where: { id: joinRequest.id },
+                data: { status: "REJECTED" }
+            });
+
+            const declineInviteData: IDeclineConversationInvite = {
+                conversationId,
+                userDecliningId: user.id
+            };
+
+            io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_DECLINED_CONVERSATION_INVITE, declineInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI IN CASE THEY WANT TO SHOW DECLINED INVITES DIFFERENTLY THAN ACCEPTED ONES
+
+            return res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Invite declined successfully!!!"
+            });
 
 
 
-    } catch (error) {
+        } catch (error) {
 
-        next(error);
+            next(error);
 
 
-    }
+        }
 
-});
+    });

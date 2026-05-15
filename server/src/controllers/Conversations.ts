@@ -399,6 +399,8 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
 });
 
 
+//BECAUSE YOU MIGHT NEED THE PUBLIC GENERATED URL FOR NON IMAGES LONG AFTER YOU REQUEST THE FILE INFORMATION LIKE FOR DOWNLOAD!!!
+
 router.get("/:conversationId/download/:fileId", ensureJWTAuthentication, async (req: Request<{ conversationId: string, fileId: string }>, res: Response<ICustomErrorResponse | ISignedSupabaseUrl>, next: NextFunction) => {
     //CHECK USING THE SAME LOGIC THAT USER IS APPLICABLE TO DOWNLOAD AND THEN SIGN OFF ON A URL FOR NOW  
     const { conversationId, fileId } = req.params;

@@ -6,6 +6,13 @@ export async function GenerateSupabasePublicURL(
     | { supabasePublicURLs: string[]; ok: true; } 
     | { ok: false; error: string; }
 > {
+    if (supabaseFileIds.length === 0) {
+        return {
+            ok: true,
+            supabasePublicURLs: []
+        }
+    }
+
     const bucketName = process.env.SUPABASE_BUCKET_NAME || "uploads";
     const generateLinkExpiration: number = 60 * 5;
 
