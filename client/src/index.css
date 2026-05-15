@@ -27,6 +27,14 @@
   --dark-transparent-red-error-bcg: rgba(255, 110, 110, 0.164);
   --light-red-error-colour: rgb(255, 105, 105);
 
+
+  --notification-height: 8rem;
+  --notification-width: 25rem;
+  --notification-border-radius: .5rem;
+  --notification-padding: 1rem 1.5rem 1rem .8rem;
+  /* top right bottom left */
+  --notification-border-width: .4rem;
+
 }
 
 *,

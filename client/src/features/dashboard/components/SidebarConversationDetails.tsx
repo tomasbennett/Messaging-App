@@ -26,8 +26,7 @@ export function SidebarUserDetails({
         content: lastMessageContent
     } = latestMessage || {};
 
-
-
+    
 
     return (
         <div className={styles.outerContainer}>

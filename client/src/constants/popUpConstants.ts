@@ -1,0 +1,1 @@
+export const popupTime: number = 7000;

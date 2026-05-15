@@ -5,7 +5,7 @@ export function FileSingleOptionalSchema(allowedFileTypes: string[], maxFileSize
     return z.custom<FileList | undefined>()
         .superRefine((files, ctx) => {
 
-            if (!files || (typeof files === undefined)) {
+            if (!files || files.length === 0) {
                 return;
             }
 

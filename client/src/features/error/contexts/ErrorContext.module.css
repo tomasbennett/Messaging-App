@@ -8,21 +8,23 @@
     background-color: rgb(19, 19, 19);
     z-index: 9999;
 
-    border-radius: .5rem;
-    /* border: 0; */
-    border: .4rem solid rgb(19, 19, 19);
-    border-right: .4rem solid red;
+    border-radius: var(--notification-border-radius);
+    border: var(--notification-border-width) solid rgb(19, 19, 19);
+    border-right: var(--notification-border-width) solid red;
 
 
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5);
 
-    /* height: 7rem; */
-    width: 25rem;
+    /* box-shadow: 0 0 1rem rgba(0, 0, 0, 0.5); */
+
+    height: var(--notification-height);
+    width: var(--notification-width);
 
     color: white;
 
-    padding: 1rem .8rem;
-    padding-right: 1.5rem;
+    /* padding: 1rem .8rem;
+    padding-right: 1.5rem; */
+
+    padding: var(--notification-padding);
 
     overflow: hidden;
 

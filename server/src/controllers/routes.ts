@@ -6,6 +6,7 @@ import { router as usersRouter } from "./users";
 import { router as inviteReqRouter } from "./joinConvoReq";
 import { router as messageRouter } from "./message";
 import { router as downloadsRouter } from "./downloads";
+import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 
 export const apiRouter = Router();
 
@@ -18,7 +19,7 @@ apiRouter.use("/messages", messageRouter);
 apiRouter.use("/downloads", downloadsRouter);
 
 
-apiRouter.use((req: Request, res: Response, next: NextFunction) => {
+apiRouter.use((req: Request, res: Response<ICustomErrorResponse>, next: NextFunction) => {
     return res.status(404).json({
         ok: false,
         status: 404,

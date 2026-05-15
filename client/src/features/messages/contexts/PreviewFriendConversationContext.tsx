@@ -91,6 +91,9 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 const friendsRes = response.data;
                 const friendsMessagesJSON = await friendsRes.json();
 
+
+
+
                 const friendsMessagesResult = ReceiveFriendPreviewMessagesFrontendSchema.safeParse(friendsMessagesJSON);
                 if (friendsMessagesResult.success) {
                     setFriendMessages(friendsMessagesResult.data.friendPreviewsData);

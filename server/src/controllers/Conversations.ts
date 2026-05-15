@@ -27,136 +27,6 @@ import { IInlineOrDownloadableFile } from "../../../shared/features/files/discri
 export const router = Router();
 
 
-// router.get("/preview",
-//     ensureJWTAuthentication,
-//     async (req: Request, res: Response<ICustomErrorResponse | IReceiveFriendPreviewMessagesFrontend>, next: NextFunction) => {
-//         const user = req.user!;
-
-
-
-//         try {
-//             const usersConversations = await prisma.conversationParticipant.findMany({
-//                 where: {
-//                     userId: user.id
-//                 },
-//                 select: {
-//                     lastReadAt: true,
-//                     conversation: {
-//                         select: {
-//                             id: true,
-//                             chatName: true,
-//                             participants: {
-//                                 where: {
-//                                     userId: {
-//                                         not: user.id
-//                                     }
-//                                 },
-//                                 select: {
-//                                     user: {
-//                                         select: {
-//                                             id: true,
-//                                             profileImg: {
-
-//                                                 select: {
-//                                                     supabaseFileId: true,
-
-//                                                 }
-//                                             },
-//                                         }
-//                                     }
-//                                 }
-//                             },
-//                             groupChatImg: {
-//                                 select: {
-//                                     supabaseFileId: true,
-//                                 }
-//                             },
-//                             messages: {
-//                                 orderBy: {
-//                                     createdAt: "desc"
-//                                 },
-//                                 take: 1,
-//                                 select: {
-//                                     content: true,
-//                                     sender: true,
-//                                     files: {
-//                                         select: {
-//                                             filesize: true,
-//                                         }
-//                                     },
-//                                     createdAt: true,
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//             });
-
-//             // if (!usersConversations) {
-//             //     return res.status(404).json({
-//             //         ok: false,
-//             //         status: 404,
-//             //         message: "No conversations found for the user"
-//             //     });
-//             // }
-
-//             const previewFriendConversations: IFriendPreviewMessages[] = usersConversations.map((conversation) => {
-//                 const isMessageInConversation: boolean = conversation.conversation.messages.length >= 1;
-
-//                 const isRead: boolean = isMessageInConversation ? conversation.lastReadAt >= conversation.conversation.messages[0]?.createdAt : true;
-//                 const groupChatProfilePicture: IGroupProfileUnion = conversation.conversation.groupChatImg ? {
-//                     type: "custom",
-//                     groupChatProfileImgUrl: conversation.conversation.groupChatImg.supabaseFileId
-//                 } : {
-//                     type: "participants",
-//                     participants: conversation.conversation.participants.map((participant) => ({
-//                         participantId: participant.user.id,
-//                         profileImgUrl: participant.user.profileImg?.supabaseFileId
-//                     }))
-//                 };
-
-
-
-
-//                 const lastMessageContent: ILastMessageContentTypes | undefined = isMessageInConversation ?
-//                     conversation.conversation.messages[0]?.content ? {
-//                         messageType: "text",
-//                         textContent: conversation.conversation.messages[0].content,
-//                     } : {
-//                         messageType: "file",
-//                         fileSize: conversation.conversation.messages[0].files[0].filesize,
-//                     }
-//                     : undefined;
-
-//                 return {
-//                     conversation: {
-//                         conversationId: conversation.conversation.id,
-//                         name: conversation.conversation.chatName,
-//                         groupChatProfilePicture: groupChatProfilePicture,
-//                         isRead: isRead
-//                     },
-//                     lastMessage: isMessageInConversation ? {
-//                         timestamp: conversation.conversation.messages[0].createdAt,
-//                         content: lastMessageContent
-//                     } : undefined,
-//                 };
-//             });
-
-//             return res.status(200).json({
-//                 ok: true,
-//                 status: 200,
-//                 message: "Conversations endpoint is working!!!",
-//                 friendPreviewsData: previewFriendConversations
-//             });
-
-
-//         } catch (error) {
-//             next(error);
-
-//         }
-//     });
-
-
 router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | IReceiveFriendPreviewMessagesFrontend>, next: NextFunction) => {
     const user = req.user!;
 
@@ -197,11 +67,6 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                         id: true,
                         chatName: true,
                         participants: {
-                            where: {
-                                userId: {
-                                    not: user.id
-                                }
-                            },
                             select: {
                                 user: {
                                     select: {
@@ -248,55 +113,95 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 
 
 
-        const previewFriendConversations: IFriendPreviewMessages[] = usersConversations.map((conversation) => {
+        const previewFriendConversations: IFriendPreviewMessages[] =
+            await Promise.all(usersConversations.map(async (conversation) => {
 
-            socket.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversation.conversation.id}`);
-
-
-            const isMessageInConversation: boolean = conversation.conversation.messages.length >= 1;
-
-            const isRead: boolean = isMessageInConversation ? conversation.lastReadAt >= conversation.conversation.messages[0]?.createdAt : true;
+                socket.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversation.conversation.id}`);
 
 
+                const isMessageInConversation: boolean = conversation.conversation.messages.length >= 1;
 
-
-            const groupChatProfilePicture: IGroupProfileUnion = conversation.conversation.groupChatImg ? {
-                type: "custom",
-                groupChatProfileImgUrl: conversation.conversation.groupChatImg.supabaseFileId
-            } : {
-                type: "participants",
-                participants: conversation.conversation.participants.map((participant) => ({
-                    participantId: participant.user.id,
-                    profileImgUrl: participant.user.profileImg?.supabaseFileId
-                }))
-            };
+                const isRead: boolean = isMessageInConversation ? conversation.lastReadAt >= conversation.conversation.messages[0]?.createdAt : true;
 
 
 
+                let groupChatProfilePicture: IGroupProfileUnion;
 
-            const lastMessageContent: ILastMessageContentTypes | undefined = isMessageInConversation ?
-                conversation.conversation.messages[0]?.content ? {
-                    messageType: "text",
-                    textContent: conversation.conversation.messages[0].content,
-                } : {
-                    messageType: "file",
-                    fileSize: conversation.conversation.messages[0].files[0].filesize,
+                if (conversation.conversation.groupChatImg) {
+
+                    const supabasePublicUrlRes = await GenerateSupabasePublicURL([conversation.conversation.groupChatImg.supabaseFileId])
+
+                    if (!supabasePublicUrlRes.ok) {
+                        throw new Error(supabasePublicUrlRes.error);
+                    }
+
+                    groupChatProfilePicture = {
+                        type: "custom",
+                        groupChatProfileImgUrl: supabasePublicUrlRes.supabasePublicURLs[0]
+                    }
                 }
-                : undefined;
+                else {
 
-            return {
-                conversation: {
-                    conversationId: conversation.conversation.id,
-                    name: conversation.conversation.chatName,
-                    groupChatProfilePicture: groupChatProfilePicture,
-                    isRead: isRead
-                },
-                lastMessage: isMessageInConversation ? {
-                    timestamp: conversation.conversation.messages[0].createdAt,
-                    content: lastMessageContent
-                } : undefined,
-            };
-        });
+                    const participants = conversation.conversation.participants;
+
+                    const validImageUrls: string[] = participants
+                        .filter(p => p.user.profileImg?.supabaseFileId)
+                        .map(p => p.user.profileImg!.supabaseFileId!)
+
+
+                    const generatedPublicUrls = await GenerateSupabasePublicURL(validImageUrls);
+
+                    if (!generatedPublicUrls.ok) {
+                        throw new Error(generatedPublicUrls.error);
+                    }
+
+
+                    let indx: number = 0;
+
+
+                    groupChatProfilePicture = {
+                        type: "participants",
+                        participants: participants.map((participant) => {
+                            if (participant.user.profileImg?.supabaseFileId) {
+
+                                return {
+                                    participantId: participant.user.id,
+                                    profileImgUrl: generatedPublicUrls.supabasePublicURLs[indx++]
+                                }
+                            }
+
+                            return {
+                                participantId: participant.user.id
+                            }
+                        })
+                    }
+                }
+
+
+                const lastMessageContent: ILastMessageContentTypes | undefined = isMessageInConversation ?
+                    conversation.conversation.messages[0]?.content ? {
+                        messageType: "text",
+                        textContent: conversation.conversation.messages[0].content,
+                    } : {
+                        messageType: "file",
+                        fileSize: conversation.conversation.messages[0].files[0].filesize,
+                    }
+                    : undefined;
+
+                return {
+                    conversation: {
+                        conversationId: conversation.conversation.id,
+                        name: conversation.conversation.chatName,
+                        groupChatProfilePicture,
+                        isRead: isRead
+                    },
+                    lastMessage: isMessageInConversation ? {
+                        timestamp: conversation.conversation.messages[0].createdAt,
+                        content: lastMessageContent
+                    } : undefined,
+                };
+            }));
+
 
         return res.status(200).json({
             ok: true,
@@ -399,31 +304,6 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
         const isGroupChat: boolean = conversation.participants.length > 2;
 
 
-
-        // const receivableMessages: IConversationMessage[] = conversation.messages.map((message) => {
-
-        //     const files: IFileArrayProperties[] = message.files.map((file) => ({
-        //         fileId: file.id,
-        //         fileUrl: file.supabaseFileId,
-        //     }));
-
-        //     return {
-        //         messageId: message.id,
-        //         senderId: message.sender.user.id,
-        //         conversationId: conversationId,
-        //         timestamp: message.createdAt,
-        //         content: message?.content ?? undefined,
-        //         files: files,
-        //         conversationGroupType: isGroupChat ? {
-        //             type: "group",
-        //             senderName: message.sender.user.username,
-        //             senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
-        //         } : {
-        //             type: "single"
-        //         }
-        //     }
-
-        // });
 
         const receivableMessages: IConversationMessage[] = await Promise.all(
             conversation.messages.map(async (message) => {
@@ -594,7 +474,19 @@ router.get("/:conversationId/download/:fileId", ensureJWTAuthentication, async (
 router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_IMAGE_FILE_KEY), async (req: Request<{}, {}, Omit<ICreateNewConversation, typeof CONVERSATION_CUSTOM_IMAGE_FILE_KEY>>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
     const user = req.user!;
 
-    const createNewConversationDataResult = CreateNewConversationSchema.omit({ [CONVERSATION_CUSTOM_IMAGE_FILE_KEY]: true }).safeParse(req.body);
+    const participantIds: string[] = Array.isArray(req.body.participantIds)
+        ? req.body.participantIds
+        : req.body.participantIds
+            ? [req.body.participantIds]
+            : [];
+
+    const normalizeBody = {
+        ...req.body,
+        participantIds
+    }
+
+
+    const createNewConversationDataResult = CreateNewConversationSchema.omit({ [CONVERSATION_CUSTOM_IMAGE_FILE_KEY]: true }).safeParse(normalizeBody);
     if (!createNewConversationDataResult.success) {
         return res.status(400).json({
             ok: false,
@@ -604,7 +496,7 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
     }
 
 
-    const { name, participantIds } = createNewConversationDataResult.data;
+    const { name } = createNewConversationDataResult.data;
     const customImageFile = req.file as Express.Multer.File | undefined;
 
     try {

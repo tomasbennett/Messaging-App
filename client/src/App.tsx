@@ -15,6 +15,7 @@ import { AsideMenuLayout } from './features/dashboard/layouts/AsideMenuLayout'
 import { FriendMessageProvider } from './features/messages/contexts/PreviewFriendConversationContext'
 import { accountPageRoute, conversationPageRoute, myAccountPageRoute, newConversationPageRoute, singleConversationPageRoute } from './constants/routes'
 import { NewConversationLayout } from './features/conversations/layouts/NewConversationLayout'
+import { InviteReqProvider } from './features/inviteReq/contexts/InviteReqContext'
 
 
 const router = createBrowserRouter([
@@ -57,11 +58,13 @@ const router = createBrowserRouter([
         children: [
           {
             element:
-              <FriendMessageProvider>
-                <AsideMenuLayout>
-                  <Outlet />
-                </AsideMenuLayout>
-              </FriendMessageProvider>,
+              <InviteReqProvider>
+                <FriendMessageProvider>
+                  <AsideMenuLayout>
+                    <Outlet />
+                  </AsideMenuLayout>
+                </FriendMessageProvider>
+              </InviteReqProvider>,
             children: [
               {
                 element: <DashboardApp />,

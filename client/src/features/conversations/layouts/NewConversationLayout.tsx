@@ -12,7 +12,7 @@ import { errorPageRoute, homePageRoute, newConversationPageRoute } from "../../.
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { noErrorCtxError, notExpectedFormatError, unknownError } from "../../../constants/errorConstants";
 import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
 import { useImageUpload } from "../../../hooks/useImageUpload";
@@ -20,12 +20,51 @@ import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useMediaQuery } from "react-responsive";
 import { mediumScreenMaxWidth, thinScreenMaxWidth } from "../../../constants/screenDimensions";
 import { PreppedParticipant } from "../components/PreppedParticipant";
+import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
 
 
 
 export function NewConversationLayout({
 
 }) {
+
+    const {
+        showInvitePopup
+    } = useInviteReqContext();
+
+
+    useEffect(() => {
+        showInvitePopup({
+            conversationId: "1",
+            conversationName: "Ameno",
+            inviterUserId: "1",
+            inviterUsername: "Hi_this_is_me",
+
+        });
+        showInvitePopup({
+            conversationId: "2",
+            conversationName: "Qatuna",
+            inviterUserId: "2",
+            inviterUsername: "Hi_this_is_you",
+
+        });
+        showInvitePopup({
+            conversationId: "3",
+            conversationName: "Pablo",
+            inviterUserId: "1",
+            inviterUsername: "Hi_this_is_me",
+
+        });
+    }, []);
+
+
+
+
+
+
+
+
+
 
     const {
         isLoading,
@@ -89,6 +128,7 @@ export function NewConversationLayout({
 
             const response = await jwtFetchHandler(`${domain}/api/conversations/new`, {
                 method: "POST",
+                body: formData
             });
 
             if (response.returnType === "fetchError" || response.returnType === "loginError") {

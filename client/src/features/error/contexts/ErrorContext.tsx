@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import styles from "./ErrorContext.module.css";
 import { waitForAnimationEnd } from "../../../util/WaitForAnimationToEnd";
+import { popupTime } from "../../../constants/popUpConstants";
+import { usePopup } from "../../../hooks/usePopup";
 
 
 const ErrorContext = React.createContext<{
@@ -11,52 +13,57 @@ const ErrorContext = React.createContext<{
 
 export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
-    const [error, setError] = useState<ICustomErrorResponse | null>(null);
+    // const [error, setError] = useState<ICustomErrorResponse | null>(null);
 
-    const queueRef = useRef<ICustomErrorResponse[]>([]);
+    // const queueRef = useRef<ICustomErrorResponse[]>([]);
 
-    const isProcessingRef = useRef(false);
+    // const isProcessingRef = useRef(false);
 
-    const errorContainerRef = useRef<HTMLDivElement | null>(null);
-    const [isClosing, setIsClosing] = useState<boolean>(false);
-
-    
-
-    const processQueue = async () => {
-        if (isProcessingRef.current) return;
-
-        isProcessingRef.current = true;
-
-        while (queueRef.current.length > 0) {
-            const nextError = queueRef.current.shift()!;
-
-            setError(nextError);
-            console.log(nextError.message);
-
-            await new Promise((resolve) => setTimeout(resolve, 7000));
-
-            setIsClosing(true);
-
-            if (errorContainerRef.current) {
-                await waitForAnimationEnd(errorContainerRef.current);
-            };
-
-            setIsClosing(false);
-
-            setError(null);
-        }
-
-        isProcessingRef.current = false;
-    };
+    // const errorContainerRef = useRef<HTMLDivElement | null>(null);
+    // const [isClosing, setIsClosing] = useState<boolean>(false);
 
 
 
-    const throwError = (error: ICustomErrorResponse) => {
-        queueRef.current.push(error);
-        processQueue();
-    };
+    // const processQueue = async () => {
+    //     if (isProcessingRef.current) return;
+
+    //     isProcessingRef.current = true;
+
+    //     while (queueRef.current.length > 0) {
+    //         const nextError = queueRef.current.shift()!;
+
+    //         setError(nextError);
+    //         console.log(nextError.message);
+
+    //         await new Promise((resolve) => setTimeout(resolve, popupTime));
+
+    //         setIsClosing(true);
+
+    //         if (errorContainerRef.current) {
+    //             await waitForAnimationEnd(errorContainerRef.current);
+    //         };
+
+    //         setIsClosing(false);
+
+    //         setError(null);
+    //     }
+
+    //     isProcessingRef.current = false;
+    // };
 
 
+
+    // const throwError = (error: ICustomErrorResponse) => {
+    //     queueRef.current.push(error);
+    //     processQueue();
+    // };
+
+    const {
+        startPopup: throwError,
+        infoContainerRef: errorContainerRef,
+        isClosing,
+        info: error
+    } = usePopup<ICustomErrorResponse>();
 
     return (
         <ErrorContext.Provider value={{ throwError }}>
