@@ -8,7 +8,7 @@ import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useSocket } from "../../../contexts/SocketHandlerContext";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { errorPageRoute } from "../../../constants/routes";
+import { conversationPageRoute, errorPageRoute, invitesPageRoute } from "../../../constants/routes";
 import { noErrorCtxError, noSocketConnectionError, notExpectedFormatError, unknownError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
@@ -16,6 +16,8 @@ import { IBaseSocketEmitData } from "../../../../../shared/features/sockets/mode
 import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 import { IPendingInviteSentvsReceivedDisUnion } from "../../../../../shared/features/inviteReq/discriminatedUnions/IPendingInviteSentvsReceived";
 import { LoadingCircle } from "../../../components/LoadingCircle";
+import { usePopup } from "../../../hooks/usePopup";
+import { useInviteReqContext } from "../contexts/InviteReqContext";
 
 
 
@@ -42,6 +44,8 @@ export function ReceivedInvitePending({
     const socket = useSocket();
 
     const nav = useNavigate();
+
+    const { showInvitePopup } = useInviteReqContext();
 
     const onAccept = async () => {
         const setIsLoading = setIsAcceptLoading;
@@ -97,6 +101,20 @@ export function ReceivedInvitePending({
 
             const successResult = APISuccessSchema.safeParse(resJSON);
             if (successResult.success) {
+                const onClick = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    nav(`${conversationPageRoute}/${conversationId}`, { replace: true });
+                }
+                showInvitePopup({
+                    conversationId,
+                    conversationName,
+                    inviterUserId,
+                    inviterUsername,
+                    inviterProfilePictureUrl,
+                    onClick,
+                    bcg: "green",
+                    message: `Successfully joined: ${conversationName}`
+                });
                 setPendingInvites(prev => {
                     return prev
                         .filter(p => {
@@ -116,11 +134,6 @@ export function ReceivedInvitePending({
 
             errCtx.throwError(notExpectedFormatError);
             return;
-
-
-
-
-
 
 
         } catch (error) {
@@ -198,6 +211,16 @@ export function ReceivedInvitePending({
 
             const successResult = APISuccessSchema.safeParse(resJSON);
             if (successResult.success) {
+                showInvitePopup({
+                    conversationId,
+                    conversationName,
+                    inviterUserId,
+                    inviterUsername,
+                    inviterProfilePictureUrl,
+                    bcg: "purple",
+                    message: `Declined invite: ${conversationName}`
+                });
+
                 setPendingInvites(prev => {
                     return prev
                         .filter(p => {

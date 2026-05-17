@@ -14,62 +14,63 @@ import { unMountComponentAbort } from "../../../constants/AbortFetch";
 export function usePendingInviteType() {
 
 
-    const [pendingInvites, setPendingInvites] = useState<IPendingInviteSentvsReceivedDisUnion[]>([{
-        type: "receivedInvite",
-        conversationId: "1",
-        conversationName: "afkasf",
-        inviterUserId: "1",
-        inviterUsername: "Chuff",
-        inviterProfilePictureUrl: undefined
-    },
-    {
-        type: "receivedInvite",
-        conversationId: "2",
-        conversationName: "Pandy",
-        inviterUserId: "1",
-        inviterUsername: "Chuff",
-        inviterProfilePictureUrl: undefined
-    },
-    {
-        type: "receivedInvite",
-        conversationId: "3",
-        conversationName: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est totam ullam ab. Saepe nesciunt, rerum culpa quam veritatis nam ut? Velit quae quaerat odit veritatis facilis suscipit officiis quos unde esse dolorem natus repudiandae deleniti consectetur repellendus dolor nemo doloremque autem a vero, iusto ad? Obcaecati id odit culpa. Aut.",
-        inviterUserId: "2",
-        inviterUsername: "ChamberTorak",
-        inviterProfilePictureUrl: undefined
-    },
-    {
-        type: "sentInvite",
-        conversationId: "4",
-        conversationName: "Rna",
-        userId: "4",
-        username: "Chuffdalre",
-        userProfileImgUrl: undefined
-    },
-    {
-        type: "sentInvite",
-        conversationId: "5",
-        conversationName: "Rematea",
-        userId: "5",
-        username: "harblue",
-        userProfileImgUrl: undefined
-    },
-    {
-        type: "sentInvite",
-        conversationId: "6",
-        conversationName: "treaason",
-        userId: "6",
-        username: "tampor",
-        userProfileImgUrl: undefined
-    },
-    {
-        type: "sentInvite",
-        conversationId: "7",
-        conversationName: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae quis maiores laborum consequatur eum rerum aut, consectetur necessitatibus quod, vero ullam voluptatibus. Minus qui sint fugit sed! Dolorum hic id necessitatibus illo perferendis, eaque porro facere voluptas consequuntur numquam dolor reiciendis soluta sunt commodi incidunt sequi! Magnam vero veniam modi.",
-        userId: "7",
-        username: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quisquam nobis rerum sapiente delectus distinctio ducimus fugiat dolore nam odio voluptatibus atque obcaecati itaque inventore ex hic est, provident mollitia cum molestiae, nulla perspiciatis iste odit. Quam beatae porro architecto cumque maiores delectus aspernatur commodi vitae velit ut ratione, quod minus omnis ipsum. Expedita facere, cum nulla quasi quidem earum officiis?",
-        userProfileImgUrl: undefined
-    }
+    const [pendingInvites, setPendingInvites] = useState<IPendingInviteSentvsReceivedDisUnion[]>([
+        // {
+        //     type: "receivedInvite",
+        //     conversationId: "1",
+        //     conversationName: "afkasf",
+        //     inviterUserId: "1",
+        //     inviterUsername: "Chuff",
+        //     inviterProfilePictureUrl: undefined
+        // },
+        // {
+        //     type: "receivedInvite",
+        //     conversationId: "2",
+        //     conversationName: "Pandy",
+        //     inviterUserId: "1",
+        //     inviterUsername: "Chuff",
+        //     inviterProfilePictureUrl: undefined
+        // },
+        // {
+        //     type: "receivedInvite",
+        //     conversationId: "3",
+        //     conversationName: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est totam ullam ab. Saepe nesciunt, rerum culpa quam veritatis nam ut? Velit quae quaerat odit veritatis facilis suscipit officiis quos unde esse dolorem natus repudiandae deleniti consectetur repellendus dolor nemo doloremque autem a vero, iusto ad? Obcaecati id odit culpa. Aut.",
+        //     inviterUserId: "2",
+        //     inviterUsername: "ChamberTorak",
+        //     inviterProfilePictureUrl: undefined
+        // },
+        // {
+        //     type: "sentInvite",
+        //     conversationId: "4",
+        //     conversationName: "Rna",
+        //     userId: "4",
+        //     username: "Chuffdalre",
+        //     userProfileImgUrl: undefined
+        // },
+        // {
+        //     type: "sentInvite",
+        //     conversationId: "5",
+        //     conversationName: "Rematea",
+        //     userId: "5",
+        //     username: "harblue",
+        //     userProfileImgUrl: undefined
+        // },
+        // {
+        //     type: "sentInvite",
+        //     conversationId: "6",
+        //     conversationName: "treaason",
+        //     userId: "6",
+        //     username: "tampor",
+        //     userProfileImgUrl: undefined
+        // },
+        // {
+        //     type: "sentInvite",
+        //     conversationId: "7",
+        //     conversationName: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae quis maiores laborum consequatur eum rerum aut, consectetur necessitatibus quod, vero ullam voluptatibus. Minus qui sint fugit sed! Dolorum hic id necessitatibus illo perferendis, eaque porro facere voluptas consequuntur numquam dolor reiciendis soluta sunt commodi incidunt sequi! Magnam vero veniam modi.",
+        //     userId: "7",
+        //     username: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quisquam nobis rerum sapiente delectus distinctio ducimus fugiat dolore nam odio voluptatibus atque obcaecati itaque inventore ex hic est, provident mollitia cum molestiae, nulla perspiciatis iste odit. Quam beatae porro architecto cumque maiores delectus aspernatur commodi vitae velit ut ratione, quod minus omnis ipsum. Expedita facere, cum nulla quasi quidem earum officiis?",
+        //     userProfileImgUrl: undefined
+        // }
     ]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -237,8 +238,8 @@ export function usePendingInviteType() {
 
 
     useEffect(() => {
-        // getPendingInvites();
-        setIsLoading(false);
+        getPendingInvites();
+        // setIsLoading(false);
 
         return () => {
             abortControllerRef.current?.abort(unMountComponentAbort);

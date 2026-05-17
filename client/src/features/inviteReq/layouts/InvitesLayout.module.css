@@ -148,3 +148,20 @@
         background-color: var(--dark-grey);
     }
 }
+
+
+.noInvitesContainer{
+    background-color: var(--darker-header-bcg-colour);
+
+    /* background-image: url("../../../assets/i-like-food.svg");
+    background-repeat: repeat;
+    background-size: 110px; */
+
+    padding: 1.5rem;
+
+    margin: auto;
+
+    font-weight: bold;
+
+    border-radius: 1rem;
+}

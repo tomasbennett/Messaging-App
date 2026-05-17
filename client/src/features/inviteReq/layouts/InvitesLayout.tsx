@@ -71,6 +71,9 @@ export function InvitesLayout() {
                                     {
                                         currentState === "receivedInvite" ?
 
+
+                                            receivedInvites.length > 0 ?
+
                                             receivedInvites.map(i => {
 
 
@@ -89,7 +92,15 @@ export function InvitesLayout() {
 
                                             :
 
+                                            <div className={styles.noInvitesContainer}>
+                                                No invites received that are pending right now
+                                            </div>
+
+                                            :
+
                                             currentState === "sentInvite" ?
+
+                                                sentPendingInvites.length > 0 ?
 
                                                 sentPendingInvites.map(i => {
 
@@ -105,6 +116,12 @@ export function InvitesLayout() {
                                                     )
                                                 })
 
+
+                                                :
+
+                                                <div className={styles.noInvitesContainer}>
+                                                    No invites sent that are pending right now
+                                                </div>
 
                                                 :
 

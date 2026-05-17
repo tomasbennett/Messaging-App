@@ -28,34 +28,7 @@ export function NewConversationLayout({
 
 }) {
 
-    const {
-        showInvitePopup
-    } = useInviteReqContext();
 
-
-    useEffect(() => {
-        showInvitePopup({
-            conversationId: "1",
-            conversationName: "Ameno",
-            inviterUserId: "1",
-            inviterUsername: "Hi_this_is_me",
-
-        });
-        showInvitePopup({
-            conversationId: "2",
-            conversationName: "Qatuna",
-            inviterUserId: "2",
-            inviterUsername: "Hi_this_is_you",
-
-        });
-        showInvitePopup({
-            conversationId: "3",
-            conversationName: "Pablo",
-            inviterUserId: "1",
-            inviterUsername: "Hi_this_is_me",
-
-        });
-    }, []);
 
 
 

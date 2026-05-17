@@ -3,11 +3,13 @@ import styles from "./InviteNotification.module.css";
 import defaultUserImage from "../../../assets/DEFAULT_USER_IMG.png";
 import { useNavigate } from "react-router-dom";
 import { conversationPageRoute } from "../../../constants/routes";
+import { IPopupNotificationProps } from "../models/IInviteNotificationProps";
 
 
-type IInviteNotificationProps = IReceivingAnInvite & {
+type IInviteNotificationProps = IReceivingAnInvite & IPopupNotificationProps & {
     inviteContainerRef: React.RefObject<HTMLDivElement | null>,
-    isClosing: boolean
+    isClosing: boolean,
+    
 }
 
 export function InviteNotification({
@@ -17,23 +19,26 @@ export function InviteNotification({
     inviterUsername,
     inviterProfilePictureUrl,
     inviteContainerRef,
-    isClosing
+    isClosing,
+    message,
+    bcg,
+    onClick
 }: IInviteNotificationProps) {
 
-    const nav = useNavigate();
+    // const nav = useNavigate();
 
-    const onClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        nav(`${conversationPageRoute}/${conversationId}`, { replace: true });
-    }
+    // const onClick = (e: React.MouseEvent) => {
+    //     e.stopPropagation();
+    //     nav(`${conversationPageRoute}/${conversationId}`, { replace: true });
+    // }
 
-
+    const isOnClick: boolean = !!onClick;
     
 
     return (
         <>
 
-            <div ref={inviteContainerRef} onClick={onClick} className={`${styles.outerContainer} ${isClosing ? styles.exitScreen : ""}`}>
+            <div style={{ borderLeftColor: bcg, cursor: isOnClick ? "pointer" : "auto" }}  ref={inviteContainerRef} onClick={onClick} className={`${styles.outerContainer} ${isClosing ? styles.exitScreen : ""}`}>
 
                 <div className={styles.imgContainer}>
                     <img className={styles.img} src={inviterProfilePictureUrl ?? defaultUserImage} alt="Inviter user profile image" />
@@ -45,7 +50,8 @@ export function InviteNotification({
                     </p>
 
                     <p className={styles.conversationName}>
-                        {`Invite to: ${conversationName}`}
+                        {/* {`Invite to: ${conversationName}`} */}
+                        {message}
                     </p>
 
                 </div>
