@@ -27,3 +27,10 @@ export const unknownError: ICustomErrorResponse = {
     status: 0,
     message: "An unexpected error occured!!!"
 }
+
+
+export const noSocketConnectionError: ICustomErrorResponse = {
+    ok: false,
+    status: 0,
+    message: "Invalid socket id, please try reconnecting to the web socket!!!"
+}

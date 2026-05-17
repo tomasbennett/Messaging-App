@@ -6,7 +6,7 @@ export const signUpPageRoute: string = "/register";
 export const logInPageRoute: string = "/login";
 
 
-
+export const invitesPageRoute: string = "/invites"
 
 
 export const accountPageRoute: string = `/account`;

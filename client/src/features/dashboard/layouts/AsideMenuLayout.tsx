@@ -1,7 +1,7 @@
 import styles from "./AsideMenuLayout.module.css";
 import githubImage from "../../../assets/github-profile-img.jpg";
 import { NavLink, Outlet } from "react-router-dom";
-import { homePageRoute, myAccountPageRoute, newConversationPageRoute } from "../../../constants/routes";
+import { homePageRoute, invitesPageRoute, myAccountPageRoute, newConversationPageRoute } from "../../../constants/routes";
 import { AsideMenuOption } from "../components/AsideMenuOption";
 import { MessageIcon } from "../../../assets/icons/MessageIcon";
 import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
@@ -74,6 +74,12 @@ export function AsideMenuLayout({
                             />
 
 
+                            <AsideMenuOption
+                                navigateTo={invitesPageRoute}
+                                icon={<InviteConversationIcon />}
+                                label="Pending Invites"
+
+                            />
 
 
                             {/* This could have the users profile picture if requested cleverly with a secondary request to the conversations but this would require tricky magic with an abort controller on the current running conversations if they are still being requested */}
@@ -84,7 +90,8 @@ export function AsideMenuLayout({
                                 label="My Account"
                             />
 
-                            
+
+
 
 
                         </ul>

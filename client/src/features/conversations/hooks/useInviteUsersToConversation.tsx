@@ -10,6 +10,7 @@ import { errorPageRoute } from "../../../constants/routes";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { emptySearchTextAbort } from "../../../constants/AbortFetch";
+import { useAuth } from "../../auth/contexts/AuthContext";
 
 export function useInviteUsersToConversation() {
 
@@ -61,6 +62,7 @@ export function useInviteUsersToConversation() {
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const { jwtFetchHandler } = useJWTFetch();
+    const { setAuthLevel } = useAuth();
     const errorCtx = useError();
 
     const nav = useNavigate();
@@ -132,7 +134,15 @@ export function useInviteUsersToConversation() {
                 return;
             }
 
-            if (response.returnType === "fetchError" || response.returnType === "loginError") {
+            if (response.returnType === "fetchError") {
+                errorCtx.throwError(response.error);
+                return;
+            }
+
+            if (response.returnType === "loginError") {
+                setAuthLevel({
+                    userType: "none"
+                });
                 errorCtx.throwError(response.error);
                 return;
             }

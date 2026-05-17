@@ -90,6 +90,12 @@ router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Respon
                     }
                 },
                 select: {
+                    conversation: {
+                        select: {
+                            chatName: true,
+                            id: true
+                        }
+                    },
                     receiver: {
                         select: {
                             username: true,
@@ -180,6 +186,8 @@ router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Respon
             if (invite.receiver.profileImg?.supabaseFileId) {
                 pendingInvites.push({
                     type: "sentInvite",
+                    conversationId: invite.conversation.id,
+                    conversationName: invite.conversation.chatName,
                     userId: invite.receiver.id,
                     username: invite.receiver.username,
                     userProfileImgUrl: publicSentToProfileImgUrls[invitesSentIndx++]
@@ -190,6 +198,8 @@ router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Respon
 
             pendingInvites.push({
                 type: "sentInvite",
+                conversationId: invite.conversation.id,
+                conversationName: invite.conversation.chatName,
                 userId: invite.receiver.id,
                 username: invite.receiver.username,
                 userProfileImgUrl: undefined
@@ -462,9 +472,6 @@ router.delete(
                 where: {
                     conversationId,
                     hasLeft: false
-                },
-                select: {
-                    userId: true
                 }
             });
 
