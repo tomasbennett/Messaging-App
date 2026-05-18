@@ -45,13 +45,21 @@ export function InviteNotification({
                 </div>
 
                 <div className={styles.rightSideContainer}>
+                    
                     <p className={styles.inviterUsername}>
-                        {inviterUsername}
+                        <span>
+
+                            {inviterUsername}
+
+                        </span>
                     </p>
 
                     <p className={styles.conversationName}>
-                        {/* {`Invite to: ${conversationName}`} */}
-                        {message}
+                        <span>
+
+                            {message}
+
+                        </span>
                     </p>
 
                 </div>

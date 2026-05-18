@@ -13,6 +13,7 @@ import bcrypt from "bcrypt";
 import upload from "../supabase/multer";
 import { IUpdateProfileServerSide, UpdateProfileSchemaServerSide } from "../../../shared/features/user/models/IUpdateProfile";
 import { Prisma } from "@prisma/client";
+import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
 
 
 export const router = Router();
@@ -74,17 +75,30 @@ router.get("/search", ensureJWTAuthentication, async (req: Request, res: Respons
 
 
 
+        const validImgIds: string[] = usersSearched
+            .filter(Boolean)
+            .map(u => u.profileImg!.supabaseFileId!);
 
+        const generatePublicUrlsResult = await GenerateSupabasePublicURL(validImgIds);
 
+        if (!generatePublicUrlsResult.ok) {
+            return res.status(500).json({
+                ok: false,
+                status: 500,
+                message: generatePublicUrlsResult.error
+            });
+        }
 
+        const generatedPublicUrls = generatePublicUrlsResult.supabasePublicURLs;
 
+        let indx: number = 0;
 
         const searchableUsersFriendReqs: ISearchedUserNewConversation[] = usersSearched.map((searchedUser) => {
 
             return {
                 userId: searchedUser.id,
                 username: searchedUser.username,
-                userProfileImgUrl: searchedUser.profileImg?.supabaseFileId,
+                userProfileImgUrl: searchedUser.profileImg?.supabaseFileId ? generatedPublicUrls[indx++] : undefined,
             }
         });
 

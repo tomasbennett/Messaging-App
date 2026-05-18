@@ -241,7 +241,10 @@ export function useInviteUsersToConversation() {
         }
 
         setSelectedUsersToJoin(prev => {
-            return [...prev, user]
+            return [...prev, {
+                ...user,
+                prepstatus: "invite_prepped"
+            }]
         });
 
         setSearchResults(prev => {
@@ -266,6 +269,19 @@ export function useInviteUsersToConversation() {
         setSelectedUsersToJoin(prev => {
             return prev.filter(preppedUser => preppedUser.userId !== userId)
         });
+
+        setSearchResults(prev => {
+            return prev.map(s => {
+                if (s.userId === userId) {
+                    return {
+                        ...s,
+                        prepstatus: "no_invite_prepped"
+                    }
+                }
+
+                return s;
+            })
+        })
 
     }
 
