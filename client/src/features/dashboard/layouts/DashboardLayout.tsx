@@ -207,19 +207,6 @@ export function DashboardLayout({
     setFriendMessages
   } = useFriendMessageContext();
 
-  const { showInvitePopup } = useInviteReqContext();
-
-  useEffect(() => {
-    showInvitePopup({
-      conversationId: "1",
-      conversationName: "Alberto",
-      inviterUserId: "1",
-      inviterUsername: "CANTRUO",
-      inviterProfilePictureUrl: undefined,
-      bcg: "green",
-      message: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eum sequi facilis illum adipisci deserunt. Illo porro expedita eum voluptate officiis harum unde voluptatibus, neque quasi."
-    })
-  }, [])
 
 
 

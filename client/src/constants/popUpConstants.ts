@@ -1,1 +1,1 @@
-export const popupTime: number = 7000;
+export const popupTime: number = 6000;
