@@ -93,3 +93,6 @@ export const MessageContentFileSchema = z.object({
 
 
 });
+
+
+export type IMessageContentFile = z.infer<typeof MessageContentFileSchema>;

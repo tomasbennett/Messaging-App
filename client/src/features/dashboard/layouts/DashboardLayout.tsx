@@ -188,15 +188,6 @@ export function DashboardLayout({
 
     // setFriendsDetailsList(mockFriendsDetails);
 
-    if (errorContext) {
-      errorContext.throwError({
-        message: "This is a test error",
-        status: 500,
-        ok: false
-      });
-
-
-    }
   }, []);
 
 

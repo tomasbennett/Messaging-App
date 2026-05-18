@@ -1,25 +1,22 @@
-import { useEffect, useRef, useState } from "react";
-import styles from "./Conversation.module.css";
-import { useError } from "../../error/contexts/ErrorContext";
-import { useNavigate, useParams } from "react-router-dom";
-import { domain } from "../../../constants/EnvironmentAPI";
+import { useState, useRef, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { notExpectedFormatError } from "../../../constants/errorConstants";
+import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
 import { IConversationMessage, ReceiveConversationMessagesAndHeaderInfoFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
 import { LoadingCircle } from "../../../components/LoadingCircle";
-import { InputMessageComponent } from "../components/InputMessage";
-import { MessageComponent } from "../components/Message";
-import { useJWTFetch } from "../../../hooks/useJWTFetch";
+import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { errorPageRoute } from "../../../constants/routes";
+import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
-import { UserCogsIcon } from "../../../assets/icons/UserCogsIcon";
-import { ConversationHeader } from "../components/ConversationHeader";
-import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
+import { useError } from "../../error/contexts/ErrorContext";
+import styles from "./ConversationBody.module.css";
+import { ConversationHeader } from "./ConversationHeader";
+import { InputMessageComponent } from "./InputMessage";
+import { MessageComponent } from "./Message";
+import { domain } from "../../../constants/EnvironmentAPI";
 
 
-
-
-export function ConversationLayout() {
+export function ConversationBody() {
 
     const { conversationId } = useParams<{ conversationId: string }>();
 
@@ -206,7 +203,7 @@ export function ConversationLayout() {
 
                         <>
 
-                    
+
                             {
                                 conversationHeaderInfo &&
                                 <ConversationHeader
@@ -253,11 +250,10 @@ export function ConversationLayout() {
 
             </div>
 
-            <div className={styles.inputContainer}>
 
-                <InputMessageComponent />
 
-            </div>
+            <InputMessageComponent />
+
 
 
         </div>

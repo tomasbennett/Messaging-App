@@ -2,6 +2,8 @@ import { UserCogsIcon } from "../../../assets/icons/UserCogsIcon";
 import { IPropsConversationHeaderComponent } from "../models/IPropsConversationHeaderComponent";
 import styles from "./ConversationHeader.module.css";
 import defaultUserImg from "../../../assets/DEFAULT_USER_IMG.png";
+import { LogoutIcon } from "../../../assets/icons/LogoutIcon";
+import { LeaveConversationIcon } from "../../../assets/icons/LeaveConversationIcon";
 
 
 export function ConversationHeader({
@@ -18,10 +20,12 @@ export function ConversationHeader({
                 {
                     groupChatProfilePicture.type === "custom" ?
 
-                        <img
-                            src={groupChatProfilePicture.groupChatProfileImgUrl}
-                            alt={`${name}'s profile picture`}
-                            className={styles.profImg} />
+                        <div className={styles.profImgContainer}>
+                            <img
+                                src={groupChatProfilePicture.groupChatProfileImgUrl}
+                                alt={`${name}'s profile picture`}
+                                className={styles.profImg} />
+                        </div>
 
                         :
 
@@ -42,16 +46,18 @@ export function ConversationHeader({
 
                             :
 
-                            <img
-                                src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
-                                alt={`${name}'s profile picture`}
-                                className={styles.profImg} />
+                            <div className={styles.profImgContainer}>
+                                <img
+                                    src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
+                                    alt={`${name}'s profile picture`}
+                                    className={styles.profImg} />
+                            </div>
                 }
 
                 <div className={styles.conversationNameContainer}>
 
                     <p className={styles.conversationNameText}>{name}</p>
-                    <small>Click here for contact info</small>
+                    <small className={styles.contactInfo}>Click here for contact info</small>
 
                 </div>
 
@@ -59,8 +65,12 @@ export function ConversationHeader({
 
             <div className={styles.rightHeaderContainer}>
 
-                <div className={styles.svgOptionsContainer}>
+                <div className={`${styles.svgContainer} ${styles.svgOptionsContainer}`}>
                     <UserCogsIcon />
+                </div>
+
+                <div className={`${styles.svgContainer} ${styles.svgLeaveConversationContainer}`}>
+                    <LeaveConversationIcon />
                 </div>
 
             </div>

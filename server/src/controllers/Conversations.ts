@@ -368,20 +368,85 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
         const isCustomGroupChatProfileImg: boolean = conversation.groupChatImg !== null;
 
 
-        const headerInfo: IConversationHeaderInfo = {
-            conversationId: conversationId,
-            name: conversation.chatName,
-            groupChatProfilePicture: isCustomGroupChatProfileImg ? {
-                type: "custom",
-                groupChatProfileImgUrl: conversation.groupChatImg!.supabaseFileId
-            } : {
-                type: "participants",
-                participants: conversation.participants.map((participant) => ({
-                    participantId: participant.user.id,
-                    profileImgUrl: participant.user.profileImg?.supabaseFileId
-                }))
+
+        let headerInfo: IConversationHeaderInfo;
+
+        if (isCustomGroupChatProfileImg) {
+            const generatedCustomGroupChatImgUrlRes = await GenerateSupabasePublicURL([conversation.groupChatImg!.supabaseFileId]);
+
+            if (!generatedCustomGroupChatImgUrlRes.ok) {
+                return res.status(500).json({
+                    ok: false,
+                    status: 500,
+                    message: generatedCustomGroupChatImgUrlRes.error
+                });
             }
+
+            headerInfo = {
+                conversationId,
+                name: conversation.chatName,
+                groupChatProfilePicture: {
+                    type: "custom",
+                    groupChatProfileImgUrl: generatedCustomGroupChatImgUrlRes.supabasePublicURLs[0]
+                }
+            }
+
+        } else {
+            const validParticipantsProfileImgIds: string[] = conversation.participants
+                .filter(p => p.user.profileImg?.supabaseFileId)
+                .map(p => p.user.profileImg!.supabaseFileId!);
+
+            const generatedPublicUrlRes = await GenerateSupabasePublicURL(validParticipantsProfileImgIds);
+
+            if (!generatedPublicUrlRes.ok) {
+                return res.status(500).json({
+                    ok: false,
+                    status: 500,
+                    message: generatedPublicUrlRes.error
+                });
+            }
+
+            let indx: number = 0;
+
+            headerInfo = {
+                conversationId,
+                name: conversation.chatName,
+                groupChatProfilePicture: {
+                    type: "participants",
+                    participants: conversation.participants.map(p => {
+                        if (p.user.profileImg?.supabaseFileId) {
+                            return {
+                                participantId: p.user.id,
+                                profileImgUrl: generatedPublicUrlRes.supabasePublicURLs[indx++]
+                            }
+                        }
+
+                        return {
+                            participantId: p.user.id,
+                            profileImgUrl: undefined
+                        }
+                    })
+                }
+            }
+
+
         }
+
+
+        // const headerInfo: IConversationHeaderInfo = {
+        //     conversationId: conversationId,
+        //     name: conversation.chatName,
+        //     groupChatProfilePicture: isCustomGroupChatProfileImg ? {
+        //         type: "custom",
+        //         groupChatProfileImgUrl: conversation.groupChatImg!.supabaseFileId
+        //     } : {
+        //         type: "participants",
+        //         participants: conversation.participants.map((participant) => ({
+        //             participantId: participant.user.id,
+        //             profileImgUrl: participant.user.profileImg?.supabaseFileId
+        //         }))
+        //     }
+        // }
 
 
         return res.status(200).json({

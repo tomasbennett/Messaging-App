@@ -9,14 +9,15 @@ import { DashboardLayout } from './features/dashboard/layouts/DashboardLayout'
 import { ErrorProvider } from './features/error/contexts/ErrorContext'
 import { DashboardApp } from './features/dashboard/app'
 import { AuthProvider } from './features/auth/contexts/AuthContext'
-import { ConversationLayout } from './features/messages/layouts/Conversation'
-import { NoConversationSelected } from './features/dashboard/components/NoConversationSelected'
+import { ConversationLayout } from './features/messages/layouts/ConversationLayout'
+import { NoConversationSelected } from './features/messages/components/NoConversationSelected'
 import { AsideMenuLayout } from './features/dashboard/layouts/AsideMenuLayout'
 import { FriendMessageProvider } from './features/messages/contexts/PreviewFriendConversationContext'
 import { accountPageRoute, conversationPageRoute, invitesPageRoute, myAccountPageRoute, newConversationPageRoute, singleConversationPageRoute } from './constants/routes'
 import { NewConversationLayout } from './features/conversations/layouts/NewConversationLayout'
 import { InviteReqProvider } from './features/inviteReq/contexts/InviteReqContext'
 import { InvitesLayout } from './features/inviteReq/layouts/InvitesLayout'
+import { ConversationBody } from './features/messages/components/ConversationBody'
 
 
 const router = createBrowserRouter([
@@ -72,7 +73,12 @@ const router = createBrowserRouter([
                 element: <InvitesLayout />,
               },
               {
-                element: <DashboardApp />,
+                element: 
+                <DashboardApp>
+                  <ConversationLayout>
+                    <Outlet />
+                  </ConversationLayout>
+                </DashboardApp>,
                 children: [
                   {
                     index: true,
@@ -80,7 +86,7 @@ const router = createBrowserRouter([
                   },
                   {
                     path: `${singleConversationPageRoute}`,
-                    element: <ConversationLayout />
+                    element: <ConversationBody />
                   }
                 ]
               },
@@ -123,6 +129,7 @@ const router = createBrowserRouter([
 
 
 function App() {
+  
 
 
   return (
