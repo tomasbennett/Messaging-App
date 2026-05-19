@@ -1,11 +1,15 @@
 .conversationHeader{
 
 
-    position: absolute;
+    /* position: absolute;
 
     top: 0%;
     left: 50%;
-    transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%); */
+
+    flex-shrink: 0;
+
+    
 
     display: flex;
     column-gap: 2rem;

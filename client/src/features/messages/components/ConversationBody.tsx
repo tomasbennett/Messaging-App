@@ -22,7 +22,34 @@ export function ConversationBody() {
 
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([]);
+    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([{
+        messageId: "1",
+        conversationId: "1",
+        senderId: "1",
+        timestamp: new Date(),
+        content: "Hello, this is a test message.",
+        conversationGroupType: {
+            type: "single"
+        }
+    }, {
+        messageId: "2",
+        conversationId: "1",
+        senderId: "1",
+        timestamp: new Date(),
+        content: "The second message is a medium... Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur recusandae dolor earum doloribus? Sint recusandae magni sit aut animi ullam fugit repellendus sed ea labore?",
+        conversationGroupType: {
+            type: "single"
+        }
+    }, {
+        messageId: "3",
+        conversationId: "1",
+        senderId: "1",
+        timestamp: new Date("2024-01-01T12:00:00Z"),
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi, at. Molestias ab facere assumenda fuga amet? Tempore repudiandae maxime modi dolorum! Minima atque molestias a, earum deserunt neque sint id dolores impedit quasi molestiae illum placeat voluptatum veniam harum accusamus. Maiores architecto repudiandae laudantium deserunt! Quos assumenda maxime odio ratione doloremque dicta, magni numquam tenetur quae ad architecto eius. Reiciendis alias voluptates repellendus numquam, odit nisi atque cumque veritatis deserunt beatae, fugit assumenda illum, aperiam voluptatum est provident distinctio sed officia pariatur nemo placeat repellat! Voluptatibus cum quod commodi nostrum impedit tenetur ex numquam nam. Deserunt quo perspiciatis ducimus nam.",
+        conversationGroupType: {
+            type: "single"
+        }
+    }]);
     const [conversationHeaderInfo, setConversationHeaderInfo] = useState<IConversationHeaderInfo | null>(null);
 
     const errorCtx = useError();
@@ -91,7 +118,7 @@ export function ConversationBody() {
 
                 const conversationDataResult = ReceiveConversationMessagesAndHeaderInfoFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
-                    setConversationMessages(conversationDataResult.data.messages);
+                    // setConversationMessages(conversationDataResult.data.messages);
                     setConversationHeaderInfo(conversationDataResult.data.headerInfo);
                     return;
                 }

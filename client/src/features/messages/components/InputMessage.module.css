@@ -1,17 +1,133 @@
-.outerContainer{
-    position: absolute;
-
-    bottom: 25px;
-    left: 50%;
-    transform: translate(-50%, 0%);
+.outerContainer {
+    flex-shrink: 0;
 
     width: 100%;
+
+
+    display: flex;
+    justify-content: center;
+
+    padding: 0 var(--surrounding-padding);
+
+
+    overflow: hidden;
+}
+
+.innerContainer {
+    --btn-height: 5rem;
+
+    flex: 1 1 0;
+    height: 100%;
+
+    min-width: 20rem;
+    max-width: var(--conversation-max-width);
+    
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    column-gap: .5rem;
+
+    overflow: hidden;
+}
+
+
+.fileInputContainer {
+    flex-shrink: 0;
+    height: var(--btn-height);
+    aspect-ratio: 1/1;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border-radius: 50%;
 
+    background-color: var(--dark-pink-btn-bcg);
+
+    cursor: pointer;
+
+    font-size: 2.8rem;
+    font-weight: bolder;
 
     overflow: hidden;
+}
+
+.textInputContainer {
+    flex: 1 1 0;
+    min-height: var(--btn-height);
+    max-height: 15rem;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 1.2rem 1.5rem;
+
+    background-color: var(--dark-grey);
+
+    border-radius: 3rem;
+
+    overflow: hidden;
+
+    .textInput {
+        resize: none;
+
+        width: 100%;
+        height: 100%;
+
+        border: none;
+        outline: none;
+
+        line-height: 1.5;
+
+        overflow-y: auto;
+
+
+        background-color: transparent;
+    }
+
+    .textInput::placeholder {
+        color: white;
+        font-size: 1.4rem;
+    }
+}
+
+.sendButton {
+    flex-shrink: 0;
+    height: var(--btn-height);
+    aspect-ratio: 1/1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background-color: var(--dark-pink-btn-bcg);
+
+    overflow: hidden;
+
+    padding: .5rem;
+
+    cursor: pointer;
+
+    fill: white;
+
+    &>svg {
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+
+        transform: rotateZ(270deg);
+    }
+}
+
+.sendButton:disabled {
+    background-color: var(--dark-transparent-red-error-bcg);
+
+    padding: 0;
+
+    &>svg {}
 }

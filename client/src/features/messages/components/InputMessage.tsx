@@ -3,7 +3,7 @@ import styles from "./InputMessage.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConversationMessageSchema, IConversationMessage } from "../../../../../shared/features/message/models/IConversationMessage";
 import { IMessageContentFile, MessageContentFileSchema } from "../../../../../shared/features/message/models/IMessageContent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useError } from "../../error/contexts/ErrorContext";
@@ -73,26 +73,64 @@ export function InputMessageComponent() {
 
     }
 
+    // useEffect(() => {
+    //     if (!errCtx) {
+    //         nav(errorPageRoute, {
+    //             replace: true,
+    //             state: {
+    //                 error: noErrorCtxError
+    //             }
+    //         });
+    //         return;
+    //     }
+
+    //     if (errors.content?.message) {
+    //         errCtx.throwError({
+    //             message: errors.content.message,
+    //             status: 0,
+    //             ok: false
+    //         });
+    //     } 
+    //     if (errors.files?.message) {
+    //         errCtx.throwError({
+    //             message: errors.files.message,
+    //             status: 0,
+    //             ok: false
+    //         });
+    //     } 
+    //     if (errors.root?.message) {
+    //         errCtx.throwError({
+    //             message: errors.root.message,
+    //             status: 0,
+    //             ok: false
+    //         });
+    //     }
+    // }, [errors.content?.message, errors.files?.message, errors.root?.message]);
+
     return (
         <>
 
             <div className={styles.outerContainer}>
                 {/* <form onSubmit={handleSubmit(onSubmit)} className={styles.formContainer}> */}
 
-                <div className={styles.innerContainer}>
+                <form className={styles.innerContainer}>
 
                     <div className={styles.fileInputContainer}>
-                        <input type="file" multiple className={`${styles.fileInput} ${styles.inputField}`} />
+                        <label className={`${styles.fileInput} ${styles.inputField}`}>
+                            +
+                            <input hidden type="file" multiple />
+                        </label>
+
                     </div>
 
                     <div className={styles.textInputContainer}>
-                        <input type="text" placeholder="Enter your message here..." className={`${styles.textInput} ${styles.inputField}`} />
+                        <textarea placeholder="Enter your message here..." className={`${styles.textInput} ${styles.inputField}`} />
                     </div>
 
                     <button disabled={isLoading} type="submit" className={styles.sendButton}>
                         {
                             isLoading ?
-                                <LoadingCircle height="70%" />
+                                <LoadingCircle height="80%" />
 
                                 :
 
@@ -101,7 +139,7 @@ export function InputMessageComponent() {
                         }
                     </button>
 
-                </div>
+                </form>
 
 
                 {/* </form> */}

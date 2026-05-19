@@ -1,0 +1,88 @@
+.outerContainer {
+    --surrounding-padding: 2rem;
+    --conversation-max-width: 120rem;
+
+    flex: 1 1 0;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    
+    justify-content: flex-end;
+    row-gap: 2rem;
+
+    /* padding: 2rem; */
+    padding-bottom: var(--surrounding-padding);
+}
+
+
+.contentContainer {
+    flex: 1 1 0;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+
+    .loadingContainer {
+        flex: 1 1 0;
+        width: 100%;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+
+}
+
+
+.conversationContentsContainer {
+    flex: 1 1 0;
+    width: 100%;
+    max-width: var(--conversation-max-width);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    row-gap: 1rem;
+
+    padding: var(--surrounding-padding) var(--surrounding-padding) 0 var(--surrounding-padding);
+
+    overflow: hidden;
+
+    .messagesContainer {
+        width: 100%;
+        flex: 1 1 0;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+
+        overflow-y: auto;
+
+        row-gap: .5rem;
+    }
+
+
+    .noMessagesText {
+        padding: 1rem;
+
+        width: 100%;
+
+        border-radius: 1rem;
+
+        margin-bottom: auto;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        text-align: center;
+
+        background-color: var(--darker-header-bcg-colour);
+    }
+}
