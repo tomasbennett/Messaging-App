@@ -49,6 +49,16 @@ export function ConversationBody() {
         conversationGroupType: {
             type: "single"
         }
+    }, {
+        messageId: "4",
+        conversationId: "1",
+        senderId: "1",
+        timestamp: new Date(),
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi, at. Molestias ab facere assumenda fuga amet? Tempore repudiandae maxime modi dolorum! Minima atque molestias a, earum deserunt neque sint id dolores impedit quasi molestiae illum placeat voluptatum veniam harum accusamus. Maiores architecto repudiandae laudantium deserunt! Quos assumenda maxime odio ratione doloremque dicta, magni numquam tenetur quae ad architecto eius. Reiciendis alias voluptates repellendus numquam, odit nisi atque cumque veritatis deserunt beatae, fugit assumenda illum, aperiam voluptatum est provident distinctio sed officia pariatur nemo placeat repellat! Voluptatibus cum quod commodi nostrum impedit tenetur ex numquam nam. Deserunt quo perspiciatis ducimus nam.",
+        conversationGroupType: {
+            type: "group",
+            senderName: "Lorem ipso"
+        }
     }]);
     const [conversationHeaderInfo, setConversationHeaderInfo] = useState<IConversationHeaderInfo | null>(null);
 

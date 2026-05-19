@@ -8,6 +8,7 @@ import { logInPageRoute } from "../../../constants/routes";
 import { useError } from "../../error/contexts/ErrorContext";
 import { useMemo } from "react";
 import { domain } from "../../../constants/EnvironmentAPI";
+import { formatSentAtDate } from "../../../util/FormatDateMessage";
 
 
 
@@ -62,15 +63,20 @@ export function MessageComponent({
                 {
                     conversationGroupType.type === "group" &&
 
-                    <>
-                    
-                        <p className={styles.senderUsername}>{conversationGroupType.senderName}</p>
-                        
+                    <div className={styles.userDetailsContainer}>
+
                         <div className={styles.profileImgContainer}>
                             <img src={conversationGroupType?.senderProfileImgUrl ?? defaultUserProfileImg} alt={`User profile image: ${conversationGroupType.senderName}`} />
                         </div>
-                    
-                    </>
+                        <p className={styles.senderUsername}>
+                            <span>
+                                {conversationGroupType.senderName}
+                            </span>
+                        </p>
+
+
+                    </div>
+
                 }
 
 
@@ -122,7 +128,7 @@ export function MessageComponent({
 
                 {
                     timestamp &&
-                    <p className={styles.timestamp}>{timestamp.toLocaleString()}</p>
+                    <p className={styles.timestamp}>{formatSentAtDate(timestamp)}</p>
                 }
 
 

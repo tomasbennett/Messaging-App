@@ -1,0 +1,99 @@
+.outerContainer{
+    --triangle-width: 1.5rem;
+    --message-border-radius: 2rem;
+
+
+    position: relative;
+
+    flex-shrink: 0;
+
+    width: 60%;
+    max-width: 50rem;
+    min-width: 15rem;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+
+    background-color: var(--darker-header-bcg-colour);
+
+    border-top-left-radius: var(--message-border-radius);
+    border-top-right-radius: var(--message-border-radius);
+
+    padding: 2rem;
+
+
+}
+
+
+.outerContainer.ownMessage{
+    align-self: flex-end;
+
+    border-bottom-left-radius: var(--message-border-radius);
+    
+
+    
+}
+
+
+.outerContainer.otherMessage{
+    align-self: flex-start;
+
+    border-bottom-right-radius: var(--message-border-radius);
+
+}
+
+
+
+.userDetailsContainer{
+    flex-shrink: 0;
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    column-gap: .8rem;
+
+    font-size: 1.4rem;
+
+
+    .profileImgContainer{
+        flex-shrink: 0;
+
+        width: 4rem;
+        aspect-ratio: 1/1;
+
+        border-radius: 50%;
+        overflow: hidden;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .senderUsername{
+        font-weight: bold;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+
+        overflow: hidden;
+
+        span{
+
+        }
+    }
+
+}
+
+
+.timestamp{
+    flex-shrink: 0;
+
+    font-size: 1.4rem;
+    font-weight: bold;
+
+    align-self: flex-end;
+}
