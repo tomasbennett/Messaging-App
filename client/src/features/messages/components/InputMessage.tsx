@@ -7,113 +7,59 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useError } from "../../error/contexts/ErrorContext";
-import { useNavigate } from "react-router-dom";
-import { errorPageRoute } from "../../../constants/routes";
-import { noErrorCtxError, unknownError } from "../../../constants/errorConstants";
+import { Navigate, useNavigate } from "react-router-dom";
+import { errorPageRoute, homePageRoute } from "../../../constants/routes";
+import { noErrorCtxError, notExpectedFormatError, unknownError } from "../../../constants/errorConstants";
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { ArrowIcon } from "../../../assets/icons/ArrowIcon";
+import { domain } from "../../../constants/EnvironmentAPI";
+import { IMessageSendSocketData, MessageSuccessUploadSocketSchema } from "../../../../../shared/features/sockets/models/IMessageSocket";
+import { useSocket } from "../../../contexts/SocketHandlerContext";
+import { FILES_KEY_NAME } from "../../../../../shared/features/message/constants";
+import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
+import { IInputMessageComponentProps } from "../models/IInputMessageProps";
+import { useInputMessage } from "../hooks/useInputMessage";
+import { FileElementComponent } from "./FileElement";
 
 
 
-
-
-export function InputMessageComponent() {
+export function InputMessageComponent({
+    conversationDetails,
+    onMessageSent
+}: IInputMessageComponentProps) {
 
     const {
-        handleSubmit,
-        formState: { errors },
-        register,
-        setError,
-        
-    } = useForm<IMessageContentFile>({
-        resolver: zodResolver(MessageContentFileSchema)
+        isLoading,
+        prepFiles,
+        removeFile,
+        onSubmit,
+        setContent,
+        content,
+        preppedFilePreviews,
+        errors,
+
+    } = useInputMessage({
+        conversationDetails,
+        onMessageSent
     });
-
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const { setAuthLevel } = useAuth();
-    const { jwtFetchHandler } = useJWTFetch();
-    const errCtx = useError();
-
-    const nav = useNavigate();
-
-    const onSubmit = async (data: IMessageContentFile) => {
-        if (!errCtx) {
-            nav(errorPageRoute, {
-                replace: true,
-                state: {
-                    error: noErrorCtxError
-                }
-            });
-            return;
-        }
-
-
-        try {
-            setIsLoading(true);
-
-
-        } catch (error) {
-            if (error instanceof Error) {
-                errCtx.throwError({
-                    ok: false,
-                    status: 0,
-                    message: error.message
-                });
-                return;
-            }
-
-            errCtx.throwError(unknownError);
-            return;
-
-
-        } finally {
-            setIsLoading(false);
-        }
-
-    }
-
-    // useEffect(() => {
-    //     if (!errCtx) {
-    //         nav(errorPageRoute, {
-    //             replace: true,
-    //             state: {
-    //                 error: noErrorCtxError
-    //             }
-    //         });
-    //         return;
-    //     }
-
-    //     if (errors.content?.message) {
-    //         errCtx.throwError({
-    //             message: errors.content.message,
-    //             status: 0,
-    //             ok: false
-    //         });
-    //     } 
-    //     if (errors.files?.message) {
-    //         errCtx.throwError({
-    //             message: errors.files.message,
-    //             status: 0,
-    //             ok: false
-    //         });
-    //     } 
-    //     if (errors.root?.message) {
-    //         errCtx.throwError({
-    //             message: errors.root.message,
-    //             status: 0,
-    //             ok: false
-    //         });
-    //     }
-    // }, [errors.content?.message, errors.files?.message, errors.root?.message]);
 
     return (
         <>
 
             <div className={styles.outerContainer}>
-                {/* <form onSubmit={handleSubmit(onSubmit)} className={styles.formContainer}> */}
 
-                <form className={styles.innerContainer}>
+                <div className={styles.errorContainer}>
+                    {
+                        Object.entries(errors).filter(([key, value]) => value !== undefined).map(([key, value]) => (
+                            <p key={key} className={styles.errorText}>{value}</p>
+                        ))
+                    }
+                </div>
+
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    onSubmit();
+                }} className={styles.innerContainer}>
 
                     <div className={styles.fileInputContainer}>
                         <label className={`${styles.fileInput} ${styles.inputField}`}>
@@ -124,7 +70,24 @@ export function InputMessageComponent() {
                     </div>
 
                     <div className={styles.textInputContainer}>
-                        <textarea placeholder="Enter your message here..." className={`${styles.textInput} ${styles.inputField}`} />
+
+                        <div className={styles.filesDisplayContainer}>
+                            {
+                                preppedFilePreviews.map((file) => (
+                                    <FileElementComponent
+                                        key={file.fileId}
+                                        />
+
+                                ))
+                            }
+                        </div>
+
+                        <div className={styles.textareaInnerContainer}>
+                            <textarea value={content} onChange={(e) => {
+                                setContent(e.target.value);
+                            }} placeholder="Enter your message here..." className={`${styles.textInput} ${styles.inputField}`} />
+                        </div>
+
                     </div>
 
                     <button disabled={isLoading} type="submit" className={styles.sendButton}>
@@ -141,8 +104,6 @@ export function InputMessageComponent() {
 
                 </form>
 
-
-                {/* </form> */}
             </div>
 
         </>

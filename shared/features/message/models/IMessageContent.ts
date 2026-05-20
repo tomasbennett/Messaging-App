@@ -96,3 +96,56 @@ export const MessageContentFileSchema = z.object({
 
 
 export type IMessageContentFile = z.infer<typeof MessageContentFileSchema>;
+
+
+
+
+export const MessageContentFileArraySchema = z.object({
+    content: z.string().optional(),
+    [FILES_KEY_NAME]: z.array(z.instanceof(File)).optional(),
+}).superRefine((data, ctx) => {
+    const hasContent = !!data.content && data.content.trim() !== "";
+    const hasFiles = !!data[FILES_KEY_NAME] && data[FILES_KEY_NAME].length > 0;
+
+    if (!hasContent && !hasFiles) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Either content or file must be provided in a message",
+            path: ["content"],
+        });
+        return;
+    }
+
+    const files = data[FILES_KEY_NAME];
+
+    if (!files) {
+        return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]!;
+
+        if (file.size > maxFileSizeInBytes) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `File size must be less than ${maxFileSizeInBytes / 1024 / 1024
+                    } MB`,
+            });
+            return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "File type is not allowed.",
+            });
+            return;
+        }
+    }
+
+
+
+});
+
+
+export type IMessageContentFileArray = z.infer<typeof MessageContentFileArraySchema>;

@@ -17,7 +17,7 @@ import { accountPageRoute, conversationPageRoute, invitesPageRoute, myAccountPag
 import { NewConversationLayout } from './features/conversations/layouts/NewConversationLayout'
 import { InviteReqProvider } from './features/inviteReq/contexts/InviteReqContext'
 import { InvitesLayout } from './features/inviteReq/layouts/InvitesLayout'
-import { ConversationBody } from './features/messages/components/ConversationBody'
+import { ConversationBody } from './features/messages/layouts/ConversationBody'
 
 
 const router = createBrowserRouter([

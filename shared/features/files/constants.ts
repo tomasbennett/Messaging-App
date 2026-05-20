@@ -8,9 +8,13 @@ export const allowedImgTypes = [
 ];
 
 
-export const allowedAllFileTypes = [
-    ...allowedImgTypes,
+export const allowedTextFileTypes = [
     "application/pdf",
     "text/plain",
     "application/msword",
+];
+
+export const allowedAllFileTypes = [
+    ...allowedImgTypes,
+    ...allowedTextFileTypes
 ];

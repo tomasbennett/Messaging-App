@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
@@ -10,9 +10,9 @@ import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useError } from "../../error/contexts/ErrorContext";
 import styles from "./ConversationBody.module.css";
-import { ConversationHeader } from "./ConversationHeader";
-import { InputMessageComponent } from "./InputMessage";
-import { MessageComponent } from "./Message";
+import { ConversationHeader } from "../components/ConversationHeader";
+import { InputMessageComponent } from "../components/InputMessage";
+import { MessageComponent } from "../components/Message";
 import { domain } from "../../../constants/EnvironmentAPI";
 
 
@@ -22,45 +22,9 @@ export function ConversationBody() {
 
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([{
-        messageId: "1",
-        conversationId: "1",
-        senderId: "1",
-        timestamp: new Date(),
-        content: "Hello, this is a test message.",
-        conversationGroupType: {
-            type: "single"
-        }
-    }, {
-        messageId: "2",
-        conversationId: "1",
-        senderId: "1",
-        timestamp: new Date(),
-        content: "The second message is a medium... Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur recusandae dolor earum doloribus? Sint recusandae magni sit aut animi ullam fugit repellendus sed ea labore?",
-        conversationGroupType: {
-            type: "single"
-        }
-    }, {
-        messageId: "3",
-        conversationId: "1",
-        senderId: "1",
-        timestamp: new Date("2024-01-01T12:00:00Z"),
-        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi, at. Molestias ab facere assumenda fuga amet? Tempore repudiandae maxime modi dolorum! Minima atque molestias a, earum deserunt neque sint id dolores impedit quasi molestiae illum placeat voluptatum veniam harum accusamus. Maiores architecto repudiandae laudantium deserunt! Quos assumenda maxime odio ratione doloremque dicta, magni numquam tenetur quae ad architecto eius. Reiciendis alias voluptates repellendus numquam, odit nisi atque cumque veritatis deserunt beatae, fugit assumenda illum, aperiam voluptatum est provident distinctio sed officia pariatur nemo placeat repellat! Voluptatibus cum quod commodi nostrum impedit tenetur ex numquam nam. Deserunt quo perspiciatis ducimus nam.",
-        conversationGroupType: {
-            type: "single"
-        }
-    }, {
-        messageId: "4",
-        conversationId: "1",
-        senderId: "1",
-        timestamp: new Date(),
-        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi, at. Molestias ab facere assumenda fuga amet? Tempore repudiandae maxime modi dolorum! Minima atque molestias a, earum deserunt neque sint id dolores impedit quasi molestiae illum placeat voluptatum veniam harum accusamus. Maiores architecto repudiandae laudantium deserunt! Quos assumenda maxime odio ratione doloremque dicta, magni numquam tenetur quae ad architecto eius. Reiciendis alias voluptates repellendus numquam, odit nisi atque cumque veritatis deserunt beatae, fugit assumenda illum, aperiam voluptatum est provident distinctio sed officia pariatur nemo placeat repellat! Voluptatibus cum quod commodi nostrum impedit tenetur ex numquam nam. Deserunt quo perspiciatis ducimus nam.",
-        conversationGroupType: {
-            type: "group",
-            senderName: "Lorem ipso"
-        }
-    }]);
+    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([]);
     const [conversationHeaderInfo, setConversationHeaderInfo] = useState<IConversationHeaderInfo | null>(null);
+    const conversationGroupType = ;
 
     const errorCtx = useError();
 
@@ -128,7 +92,7 @@ export function ConversationBody() {
 
                 const conversationDataResult = ReceiveConversationMessagesAndHeaderInfoFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
-                    // setConversationMessages(conversationDataResult.data.messages);
+                    setConversationMessages(conversationDataResult.data.messages);
                     setConversationHeaderInfo(conversationDataResult.data.headerInfo);
                     return;
                 }
@@ -215,11 +179,31 @@ export function ConversationBody() {
             //PROBABLY SHOULD PUT A FLAG HERE INSTEAD BUT THIS SHOULD WORK
             abortControllerRef.current = null;
             controller.abort();
+
+            conversationMessages.forEach((message) => {
+                if (message.files) {
+                    message.files.forEach((file) => {
+                        if (file.fileDetails.fileType === "inline") {
+                            URL.revokeObjectURL(file.fileDetails.signedUrl);
+                        } else {
+                            URL.revokeObjectURL(file.fileDetails.supabaseId);
+                        }
+                    });
+                }
+            });
         };
 
     }, [conversationId]);
 
+    const isMessges = useMemo<boolean>(() => {
+        return conversationMessages.length > 0;
+    }, [conversationMessages]);
 
+
+
+    const onMessageSent = (newMessage: IConversationMessage) => {
+        setConversationMessages((prevMessages) => [...prevMessages, newMessage]);
+    }
 
 
     return (
@@ -251,9 +235,10 @@ export function ConversationBody() {
                             }
 
 
-                            <div className={styles.conversationContentsContainer}>
+                            <div 
+                                className={`${!isMessges && styles.noMessagesContainer} ${styles.conversationContentsContainer}`}>
                                 {
-                                    conversationMessages.length > 0 ?
+                                    isMessges ?
 
                                         <div className={styles.messagesContainer}>
 
@@ -289,7 +274,11 @@ export function ConversationBody() {
 
 
 
-            <InputMessageComponent />
+            <InputMessageComponent onMessageSent={onMessageSent} conversationDetails={{
+                conversationId: ,
+                // conversationGroupType: ,
+                senderId: ,
+            }} />
 
 
 

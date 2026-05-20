@@ -32,7 +32,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
             });
         }
 
-        const { content, conversationId, sender, userSocketId } = reqBodyResults.data;
+        const { content, conversationId, userSocketId } = reqBodyResults.data;
         const user = req.user!;
         const files = req.files as Express.Multer.File[] | undefined;
 
@@ -63,7 +63,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                     content,
                     conversationId,
                     createdAt,
-                    senderId: sender.userId,
+                    senderId: user.id,
                 }
             });
 
@@ -144,8 +144,8 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                 content: newMessage?.content ?? undefined,
                 conversationId: conversationId,
                 sender: {
-                    userId: sender.userId,
-                    username: sender.username
+                    userId: user.id,
+                    username: user.username
                 },
                 timestamp: createdAt,
                 files: messageFileDetails

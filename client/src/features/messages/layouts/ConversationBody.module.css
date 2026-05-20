@@ -71,6 +71,7 @@
 
 
     .noMessagesText {
+
         padding: 1rem;
 
         width: 100%;
@@ -87,4 +88,8 @@
 
         background-color: var(--darker-header-bcg-colour);
     }
+}
+
+.noMessagesContainer{
+    padding: var(--surrounding-padding) var(--surrounding-padding) 0 var(--surrounding-padding);
 }

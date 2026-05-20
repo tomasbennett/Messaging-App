@@ -15,7 +15,7 @@ export type IReceiveMessageFrontend = z.infer<typeof ReceiveMessageFrontendSchem
 export const SendMessageFrontendSchema = BaseMessageSchema
 .pick({
     conversationId: true,
-    sender: true,
+    // sender: true,
 })
 .merge(MessageContentFileSchema)
 

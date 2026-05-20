@@ -433,21 +433,6 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
         }
 
 
-        // const headerInfo: IConversationHeaderInfo = {
-        //     conversationId: conversationId,
-        //     name: conversation.chatName,
-        //     groupChatProfilePicture: isCustomGroupChatProfileImg ? {
-        //         type: "custom",
-        //         groupChatProfileImgUrl: conversation.groupChatImg!.supabaseFileId
-        //     } : {
-        //         type: "participants",
-        //         participants: conversation.participants.map((participant) => ({
-        //             participantId: participant.user.id,
-        //             profileImgUrl: participant.user.profileImg?.supabaseFileId
-        //         }))
-        //     }
-        // }
-
 
         return res.status(200).json({
             ok: true,
