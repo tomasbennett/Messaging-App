@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             preview = URL.createObjectURL(blob);
 
         }
-        setAuthLevel({
+        setAuthLevelState({
             userType: "user",
             userId: authLevel.userId,
             username: authLevel.username,
