@@ -9,6 +9,7 @@ import { useError } from "../../error/contexts/ErrorContext";
 import { useMemo } from "react";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { formatSentAtDate } from "../../../util/FormatDateMessage";
+import { FileElementComponent } from "./FileElement";
 
 
 
@@ -87,35 +88,13 @@ export function MessageComponent({
                     <div className={styles.filesContainer}>
                         {
                             files.map((file, index) => {
-                                // const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(file.fileUrl);
-
-                                if (file.fileDetails.fileType === "inline") {
-                                    return (
-                                        <div key={file.fileId} className={styles.imgContainer}>
-                                            <img src={file.fileDetails.signedUrl} alt={`Message image: ${file.fileDetails.signedUrl}`} />
-                                        </div>
-                                    )
-                                }
 
                                 return (
-
-                                    <a key={index} href={`${domain}/api/conversations/${conversationId}/download/${file.fileDetails.supabaseId}`} target="_blank" rel="noopener noreferrer" className={styles.fileLink}>
-                                        <div className={styles.fileContainer}>
-
-                                            <div className={styles.fileSVGContainer}>
-                                                <FileIcon />
-                                            </div>
-
-                                            <div className={styles.fileRightSideContainer}>
-
-                                                <p className={styles.fileName}>{file.fileDetails.filename}</p>
-                                                <p className={styles.fileType}>{file.fileDetails.mimetype} File</p>
-
-                                            </div>
-
-                                        </div>
-                                    </a>
-
+                                    <FileElementComponent
+                                        key={file.fileId}
+                                        fileId={file.fileId}
+                                        fileDetails={file.fileDetails}
+                                    />
                                 )
                             })
                         }

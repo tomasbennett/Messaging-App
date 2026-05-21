@@ -62,9 +62,20 @@ export function InputMessageComponent({
                 }} className={styles.innerContainer}>
 
                     <div className={styles.fileInputContainer}>
+
                         <label className={`${styles.fileInput} ${styles.inputField}`}>
                             +
-                            <input hidden type="file" multiple />
+                            <input hidden type="file" multiple onChange={(e) => {
+                                const files = e.currentTarget.files;
+
+                                if (!files || files.length === 0) {
+                                    return;
+                                }
+                        
+                                prepFiles(e);
+                        
+                                e.currentTarget.value = "";
+                            }} />
                         </label>
 
                     </div>
@@ -76,6 +87,9 @@ export function InputMessageComponent({
                                 preppedFilePreviews.map((file) => (
                                     <FileElementComponent
                                         key={file.fileId}
+                                        fileId={file.fileId}
+                                        removeFile={removeFile}
+                                        fileDetails={file.fileDetails}
                                         />
 
                                 ))
