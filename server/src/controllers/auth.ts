@@ -20,8 +20,9 @@ router.get("/checkAuthLevel", ensureJWTAuthentication, (req: Request, res: Respo
             status: 200,
             message: "User is authenticated with access token",
             userId: req.user.id,
-            username: req.user.username
-        }); 
+            username: req.user.username,
+            userProfileImgUrl: req.user.profileImg?.supabaseFileId
+        });
     }
 
     //DONT REMEMBER WHY THIS IS HERE BUT I THINK IT IS IN CASE THE MIDDLEWARE DOESNT THROW AN ERROR BUT ALSO DOESNT AUTHENTICATE THE USER FOR SOME REASON

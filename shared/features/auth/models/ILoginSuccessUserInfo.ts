@@ -7,6 +7,7 @@ import { AccessTokenResponseSchema } from "./IAccessTokenResponse";
 export const UserAuthContextInfoSchema = z.object({
     userId: z.string().min(1, { message: "User ID is required" }),
     username: usernamePasswordSchema,
+    userProfileImgUrl: z.string().optional(), //UPDATE TO OPTIONAL AFTER COMPILE TIME ERRORS SORTED
 });
 
 export type IUserAuthContextInfoSchema = z.infer<typeof UserAuthContextInfoSchema>;

@@ -25,7 +25,7 @@ const AuthContext = createContext<IAuthContextType | null>(null);
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [authLevel, setAuthLevel] = useState<IAuthLevel>({
+    const [authLevel, setAuthLevelState] = useState<IAuthLevel>({
         userType: "unknown"
     });
 
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { jwtFetchHandler } = useJWTFetch();
 
     const nav = useNavigate();
-    
+
 
     const checkAuth = async () => {
         if (!errorCtx) {
@@ -63,10 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (response.returnType === "fetchError") {
-                // errorCtx.throwError(response.error);
                 errorCtx.throwError(response.error);
                 nav(errorPageRoute, { state: { error: response.error } });
-                
+
                 return;
             }
 
@@ -75,11 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const authLevelUserResult = ReceiveUserAuthContextInfoSchema.safeParse(authLevelJSON);
 
             if (authLevelRes.status === 200 && authLevelUserResult.success) {
-                setAuthLevel({
+                await setAuthLevel({
                     userType: "user",
                     userId: authLevelUserResult.data.userId,
                     username: authLevelUserResult.data.username,
-                });
+                    userProfileImgUrl: authLevelUserResult.data.userProfileImgUrl
+                })
                 return;
             }
 
@@ -119,11 +119,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
-        
+
         checkAuth();
 
 
     }, []);
+
+    useEffect(() => {
+
+
+        return () => {
+            if (authLevel.userType === "user" && authLevel.userProfileImgUrl) {
+                URL.revokeObjectURL(authLevel.userProfileImgUrl);
+            }
+        }
+    }, [authLevel]);
+
+    const setAuthLevel = async (authLevel: IAuthLevel) => {
+        if (authLevel.userType !== "user") {
+            setAuthLevelState(authLevel);
+            return;
+        }
+        let preview: string | undefined = undefined;
+        if (authLevel.userProfileImgUrl) {
+            const res = await fetch(authLevel.userProfileImgUrl);
+            const blob = await res.blob();
+            preview = URL.createObjectURL(blob);
+
+        }
+        setAuthLevel({
+            userType: "user",
+            userId: authLevel.userId,
+            username: authLevel.username,
+            userProfileImgUrl: preview
+        });
+        return;
+    }
 
 
     const ctx: IAuthContextType = {
@@ -132,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         checkAuth
     }
-    
+
     return (
         <AuthContext.Provider value={ctx}>
             {children}

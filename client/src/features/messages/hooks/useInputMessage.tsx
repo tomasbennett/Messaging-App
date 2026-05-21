@@ -17,7 +17,7 @@ import { IFileArrayProperties } from "../../../../../shared/features/files/model
 import { allowedAllFileTypes, allowedImgTypes, allowedTextFileTypes, maxFileSizeInBytes } from "../../../../../shared/features/files/constants";
 
 export function useInputMessage({
-    conversationDetails,
+    conversationId,
     onMessageSent
 }: IInputMessageComponentProps) {
 
@@ -99,7 +99,7 @@ export function useInputMessage({
 
             const isValidSubmission = MessageContentFileArraySchema.safeParse(snapshot);
             const filePreviewTypes: IFileArrayProperties[] = [...preppedFilePreviews];
-            const conversationId = conversationDetails.conversationId;
+            // const conversationId = conversationDetails.conversationId;
 
             if (!isValidSubmission.success) {
                 const validationErrors = isValidSubmission.error.flatten();
@@ -172,7 +172,10 @@ export function useInputMessage({
                 })
 
                 onMessageSent({
-                    ...conversationDetails,
+                    conversationId,
+                    senderId: authLevel.userId,
+                    senderName: authLevel.username,
+                    senderProfileImgUrl: authLevel.userProfileImgUrl,
                     content: data.content,
                     timestamp: new Date(),
                     files: filePreviewTypes,

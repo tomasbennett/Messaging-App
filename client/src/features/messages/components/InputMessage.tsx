@@ -24,7 +24,7 @@ import { FileElementComponent } from "./FileElement";
 
 
 export function InputMessageComponent({
-    conversationDetails,
+    conversationId,
     onMessageSent
 }: IInputMessageComponentProps) {
 
@@ -39,7 +39,7 @@ export function InputMessageComponent({
         errors,
 
     } = useInputMessage({
-        conversationDetails,
+        conversationId,
         onMessageSent
     });
 

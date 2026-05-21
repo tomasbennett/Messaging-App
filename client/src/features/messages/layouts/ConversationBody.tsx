@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
 import { IConversationMessage, ReceiveConversationMessagesAndHeaderInfoFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
@@ -14,19 +14,39 @@ import { ConversationHeader } from "../components/ConversationHeader";
 import { InputMessageComponent } from "../components/InputMessage";
 import { MessageComponent } from "../components/Message";
 import { domain } from "../../../constants/EnvironmentAPI";
+import { IConversationGroupSingleUnion } from "../../../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
 
 
 export function ConversationBody() {
 
     const { conversationId } = useParams<{ conversationId: string }>();
 
-
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [conversationMessages, setConversationMessages] = useState<IConversationMessage[]>([]);
-    const [conversationHeaderInfo, setConversationHeaderInfo] = useState<IConversationHeaderInfo | null>(null);
-    const conversationGroupType = ;
-
     const errorCtx = useError();
+
+    if (!conversationId || typeof conversationId !== "string" || conversationId.trim() === "") {
+        const noConversationIdError: ICustomErrorResponse = {
+            message: "No conversation ID provided. Please select a conversation to view messages!!!",
+            status: 400,
+            ok: false
+        };
+        errorCtx?.throwError(noConversationIdError);
+        return <Navigate to={errorPageRoute} replace={true} state={{ error: noConversationIdError }} />;
+    }
+
+
+    const [isLoading, setIsLoading] =
+        useState<boolean>(false);
+
+    const [conversationMessages, setConversationMessages] =
+        useState<IConversationMessage[]>([]);
+
+    const [conversationHeaderInfo, setConversationHeaderInfo] =
+        useState<IConversationHeaderInfo | null>(null);
+
+    const [conversationGroupType, setConversationGroupType] =
+        useState<IConversationGroupSingleUnion | null>(null);
+
+
 
     const nav = useNavigate();
 
@@ -94,6 +114,7 @@ export function ConversationBody() {
                 if (conversationDataResult.success) {
                     setConversationMessages(conversationDataResult.data.messages);
                     setConversationHeaderInfo(conversationDataResult.data.headerInfo);
+                    setConversationGroupType(conversationDataResult.data.conversationGroupType);
                     return;
                 }
 
@@ -235,10 +256,10 @@ export function ConversationBody() {
                             }
 
 
-                            <div 
+                            <div
                                 className={`${!isMessges && styles.noMessagesContainer} ${styles.conversationContentsContainer}`}>
                                 {
-                                    isMessges ?
+                                    isMessges && conversationGroupType ?
 
                                         <div className={styles.messagesContainer}>
 
@@ -251,8 +272,10 @@ export function ConversationBody() {
                                                         timestamp={message.timestamp}
                                                         content={message.content}
                                                         files={message.files}
-                                                        conversationGroupType={message.conversationGroupType}
+                                                        conversationGroupType={conversationGroupType}
                                                         senderId={message.senderId}
+                                                        senderName={message.senderName}
+                                                        senderProfileImgUrl={message.senderProfileImgUrl}
                                                     />
                                                 ))
                                             }
@@ -274,11 +297,7 @@ export function ConversationBody() {
 
 
 
-            <InputMessageComponent onMessageSent={onMessageSent} conversationDetails={{
-                conversationId: ,
-                // conversationGroupType: ,
-                senderId: ,
-            }} />
+            <InputMessageComponent onMessageSent={onMessageSent} conversationId={conversationId} />
 
 
 

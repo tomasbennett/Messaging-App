@@ -352,13 +352,15 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
                     timestamp: message.createdAt,
                     content: message?.content ?? undefined,
                     files: files,
-                    conversationGroupType: isGroupChat ? {
-                        type: "group",
-                        senderName: message.sender.user.username,
-                        senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
-                    } : {
-                        type: "single"
-                    }
+                    senderName: message.sender.user.username,
+                    senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
+                    // conversationGroupType: isGroupChat ? {
+                    //     type: "group",
+                    //     senderName: message.sender.user.username,
+                    //     senderProfileImgUrl: message.sender.user.profileImg?.supabaseFileId
+                    // } : {
+                    //     type: "single"
+                    // }
                 }
             })
         )
@@ -439,7 +441,8 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
             status: 200,
             message: "Conversation fetched successfully",
             headerInfo,
-            messages: receivableMessages
+            messages: receivableMessages,
+            conversationGroupType: isGroupChat ? "group" : "one_to_one"
         });
 
     } catch (error: unknown) {

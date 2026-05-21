@@ -19,7 +19,9 @@ export function MessageComponent({
     content,
     files,
     senderId,
-    conversationGroupType
+    conversationGroupType,
+    senderName,
+    senderProfileImgUrl
 }: IPropsMessageComponent) {
 
 
@@ -61,16 +63,16 @@ export function MessageComponent({
             <div className={messageContainerClassName}>
 
                 {
-                    conversationGroupType.type === "group" &&
+                    conversationGroupType === "group" &&
 
                     <div className={styles.userDetailsContainer}>
 
                         <div className={styles.profileImgContainer}>
-                            <img src={conversationGroupType?.senderProfileImgUrl ?? defaultUserProfileImg} alt={`User profile image: ${conversationGroupType.senderName}`} />
+                            <img src={senderProfileImgUrl ?? defaultUserProfileImg} alt={`User profile image: ${senderName}`} />
                         </div>
                         <p className={styles.senderUsername}>
                             <span>
-                                {conversationGroupType.senderName}
+                                {senderName}
                             </span>
                         </p>
 

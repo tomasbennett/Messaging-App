@@ -9,8 +9,9 @@ import { IAccessTokenResponse } from "../../../shared/features/auth/models/IAcce
 import { CreateAccessToken } from "./CreateAccessToken";
 import { refreshTokenCookieKey } from "../constants/constants";
 import { ILoginRegisterSuccessUserInfoSchema } from "../../../shared/features/auth/models/ILoginSuccessUserInfo";
+import { AuthUser } from "../types/ReqUser";
 
-export async function issueSignedInResponse(user: User, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>) {
+export async function issueSignedInResponse(user: AuthUser, res: Response<ISignInError | ILoginRegisterSuccessUserInfoSchema>) {
     try {
         const accessToken = CreateAccessToken(user);
     
@@ -46,7 +47,8 @@ export async function issueSignedInResponse(user: User, res: Response<ISignInErr
                 status: 200,
                 accessToken,
                 userId: user.id,
-                username: user.username
+                username: user.username,
+                userProfileImgUrl: user.profileImg?.supabaseFileId
             });
 
 

@@ -3,11 +3,12 @@ import jwt from "jsonwebtoken";
 import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErrorResponse";
 import { SOCKET_INVALID_ACCESS_TOKEN_MESSAGE, expiredAccessTokenStatus } from "../../../shared/features/auth/constants";
 import { prisma } from "../db/prisma";
+import { AuthUser } from "../types/ReqUser";
 
 
 
 
-export async function CheckAccessTokenPayload(header: string | undefined): Promise<{ ok: true, user: User } | ICustomErrorResponse> {
+export async function CheckAccessTokenPayload(header: string | undefined): Promise<{ ok: true, user: AuthUser } | ICustomErrorResponse> {
 
     
     if (!header || !header.startsWith("Bearer ")) {
@@ -32,7 +33,14 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
         }
 
         const user = await prisma.user.findUnique({
-            where: { id: payload.sub }
+            where: { id: payload.sub },
+            include: {
+                profileImg: {
+                    select: {
+                        supabaseFileId: true,
+                    }
+                }
+            }
         });
 
         if (!user) {

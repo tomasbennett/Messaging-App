@@ -3,8 +3,9 @@ import { IMessageContentFile } from "../../../../../shared/features/message/mode
 
 
 
+
 export type IInputMessageComponentProps = {
-    conversationDetails: Omit<IConversationMessage, "content" | "files" | "timestamp" | "messageId">;
+    conversationId: string;
     onMessageSent: (message: IConversationMessage) => void | Promise<void>;
 }
 

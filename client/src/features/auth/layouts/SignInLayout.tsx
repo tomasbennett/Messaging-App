@@ -157,10 +157,11 @@ export function SignInLayout() {
             if (responseDataResult.success && response.ok) {
 
                 localStorage.setItem(accessTokenLocalStorageKey, responseDataResult.data.accessToken);
-                setAuthLevel({
+                await setAuthLevel({
                     userType: "user",
                     userId: responseDataResult.data.userId,
-                    username: responseDataResult.data.username
+                    username: responseDataResult.data.username,
+                    userProfileImgUrl: responseDataResult.data.userProfileImgUrl
                 });
                 console.log("Successful sign in, navigating to home page...");
                 console.dir(responseDataResult.data);

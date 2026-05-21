@@ -19,6 +19,7 @@ import { ILoginRegisterSuccessUserInfoSchema } from "../../../shared/features/au
 import upload from "../supabase/multer";
 import { supabase } from "../supabase/client";
 import { USER_PROFILE_IMG_FILE_KEY } from "../../../shared/features/auth/constants";
+import { AuthUser } from "../types/ReqUser";
 
 
 
@@ -47,9 +48,16 @@ router.post("/login", async (req: Request<{}, {}, ILoginForm>, res: Response<ISi
 
 
     try {
-        const user: User | null = await prisma.user.findUnique({
+        const user: AuthUser | null = await prisma.user.findUnique({
             where: {
                 username
+            },
+            include: {
+                profileImg: {
+                    select: {
+                        supabaseFileId: true,
+                    }
+                }
             }
         });
 
@@ -146,6 +154,13 @@ router.post("/register", upload.single(USER_PROFILE_IMG_FILE_KEY), async (req: R
                 username,
                 password: hashedPassword,
                 profileImgId
+            },
+            include: {
+                profileImg: {
+                    select: {
+                        supabaseFileId: true,
+                    }
+                }
             }
         });
 
