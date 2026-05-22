@@ -3,7 +3,7 @@ import styles from "./InputMessage.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConversationMessageSchema, IConversationMessage } from "../../../../../shared/features/message/models/IConversationMessage";
 import { IMessageContentFile, MessageContentFileSchema } from "../../../../../shared/features/message/models/IMessageContent";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useError } from "../../error/contexts/ErrorContext";
@@ -43,6 +43,20 @@ export function InputMessageComponent({
         onMessageSent
     });
 
+
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        const textarea = textareaRef.current;
+
+        if (!textarea) {
+            return;
+        }
+
+        textarea.style.height = "0px";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    }, [])
+
     return (
         <>
 
@@ -54,6 +68,14 @@ export function InputMessageComponent({
                             <p key={key} className={styles.errorText}>{value}</p>
                         ))
                     }
+                    {/* <p className={styles.errorText}>Dont want to hear anything about</p> */}
+                    {/* <p className={styles.errorText}>Tax no plebbles seriously</p>
+                    <p className={styles.errorText}>Too true no that is way too true</p>
+                    <p className={styles.errorText}>
+                        <span>
+                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ex libero quis accusantium provident explicabo facere, quasi nulla iusto, sed iste quae et placeat ab temporibus fugit magni enim suscipit perspiciatis! Consectetur quod veniam vero, velit culpa neque asperiores quae odio in, ad nostrum, sequi quo perspiciatis repudiandae sint fuga blanditiis!
+                        </span>
+                    </p> */}
                 </div>
 
                 <form onSubmit={(e) => {
@@ -80,7 +102,11 @@ export function InputMessageComponent({
 
                     </div>
 
-                    <div className={styles.textInputContainer}>
+
+                            
+
+                    <div className={`${styles.textInputContainer} ${preppedFilePreviews.length <= 0 ? styles.onlyTextareaContainer : ""}`}>
+                        
 
                         <div className={styles.filesDisplayContainer}>
                             {
@@ -97,8 +123,16 @@ export function InputMessageComponent({
                         </div>
 
                         <div className={styles.textareaInnerContainer}>
-                            <textarea value={content} onChange={(e) => {
-                                setContent(e.target.value);
+                            <textarea ref={textareaRef} value={content} onChange={(e) => {
+                                const textarea = e.target;
+                                
+                                setContent(textarea.value);
+
+                                textarea.style.height = "0px";
+                                textarea.style.height = `${textarea.scrollHeight}px`;
+
+
+
                             }} placeholder="Enter your message here..." className={`${styles.textInput} ${styles.inputField}`} />
                         </div>
 
