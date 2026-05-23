@@ -4,7 +4,7 @@ import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/feat
 import { IConversationHeaderInfo } from "../../../../../shared/features/conversation/models/IHeaderInfo";
 import { IConversationMessage, ReceiveConversationMessagesAndHeaderInfoFrontendSchema } from "../../../../../shared/features/message/models/IConversationMessage";
 import { LoadingCircle } from "../../../components/LoadingCircle";
-import { notExpectedFormatError } from "../../../constants/errorConstants";
+import { notExpectedFormatError, unknownError } from "../../../constants/errorConstants";
 import { errorPageRoute } from "../../../constants/routes";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
@@ -16,6 +16,7 @@ import { MessageComponent } from "../components/Message";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { IConversationGroupSingleUnion } from "../../../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
 import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
+import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
 
 
 export function ConversationBody() {
@@ -239,7 +240,72 @@ export function ConversationBody() {
                     return conversation;
                 }
             });
-        });            
+        });
+        
+        return () => {
+
+            async function markConversationAsRead() {
+                try {
+                    const response = await jwtFetchHandler(`${domain}/api/conversations/${conversationId}/mark_as_read`, {
+                        method: "POST",
+                    });
+
+                    if (response.returnType === "fetchError") {
+                        console.error("Error marking conversation as read:", response.error);
+                        errorCtx?.throwError(response.error);
+                        return;
+                    }
+
+                    if (response.returnType === "loginError") {
+                        console.error("Login error while marking conversation as read:", response.error);
+                        errorCtx?.throwError(response.error);
+                        setAuthLevel({ userType: "none" });
+                        return;
+                    }
+
+                    const resJSON = await response.data.json();
+
+                    const successResult = APISuccessSchema.safeParse(resJSON);
+                    if (successResult.success) {
+                        console.log("Successfully marked conversation as read:", successResult.data);
+                        return;
+                    }
+
+                    const errorResult = APIErrorSchema.safeParse(resJSON);
+                    if (errorResult.success) {
+                        console.error("API error while marking conversation as read:", errorResult.data);
+                        errorCtx?.throwError(errorResult.data);
+                        return;
+                    }
+
+                    console.error("Unexpected response format while marking conversation as read:", resJSON);
+                    errorCtx?.throwError(notExpectedFormatError);
+                    return;
+    
+    
+                } catch (error) {
+                    console.error("Error clearing isRead status:", error);
+    
+                    if (error instanceof Error) {
+                        const knownError: ICustomErrorResponse = {
+                            message: error.message,
+                            status: 500,
+                            ok: false
+                        };
+                        errorCtx?.throwError(knownError);
+                        return;
+                    }
+    
+                    errorCtx?.throwError(unknownError);
+                    return;
+                }
+
+            }
+
+            markConversationAsRead();
+
+
+        }
     }, [conversationId]);
 
 

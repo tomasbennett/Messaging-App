@@ -218,7 +218,59 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 });
 
 
-//CAN'T DOWNLOAD ANYTHING FROM THE PREVIEWS SO NO NEED FOR DOWNLOAD ROUTER HERE!!!
+router.post("/:conversationId/mark_as_read", ensureJWTAuthentication, async (req: Request<{ conversationId: string }>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    const { conversationId } = req.params;
+    const user = req.user!;
+
+    try {
+        const participantRecord = await prisma.conversationParticipant.findUnique({
+            where: {
+                conversationId_userId: {
+                    conversationId,
+                    userId: user.id
+                }
+            }
+        });
+
+        if (!participantRecord) {
+            return res.status(404).json({
+                ok: false,
+                status: 404,
+                message: "Conversation not found or user is not a participant!!!"
+            });
+        }
+
+        await prisma.conversationParticipant.update({
+            where: {
+                id: participantRecord.id
+            },
+            data: {
+                lastReadAt: new Date()
+            }
+        });
+
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            message: "Conversation marked as read successfully!!!"
+        });
+
+    } catch (error) {
+        next(error);
+
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 
