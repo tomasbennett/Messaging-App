@@ -18,6 +18,7 @@ import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/feat
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { accessTokenLocalStorageKey } from "../../../constants/accessTokenLocalStorageKey";
+import { usePendingInvitesContext } from "../../inviteReq/contexts/PendingInviteContext";
 
 interface IAsideMenuLayoutProps {
     children: React.ReactNode;
@@ -125,7 +126,9 @@ export function AsideMenuLayout({
     }
 
 
-
+    const { 
+        pendingInvites
+    } = usePendingInvitesContext();
 
 
 
@@ -168,7 +171,9 @@ export function AsideMenuLayout({
                                 navigateTo={invitesPageRoute}
                                 icon={<InviteConversationIcon />}
                                 label="Pending Invites"
-
+                                notification={
+                                    pendingInvites.length > 0 ? pendingInvites.length : undefined
+                                }
                             />
 
 

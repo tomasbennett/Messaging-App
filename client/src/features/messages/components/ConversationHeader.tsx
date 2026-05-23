@@ -18,6 +18,7 @@ import { IBaseSocketEmitData } from "../../../../../shared/features/sockets/mode
 import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
+import { usePendingInvitesContext } from "../../inviteReq/contexts/PendingInviteContext";
 
 
 export function ConversationHeader({
@@ -50,6 +51,10 @@ export function ConversationHeader({
 
     const nav = useNavigate();
     const location = useLocation();
+
+    const {
+        setPendingInvites
+    } = usePendingInvitesContext();
 
 
     const leaveConversation = async () => {
@@ -126,6 +131,7 @@ export function ConversationHeader({
                     message: `You have left ${name} successfully.`
                 });
                 setFriendMessages(prev => prev.filter(conv => conv.conversation.conversationId !== conversationId));
+                setPendingInvites(prev => prev.filter(invite => invite.conversationId !== conversationId));
                 return;
             }
 

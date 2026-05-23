@@ -18,6 +18,7 @@ import { NewConversationLayout } from './features/conversations/layouts/NewConve
 import { InviteReqProvider } from './features/inviteReq/contexts/InviteReqContext'
 import { InvitesLayout } from './features/inviteReq/layouts/InvitesLayout'
 import { ConversationBody } from './features/messages/layouts/ConversationBody'
+import { PendingInvitesProvider } from './features/inviteReq/contexts/PendingInviteContext'
 
 
 const router = createBrowserRouter([
@@ -61,11 +62,13 @@ const router = createBrowserRouter([
           {
             element:
               <InviteReqProvider>
-                <FriendMessageProvider>
-                  <AsideMenuLayout>
-                    <Outlet />
-                  </AsideMenuLayout>
-                </FriendMessageProvider>
+                <PendingInvitesProvider>
+                  <FriendMessageProvider>
+                    <AsideMenuLayout>
+                      <Outlet />
+                    </AsideMenuLayout>
+                  </FriendMessageProvider>
+                </PendingInvitesProvider>
               </InviteReqProvider>,
             children: [
               {
@@ -73,12 +76,12 @@ const router = createBrowserRouter([
                 element: <InvitesLayout />,
               },
               {
-                element: 
-                <DashboardApp>
-                  <ConversationLayout>
-                    <Outlet />
-                  </ConversationLayout>
-                </DashboardApp>,
+                element:
+                  <DashboardApp>
+                    <ConversationLayout>
+                      <Outlet />
+                    </ConversationLayout>
+                  </DashboardApp>,
                 children: [
                   {
                     index: true,
@@ -129,7 +132,7 @@ const router = createBrowserRouter([
 
 
 function App() {
-  
+
 
 
   return (

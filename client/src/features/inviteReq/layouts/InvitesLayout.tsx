@@ -7,6 +7,7 @@ import { ReceivedInvitePending } from "../components/ReceivedInvitePending";
 import { IReceivingAnInvite } from "../../../../../shared/features/inviteReq/models/IReceivingAnInvite";
 import { ISentConversationInvite } from "../../../../../shared/features/inviteReq/models/ISentConversationInvite";
 import { SentInvitePending } from "../components/SentInvitePending";
+import { usePendingInvitesContext } from "../contexts/PendingInviteContext";
 
 
 
@@ -20,7 +21,7 @@ export function InvitesLayout() {
         onSentInviteClick,
         onReceiveInviteClick,
         setPendingInvites
-    } = usePendingInviteType();
+    } = usePendingInvitesContext();
 
     const receivedInvites = useMemo<IReceivingAnInvite[]>(() => {
         return pendingInvites
