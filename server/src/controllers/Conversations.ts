@@ -71,6 +71,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                                 user: {
                                     select: {
                                         id: true,
+                                        username: true,
                                         profileImg: {
 
                                             select: {
@@ -188,13 +189,47 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                     }
                     : undefined;
 
+
+                const participants = conversation.conversation.participants;
+
+                const validImageUrls: string[] = participants
+                    .filter(p => p.user.profileImg?.supabaseFileId)
+                    .map(p => p.user.profileImg!.supabaseFileId!)
+
+
+                const generatedPublicUrls = await GenerateSupabasePublicURL(validImageUrls);
+
+                if (!generatedPublicUrls.ok) {
+                    throw new Error(generatedPublicUrls.error);
+                }
+
+
+                let indx: number = 0;
+
+
                 return {
                     conversation: {
                         conversationId: conversation.conversation.id,
                         name: conversation.conversation.chatName,
                         groupChatProfilePicture,
                         isRead: isRead,
-                        conversationGroupType: conversation.conversation.participants.length > 2 ? "group" : "one_to_one"
+                        conversationGroupType: participants.length > 2 ? "group" : "one_to_one",
+                        participants: participants.map((participant) => {
+                            if (participant.user.profileImg?.supabaseFileId) {
+
+                                return {
+                                    participantId: participant.user.id,
+                                    participantUsername: participant.user.username,
+                                    participantProfilePictureUrl: generatedPublicUrls.supabasePublicURLs[indx++]
+                                }
+                            }
+
+                            return {
+                                participantId: participant.user.id,
+                                participantUsername: participant.user.username,
+                                participantProfilePictureUrl: undefined
+                            }
+                        })
                     },
                     lastMessage: isMessageInConversation ? {
                         timestamp: conversation.conversation.messages[0].createdAt,

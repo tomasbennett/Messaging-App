@@ -6,6 +6,7 @@ import { APISuccessSchema } from "../../api/models/APISuccessResponse";
 import { GroupProfileUnionSchema } from "../discriminatedUnions/IGroupProfileUnion";
 import { LastMessageContentTypesSchema } from "../discriminatedUnions/ILastMessageContentTypes";
 import { ConversationGroupSingleUnionSchema } from "../discriminatedUnions/IGroupSingleUnion";
+import { BaseUserSchema } from "../../user/models/IUser";
 
 
 
@@ -18,7 +19,14 @@ export const FriendPreviewMessagesSchema =
             isRead: true,
         })
         .extend({
-            conversationGroupType: ConversationGroupSingleUnionSchema
+            conversationGroupType: ConversationGroupSingleUnionSchema,
+            participants: z.array(z.object(
+                {
+                    participantId: z.string(),
+                    participantUsername: BaseUserSchema.shape.username,
+                    participantProfilePictureUrl: z.string().optional(),
+                }
+            ))
         }),
         latestMessage: ReceiveMessageFrontendSchema.pick({
             timestamp: true,

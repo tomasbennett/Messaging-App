@@ -298,12 +298,21 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                         
                         
                         if (friendMessageConversation.conversation.conversationId === acceptedData.conversationId) {
-                            
+
                             
                             return {
                                 ...friendMessageConversation,
                                 conversation: {
                                     ...friendMessageConversation.conversation,
+                                    conversationGroupType: "group",
+                                    participants: [
+                                        ...friendMessageConversation.conversation.participants,
+                                        {
+                                            participantId: acceptedData.userAcceptingId,
+                                            participantUsername: acceptedData.userAcceptingName,
+                                            participantProfilePictureUrl: acceptedData.userAcceptingProfilePictureUrl
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -345,7 +354,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
                 setFriendMessages(prev => {
                     return prev.map(friendMessageConversation => {
-                        
+                        const isPreppedForOneToOneChat = friendMessageConversation.conversation.participants.length <= 3;
                         
                         if (friendMessageConversation.conversation.conversationId === leaveData.conversationId) {
                             
@@ -354,6 +363,8 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                                 ...friendMessageConversation,
                                 conversation: {
                                     ...friendMessageConversation.conversation,
+                                    participants: friendMessageConversation.conversation.participants.filter(participant => participant.participantId !== leaveData.userLeavingId),
+                                    conversationGroupType: isPreppedForOneToOneChat ? "one_to_one" : "group",
                                 }
                             }
                         }
