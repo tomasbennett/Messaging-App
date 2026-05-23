@@ -47,7 +47,12 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                     hasLeft: false
                 },
                 select: {
-                    id: true
+                    id: true,
+                    conversation: {
+                        select: {
+                            chatName: true,
+                        }
+                    }
                 }
             });
 
@@ -122,6 +127,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                             fileDetails = {
                                 fileType: "inline",
                                 signedUrl: generatedSignedUrl.supabasePublicURLs[0],
+                                fileSizeInBytes: file.fileSizeInBytes
                             };
 
                         } else {
@@ -146,10 +152,10 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                 messageId: newMessage.id,
                 content: newMessage?.content ?? undefined,
                 conversationId: conversationId,
-                sender: {
-                    userId: user.id,
-                    username: user.username
-                },
+                conversationName: conversationParticipant.conversation.chatName,
+                senderId: user.id,
+                senderName: user.username,
+                senderProfileImgUrl: user.profileImg?.supabaseFileId ?? undefined,
                 timestamp: createdAt,
                 files: messageFileDetails
             }

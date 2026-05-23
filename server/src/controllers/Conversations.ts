@@ -377,6 +377,7 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
                             fileDetails = {
                                 fileType: "inline",
                                 signedUrl: generatedSignedUrl.supabasePublicURLs[0],
+                                fileSizeInBytes: file.filesize
                             };
 
                         } else {

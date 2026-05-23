@@ -18,7 +18,7 @@ export const FriendPreviewMessagesSchema =
         }),
         latestMessage: ReceiveMessageFrontendSchema.pick({
             timestamp: true,
-            isRead: true,
+            // isRead: true,
         })
         .extend({
             content: LastMessageContentTypesSchema

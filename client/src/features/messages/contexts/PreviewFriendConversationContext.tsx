@@ -4,14 +4,17 @@ import { useError } from "../../error/contexts/ErrorContext";
 import { IFriendMessagesContext } from "../models/IFriendMessagesContext";
 import { notExpectedFormatError } from "../../../constants/errorConstants";
 import { domain } from "../../../constants/EnvironmentAPI";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SendToSignInErrorHandler } from "../../../services/SendToSignInErrorHandler";
 import { APIErrorSchema } from "../../../../../shared/features/api/models/APIErrorResponse";
-import { errorPageRoute } from "../../../constants/routes";
+import { conversationPageRoute, errorPageRoute } from "../../../constants/routes";
 import { useJWTFetch } from "../../../hooks/useJWTFetch";
 import { useAuth } from "../../auth/contexts/AuthContext";
 import { useSocket } from "../../../contexts/SocketHandlerContext";
 import { IBaseSocketEmitData } from "../../../../../shared/features/sockets/models/IBaseSocketReqData";
+import { SOCKET_MESSAGE_RECEIVE_EVENT } from "../../../../../shared/features/message/constants";
+import { ReceiveMessageFrontendSchema } from "../../../../../shared/features/message/models/IFrontendMessages";
+import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -46,7 +49,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
     const reqSocketBody: IBaseSocketEmitData = {
         userSocketId: socket.id,
     }
-    
+
     useEffect(() => {
         abortController.current?.abort();
         const controller = new AbortController();
@@ -152,7 +155,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                     //         }
                     //     }
                     // ])
-                    
+
                     return;
                 }
 
@@ -198,6 +201,95 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
         }
 
     }, []);
+
+
+
+    const { showInvitePopup } = useInviteReqContext();
+    const location = useLocation();
+
+
+
+
+    useEffect(() => {
+        if (!socket) return;
+
+        
+
+        socket.on(SOCKET_MESSAGE_RECEIVE_EVENT, (data: unknown) => {
+            
+            const parsedDataResult = ReceiveMessageFrontendSchema.safeParse(data);
+            if (parsedDataResult.success) {
+                const receivedMessage = parsedDataResult.data;
+
+                const isOnConversationPage = location.pathname === `${conversationPageRoute}/${receivedMessage.conversationId}`;
+
+                setFriendMessages(prev => {
+                    return prev.map(friendMessageConversation => {
+                        if (friendMessageConversation.conversation.conversationId === receivedMessage.conversationId) {
+                            const isContentMessage = !!receivedMessage?.content;
+
+                            return {
+                                conversation: {
+                                    ...friendMessageConversation.conversation,
+                                    isRead: isOnConversationPage
+                                },
+                                latestMessage: {
+                                    content: isContentMessage ? {
+                                        messageType: "text",
+                                        textContent: receivedMessage.content!
+                                    } : {
+                                        messageType: "file",
+                                        fileSize: receivedMessage.files![0].fileDetails.fileSizeInBytes
+                                    },
+                                    timestamp: receivedMessage.timestamp
+                                }
+                            }
+                        }
+
+                        return friendMessageConversation;
+                    });
+                });
+
+                if (!isOnConversationPage) {
+                    showInvitePopup({
+                        conversationId: receivedMessage.conversationId,
+                        conversationName: receivedMessage.conversationName,
+                        inviterUserId: receivedMessage.senderId,
+                        inviterUsername: receivedMessage.senderName,
+                        inviterProfilePictureUrl: receivedMessage.senderProfileImgUrl,
+                        bcg: "blue",
+                        message: `New message from ${receivedMessage.senderName} in ${receivedMessage.conversationName}.`,
+                        onClick: () => {
+                            nav(`${conversationPageRoute}/${receivedMessage.conversationId}`, { replace: true });
+                        }
+                    });
+                }
+
+                return;
+
+            }
+            
+            const errorResult = APIErrorSchema.safeParse(data);
+            if (errorResult.success) {
+                errorCtx?.throwError(errorResult.data);
+                return;
+            }
+
+            errorCtx?.throwError(notExpectedFormatError);
+            return;
+
+
+        });
+
+        return () => {
+            socket.off(SOCKET_MESSAGE_RECEIVE_EVENT);
+        }
+
+    }, [socket])
+
+
+
+
 
     const ctx: IFriendMessagesContext = {
         friendMessages,

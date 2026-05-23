@@ -4,6 +4,7 @@ import { ICustomErrorResponse } from "../../../shared/features/api/models/APIErr
 import { SOCKET_INVALID_ACCESS_TOKEN_MESSAGE, expiredAccessTokenStatus } from "../../../shared/features/auth/constants";
 import { prisma } from "../db/prisma";
 import { AuthUser } from "../types/ReqUser";
+import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
 
 
 
@@ -50,6 +51,21 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
                 message: "User not found for access token!!!"
             };
         }
+
+        if (user.profileImg?.supabaseFileId) {
+            const publicUserUrl = await GenerateSupabasePublicURL([user.profileImg.supabaseFileId]);
+
+            if (!publicUserUrl.ok) {
+                return {
+                    ok: false,
+                    status: 500,
+                    message: "Failed to generate public URL for user profile image!!!"
+                };
+            }
+
+            user.profileImg.supabaseFileId = publicUserUrl.supabasePublicURLs[0];
+        }
+
 
         return {
             ok: true,

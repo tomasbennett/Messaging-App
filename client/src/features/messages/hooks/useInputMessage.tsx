@@ -251,7 +251,8 @@ export function useInputMessage({
             if (allowedImgTypes.includes(file.type)) {
                 fileType = {
                     fileType: "inline",
-                    signedUrl: previewUrl
+                    signedUrl: previewUrl,
+                    fileSizeInBytes: file.size
                 };
             } else {
                 fileType = {
