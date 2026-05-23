@@ -22,7 +22,7 @@ export function FileElementComponent({
 
 
 
-
+    console.log(`SO I GUESS THIS IS REMOVE FILE???: ${removeFile}`);
 
 
 
@@ -34,38 +34,43 @@ export function FileElementComponent({
                 {
                     fileDetails.fileType === "inline" ? (
                         <>
-                        
+
                             <div className={styles.imgContainer}>
                                 <img src={fileDetails.signedUrl} alt={`Image file prepped for sending`} />
                                 {
                                     removeFile &&
-                                        <div className={`${styles.removeImgContainer} ${styles.removeFileContainer}`}>
-                                            <button onClick={() => removeFile(fileId)} className={styles.removeFileButton}>X</button>
-                                        </div>
+                                    <div className={`${styles.removeImgContainer} ${styles.removeFileContainer}`}>
+                                        <button onClick={() => removeFile(fileId)} className={styles.removeFileButton}>X</button>
+                                    </div>
                                 }
                             </div>
-                        
+
                         </>
                     )
 
-                    : (
-                        <>
+                        : (
+                            <>
 
-                            <a href={fileDetails.supabaseId} target="_blank" rel="noopener noreferrer" className={styles.downloadableFileContainer}>
-                                <div className={styles.svgContainer}>
-                                    <FileIcon />
-                                </div>
+                                <a
+                                    href={fileDetails.supabaseId}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.downloadableFileContainer}>
+                                    <div className={styles.svgContainer}>
+                                        <FileIcon />
+                                    </div>
 
-                                <div className={styles.textContainer}>
-                                    <p className={styles.fileName}>{fileDetails.filename}</p>
-                                    <p className={styles.fileSize}>{`File size: ${formatFileSize(fileDetails.fileSizeInBytes)}`}</p>
-                                </div>
+                                    <div className={`${!!removeFile ? "" : styles.isInputFile} ${styles.textContainer}`}>
+                                        <p className={styles.fileName}>{fileDetails.filename}</p>
+                                        <p className={styles.fileSize}>{`File size: ${formatFileSize(fileDetails.fileSizeInBytes)}`}</p>
+                                    </div>
 
-                                {
-                                    removeFile &&
+                                    {
+                                        removeFile &&
                                         <div className={`${styles.removeDownloadableContainer} ${styles.removeFileContainer}`}>
 
                                             <button onClick={(e) => {
+                                                e.preventDefault();
                                                 e.stopPropagation();
                                                 removeFile(fileId);
                                             }} className={styles.removeFileButton}>
@@ -73,15 +78,15 @@ export function FileElementComponent({
                                             </button>
 
                                         </div>
-                                }
+                                    }
 
 
-                            </a>
-                        
-                        
-                        
-                        </>
-                    )
+                                </a>
+
+
+
+                            </>
+                        )
 
 
 

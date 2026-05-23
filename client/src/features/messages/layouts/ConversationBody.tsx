@@ -15,6 +15,7 @@ import { InputMessageComponent } from "../components/InputMessage";
 import { MessageComponent } from "../components/Message";
 import { domain } from "../../../constants/EnvironmentAPI";
 import { IConversationGroupSingleUnion } from "../../../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
+import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
 
 
 export function ConversationBody() {
@@ -220,6 +221,26 @@ export function ConversationBody() {
         return conversationMessages.length > 0;
     }, [conversationMessages]);
 
+
+    //THIS ONE IS FOR CLEARING THE ISREAD PART OF THE CONVERSATION
+    const { setFriendMessages } = useFriendMessageContext();
+    useEffect(() => {
+        setFriendMessages((prev) => {
+            return prev.map((conversation) => {
+                if (conversation.conversation.conversationId === conversationId) {
+                    return {
+                        ...conversation,
+                        conversation: {
+                            ...conversation.conversation,
+                            isRead: true,
+                        }
+                    }
+                } else {
+                    return conversation;
+                }
+            });
+        });            
+    }, [conversationId]);
 
 
     const onMessageSent = (newMessage: IConversationMessage) => {

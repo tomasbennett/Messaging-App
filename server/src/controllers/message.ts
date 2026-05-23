@@ -45,6 +45,9 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                         userId: user.id
                     },
                     hasLeft: false
+                },
+                select: {
+                    id: true
                 }
             });
 
@@ -63,7 +66,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                     content,
                     conversationId,
                     createdAt,
-                    senderId: user.id,
+                    senderId: conversationParticipant.id,
                 }
             });
 

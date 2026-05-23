@@ -139,7 +139,8 @@ export function useInputMessage({
                 }
             }
 
-            const response = await jwtFetchHandler(`${domain}/api/messages/${conversationId}/send`, {
+            ///${conversationId}/send
+            const response = await jwtFetchHandler(`${domain}/api/messages`, {
                 method: "POST",
                 body: formData
             });

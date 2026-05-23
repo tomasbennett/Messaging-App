@@ -68,11 +68,11 @@ export function useInviteUsersToConversation() {
     const nav = useNavigate();
 
     useEffect(() => {
+        setSearchResults([]);
+        setOffset(0);
+        setIsMoreLoadable(true);
         
         if (searchText.trim() === "") {
-            // setSearchResults([]);
-            setOffset(0);
-            setIsMoreLoadable(true);
             abortControllerRef.current?.abort(emptySearchTextAbort);
             return;
         }

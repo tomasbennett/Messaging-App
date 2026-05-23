@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import styles from "./ErrorContext.module.css";
 import { waitForAnimationEnd } from "../../../util/WaitForAnimationToEnd";
@@ -64,6 +64,15 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isClosing,
         info: error
     } = usePopup<ICustomErrorResponse>();
+
+
+
+    useEffect(() => {
+        if (error) {
+            console.log(error.message);
+            console.dir(error);
+        }
+    }, [error]);
 
     return (
         <ErrorContext.Provider value={{ throwError }}>

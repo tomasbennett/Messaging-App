@@ -253,7 +253,7 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
                 },
                 messages: {
                     orderBy: {
-                        createdAt: "desc"
+                        createdAt: "asc"
                     },
                     select: {
                         id: true,
