@@ -39,7 +39,7 @@ export function ConversationHeader({
 
         } else {
             return groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg;
-        
+
         }
     }, [groupChatProfilePicture]);
 
@@ -168,6 +168,15 @@ export function ConversationHeader({
 
     }
 
+    const { friendMessages } = useFriendMessageContext();
+
+    const conversationGroupType = useMemo(() => {
+        const currentConv = friendMessages.find(conv => conv.conversation.conversationId === conversationId);
+        if (!currentConv) return null;
+        return currentConv.conversation.conversationGroupType;
+
+    }, [friendMessages, conversationId]);
+
 
     return (
         <div className={styles.conversationHeader}>
@@ -186,7 +195,7 @@ export function ConversationHeader({
 
                         :
 
-                        groupChatProfilePicture.participants.length > 1 ?
+                        conversationGroupType === "group" ?
                             <div className={styles.multiIconContainer}>
 
                                 <img

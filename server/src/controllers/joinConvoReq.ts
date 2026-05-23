@@ -440,6 +440,30 @@ router.delete(
 
         try {
 
+            const conversationParticipantToRemove = await prisma.conversationParticipant.findMany({
+                where: {
+                    userId: user.id,
+                    conversationId: conversationId,
+                    hasLeft: false
+                },
+                select: {
+                    id: true,
+                    conversation: {
+                        select: {
+                            chatName: true
+                        }
+                    },
+                }
+            });
+
+            if (!conversationParticipantToRemove || conversationParticipantToRemove.length !== 1) {
+                return res.status(400).json({
+                    ok: false,
+                    status: 400,
+                    message: "Conversation ID not applicable for this user!!!"
+                });
+            }
+
             const removeFromConversation = await prisma.conversationParticipant.updateMany({
                 where: {
                     userId: user.id,
@@ -449,6 +473,7 @@ router.delete(
                 data: {
                     hasLeft: true
                 }
+
             });
 
             if (removeFromConversation.count === 0) {
@@ -459,9 +484,16 @@ router.delete(
                 });
             }
 
+
+
+
+
             const leaveConversationData: ILeavingConversation = {
                 conversationId,
-                userLeavingId: user.id
+                conversationName: conversationParticipantToRemove[0].conversation.chatName,
+                userLeavingId: user.id,
+                userLeavingName: user.username,
+                userLeavingProfilePictureUrl: user.profileImg?.supabaseFileId || undefined,
             };
 
             sockets.forEach((socket) => {
@@ -540,6 +572,14 @@ router.post(
                     conversationId,
                     receiverId: user.id,
                     status: "PENDING"
+                },
+                select: {
+                    id: true,
+                    conversation: {
+                        select: {
+                            chatName: true
+                        }
+                    }
                 }
             });
 
@@ -580,7 +620,10 @@ router.post(
 
             const acceptedInviteData: IAcceptConversationInvite = {
                 conversationId,
-                userAcceptingId: user.id
+                conversationName: joinRequest.conversation.chatName,
+                userAcceptingId: user.id,
+                userAcceptingName: user.username,
+                userAcceptingProfilePictureUrl: user.profileImg?.supabaseFileId || undefined
             };
 
             io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, acceptedInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI WITH THE NEW PARTICIPANT

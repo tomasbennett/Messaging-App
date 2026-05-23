@@ -15,6 +15,10 @@ import { IBaseSocketEmitData } from "../../../../../shared/features/sockets/mode
 import { SOCKET_MESSAGE_RECEIVE_EVENT } from "../../../../../shared/features/message/constants";
 import { ReceiveMessageFrontendSchema } from "../../../../../shared/features/message/models/IFrontendMessages";
 import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
+import { SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, SOCKET_USER_LEFT_CONVERSATION } from "../../../../../shared/features/inviteReq/constants";
+import { AcceptConversationInviteSchema } from "../../../../../shared/features/inviteReq/models/IAcceptConversationInvite";
+import { usePendingInvitesContext } from "../../inviteReq/contexts/PendingInviteContext";
+import { LeavingConversationSchema } from "../../../../../shared/features/inviteReq/models/ILeavingConversation";
 
 
 const FriendMessageContext = createContext<IFriendMessagesContext | null>(null);
@@ -205,6 +209,9 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
 
     const { showInvitePopup } = useInviteReqContext();
+    const {
+        setPendingInvites
+    } = usePendingInvitesContext();
     const location = useLocation();
 
 
@@ -281,8 +288,91 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
 
         });
 
+        socket.on(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, (data: unknown) => {
+            const acceptedResult = AcceptConversationInviteSchema.safeParse(data);
+            if (acceptedResult.success) {
+                const acceptedData = acceptedResult.data;
+
+                setFriendMessages(prev => {
+                    return prev.map(friendMessageConversation => {
+                        
+                        
+                        if (friendMessageConversation.conversation.conversationId === acceptedData.conversationId) {
+                            
+                            
+                            return {
+                                ...friendMessageConversation,
+                                conversation: {
+                                    ...friendMessageConversation.conversation,
+                                }
+                            }
+                        }
+
+                        return friendMessageConversation;
+                    })
+                }); //PARTICIPANTS NUMBER IN THE CONVERSATION INCREASES CHANGING EVERYTHING
+
+                setPendingInvites(prev => prev.filter(invite => {
+                    if (invite.type === "sentInvite") {
+                        if (invite.conversationId === acceptedData.conversationId && invite.userId === acceptedData.userAcceptingId) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })); //INVITE SENT IF IT WAS YOU COMES OFF
+
+                return;
+
+            }
+
+            const errorResult = APIErrorSchema.safeParse(data);
+            if (errorResult.success) {
+                errorCtx?.throwError(errorResult.data);
+                return;
+            }
+
+            errorCtx?.throwError(notExpectedFormatError);
+            return;
+
+
+        }); //ACCEPTED TO THE CONVERSATION
+
+        socket.on(SOCKET_USER_LEFT_CONVERSATION, (data: unknown) => {
+            const leaveResult = LeavingConversationSchema.safeParse(data);
+            if (leaveResult.success) {
+                const leaveData = leaveResult.data;
+
+                setFriendMessages(prev => {
+                    return prev.map(friendMessageConversation => {
+                        
+                        
+                        if (friendMessageConversation.conversation.conversationId === leaveData.conversationId) {
+                            
+                            
+                            return {
+                                ...friendMessageConversation,
+                                conversation: {
+                                    ...friendMessageConversation.conversation,
+                                }
+                            }
+                        }
+
+                        return friendMessageConversation;
+                    })
+                }); //PARTICIPANTS NUMBER IN THE CONVERSATION DECREASES CHANGING EVERYTHING
+
+                return;
+
+            }
+
+
+        }); //LEAVING THE CONVERSATION
+
         return () => {
             socket.off(SOCKET_MESSAGE_RECEIVE_EVENT);
+            socket.off(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE); //ACCEPTED TO THE CONVERSATION
+            socket.off(SOCKET_USER_LEFT_CONVERSATION); //LEAVING THE CONVERSATION
         }
 
     }, [socket])

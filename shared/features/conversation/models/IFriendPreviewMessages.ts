@@ -5,6 +5,7 @@ import { ReceiveMessageFrontendSchema } from "../../message/models/IFrontendMess
 import { APISuccessSchema } from "../../api/models/APISuccessResponse";
 import { GroupProfileUnionSchema } from "../discriminatedUnions/IGroupProfileUnion";
 import { LastMessageContentTypesSchema } from "../discriminatedUnions/ILastMessageContentTypes";
+import { ConversationGroupSingleUnionSchema } from "../discriminatedUnions/IGroupSingleUnion";
 
 
 
@@ -15,6 +16,9 @@ export const FriendPreviewMessagesSchema =
             name: true,
             groupChatProfilePicture: true,
             isRead: true,
+        })
+        .extend({
+            conversationGroupType: ConversationGroupSingleUnionSchema
         }),
         latestMessage: ReceiveMessageFrontendSchema.pick({
             timestamp: true,

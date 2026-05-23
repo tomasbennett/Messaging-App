@@ -193,7 +193,8 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                         conversationId: conversation.conversation.id,
                         name: conversation.conversation.chatName,
                         groupChatProfilePicture,
-                        isRead: isRead
+                        isRead: isRead,
+                        conversationGroupType: conversation.conversation.participants.length > 2 ? "group" : "one_to_one"
                     },
                     lastMessage: isMessageInConversation ? {
                         timestamp: conversation.conversation.messages[0].createdAt,

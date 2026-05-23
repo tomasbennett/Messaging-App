@@ -18,7 +18,8 @@ export function SidebarUserDetails({
         conversationId,
         name: conversationName,
         groupChatProfilePicture: conversationProfilePictureUrl,
-        isRead
+        isRead,
+        conversationGroupType
     } = conversation;
 
     const {
@@ -63,7 +64,7 @@ export function SidebarUserDetails({
 
                                 {
 
-                                    conversationProfilePictureUrl.participants.length > 1 &&
+                                    conversationGroupType === "group" &&
 
                                     <div className={styles.participantsNumber}>
                                         {`+${conversationProfilePictureUrl.participants.length - 1}`}

@@ -45,10 +45,17 @@ export function ConversationBody() {
     const [conversationHeaderInfo, setConversationHeaderInfo] =
         useState<IConversationHeaderInfo | null>(null);
 
-    const [conversationGroupType, setConversationGroupType] =
-        useState<IConversationGroupSingleUnion | null>(null);
+    const { friendMessages } = useFriendMessageContext();
 
+    const conversationGroupType = useMemo<IConversationGroupSingleUnion | null>(() => {
+        const friendConversation = friendMessages.find((friendMessage) => friendMessage.conversation.conversationId === conversationId);
+        if (friendConversation) {
+            return friendConversation.conversation.conversationGroupType;
+        }
 
+        return null
+
+    }, [conversationId, friendMessages]);
 
     const nav = useNavigate();
 
@@ -116,7 +123,7 @@ export function ConversationBody() {
                 if (conversationDataResult.success) {
                     setConversationMessages(conversationDataResult.data.messages);
                     setConversationHeaderInfo(conversationDataResult.data.headerInfo);
-                    setConversationGroupType(conversationDataResult.data.conversationGroupType);
+                    // setConversationGroupType(conversationDataResult.data.conversationGroupType);
                     return;
                 }
 
