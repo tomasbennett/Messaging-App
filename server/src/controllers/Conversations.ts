@@ -239,9 +239,6 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
             }));
 
 
-            console.log("Preview friend conversations data:");
-            console.dir(previewFriendConversations, { depth: null });
-
         return res.status(200).json({
             ok: true,
             status: 200,

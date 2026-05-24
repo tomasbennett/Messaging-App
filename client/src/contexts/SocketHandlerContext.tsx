@@ -6,6 +6,7 @@ import { useJWTSocketConnection } from "../hooks/useJWTSocketConnection";
 import { useAuth } from "../features/auth/contexts/AuthContext";
 import { useError } from "../features/error/contexts/ErrorContext";
 import { LoadingCircle } from "../components/LoadingCircle";
+import styles from "./SocketHandlerContext.module.css";
 
 export const SocketContext = React.createContext<Socket | null>(null);
 
@@ -46,6 +47,7 @@ export const SocketProvider = ({
 
             const newSocket = socketAttempt.data;
             setSocket(newSocket);
+            console.log("Connected to socket with id:", newSocket.id);
 
             setIsConnecting(false);
 
@@ -74,7 +76,11 @@ export const SocketProvider = ({
             {
                 isConnecting ?
 
-                    <LoadingCircle height="6rem" />
+                    <div className={styles.loadingContainer}>
+
+                        <LoadingCircle height="5rem" />
+
+                    </div>
 
                 :
 

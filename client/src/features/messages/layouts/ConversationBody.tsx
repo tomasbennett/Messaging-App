@@ -17,6 +17,10 @@ import { domain } from "../../../constants/EnvironmentAPI";
 import { IConversationGroupSingleUnion } from "../../../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
 import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
 import { APISuccessSchema } from "../../../../../shared/features/api/models/APISuccessResponse";
+import { useSocket } from "../../../contexts/SocketHandlerContext";
+import { SOCKET_MESSAGE_RECEIVE_EVENT } from "../../../../../shared/features/message/constants";
+import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
+import { ReceiveMessageFrontendSchema } from "../../../../../shared/features/message/models/IFrontendMessages";
 
 
 export function ConversationBody() {
@@ -379,6 +383,48 @@ export function ConversationBody() {
 
         container.scrollTop = container.scrollHeight;
     }, []);
+
+
+
+    const socket = useSocket();
+    const { showInvitePopup } = useInviteReqContext();
+
+    if (!socket || !(socket?.id)) {
+        console.error("Socket not available");
+        return <Navigate to={errorPageRoute} replace={true} state={{ error: { message: "Socket not available", status: 500, ok: false } }} />;
+    }
+
+    useEffect(() => {
+        socket.on(SOCKET_MESSAGE_RECEIVE_EVENT, (data: unknown) => {
+            const parsedDataResult = ReceiveMessageFrontendSchema.safeParse(data);
+            if (parsedDataResult.success) {
+                const receivedMessage = parsedDataResult.data; 
+
+                if (receivedMessage.conversationId !== conversationId) {
+                    return;
+                }
+
+                setConversationMessages((prevMessages) => [...prevMessages, receivedMessage]);
+                return;
+
+            }
+            
+            const errorResult = APIErrorSchema.safeParse(data);
+            if (errorResult.success) {
+                errorCtx?.throwError(errorResult.data);
+                return;
+            }
+
+            errorCtx?.throwError(notExpectedFormatError);
+            return;
+        });
+
+        return () => {
+            socket.off(SOCKET_MESSAGE_RECEIVE_EVENT);
+        }
+
+    }, [conversationId]);
+
 
     return (
         <div className={styles.outerContainer}>

@@ -160,23 +160,25 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
     const {
         setPendingInvites
     } = usePendingInvitesContext();
+    
     const location = useLocation();
-
-
-
-
+    
+    
+    
     useEffect(() => {
         if (!socket) return;
-
+        
         
 
         socket.on(SOCKET_MESSAGE_RECEIVE_EVENT, (data: unknown) => {
+            console.log("IT RAN CORRECTLY TO A RECEIVE!!!");
             
             const parsedDataResult = ReceiveMessageFrontendSchema.safeParse(data);
             if (parsedDataResult.success) {
                 const receivedMessage = parsedDataResult.data;
-
+                
                 const isOnConversationPage = location.pathname === `${conversationPageRoute}/${receivedMessage.conversationId}`;
+                console.log("IS ON CONVERSATION PAGE?", isOnConversationPage);
 
                 setFriendMessages(prev => {
                     return prev.map(friendMessageConversation => {
@@ -334,7 +336,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
             socket.off(SOCKET_USER_LEFT_CONVERSATION); //LEAVING THE CONVERSATION
         }
 
-    }, [socket]);
+    }, [socket, location.pathname]);
 
 
 
