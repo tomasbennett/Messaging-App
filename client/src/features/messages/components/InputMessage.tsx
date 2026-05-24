@@ -68,14 +68,6 @@ export function InputMessageComponent({
                             <p key={key} className={styles.errorText}>{value}</p>
                         ))
                     }
-                    {/* <p className={styles.errorText}>Dont want to hear anything about</p> */}
-                    {/* <p className={styles.errorText}>Tax no plebbles seriously</p>
-                    <p className={styles.errorText}>Too true no that is way too true</p>
-                    <p className={styles.errorText}>
-                        <span>
-                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ex libero quis accusantium provident explicabo facere, quasi nulla iusto, sed iste quae et placeat ab temporibus fugit magni enim suscipit perspiciatis! Consectetur quod veniam vero, velit culpa neque asperiores quae odio in, ad nostrum, sequi quo perspiciatis repudiandae sint fuga blanditiis!
-                        </span>
-                    </p> */}
                 </div>
 
                 <form onSubmit={(e) => {

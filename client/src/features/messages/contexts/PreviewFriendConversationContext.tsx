@@ -104,61 +104,9 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 const friendsMessagesResult = ReceiveFriendPreviewMessagesFrontendSchema.safeParse(friendsMessagesJSON);
                 if (friendsMessagesResult.success) {
                     setFriendMessages(friendsMessagesResult.data.friendPreviewsData);
-                    // setFriendMessages([
-                    //     {
-                    //         conversation: {
-                    //             conversationId: "1",
-                    //             name: "Callummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
-                    //             isRead: true,
-                    //             groupChatProfilePicture: {
-                    //                 type: "participants",
-                    //                 participants: [
-                    //                     {
-                    //                         participantId: "1",
-                    //                     }
-                    //                 ]
-                    //             }
-                    //         },
-                    //         latestMessage: {
-                    //             timestamp: new Date(),
-                    //             content: {
-                    //                 messageType: "text",
-                    //                 textContent: "This was the previous message man I wish I could do Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim, illum magnam rerum excepturi nobis repellendus quia? Dolore consectetur commodi est doloremque aliquam, sequi recusandae quidem dicta cumque ipsa voluptatem. Atque iusto ut minus fuga eaque aperiam maxime, sapiente dignissimos labore soluta odit perspiciatis dicta delectus ipsa corporis mollitia voluptatum nobis."
-                    //             }
-                    //         }
-                    //     },
-                    //     {
-                    //         conversation: {
-                    //             conversationId: "2",
-                    //             name: "Tirefd",
-                    //             isRead: false,
-                    //             groupChatProfilePicture: {
-                    //                 type: "participants",
-                    //                 participants: [
-                    //                     {
-                    //                         participantId: "1",
-                    //                     },
-                    //                     {
-                    //                         participantId: "2",
-                    //                     },
-                    //                     {
-                    //                         participantId: "3",
-                    //                     },
-                    //                     {
-                    //                         participantId: "4",
-                    //                     }
-                    //                 ]
-                    //             }
-                    //         },
-                    //         latestMessage: {
-                    //             timestamp: new Date(),
-                    //             content: {
-                    //                 messageType: "file",
-                    //                 fileSize: 13000000
-                    //             }
-                    //         }
-                    //     }
-                    // ])
+
+                    console.log("FRIEND MESSAGE FETCH ORIGINAL, WHY ISN'T LAST MESSAGE WORKING:");
+                    console.dir(friendsMessagesResult.data.friendPreviewsData);
 
                     return;
                 }
@@ -386,7 +334,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
             socket.off(SOCKET_USER_LEFT_CONVERSATION); //LEAVING THE CONVERSATION
         }
 
-    }, [socket])
+    }, [socket]);
 
 
 

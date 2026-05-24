@@ -113,16 +113,17 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                     uploadedFiles.map(async (file) => {
 
                         let fileDetails: IInlineOrDownloadableFile;
+                        
+                        const generatedSignedUrl = await GenerateSupabasePublicURL([file.fileUrl]);
+
+                        if (!generatedSignedUrl.ok) {
+                            throw new Error(
+                                "Failed to generate signed URL for file with ID: " + file.fileId
+                            );
+                        }
 
                         if (allowedImgTypes.includes(file.fileType)) {
 
-                            const generatedSignedUrl = await GenerateSupabasePublicURL([file.fileUrl]);
-
-                            if (!generatedSignedUrl.ok) {
-                                throw new Error(
-                                    "Failed to generate signed URL for file with ID: " + file.fileId
-                                );
-                            }
 
                             fileDetails = {
                                 fileType: "inline",
@@ -133,7 +134,7 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
                         } else {
                             fileDetails = {
                                 fileType: "downloadable",
-                                supabaseId: file.fileUrl,
+                                supabaseId: generatedSignedUrl.supabasePublicURLs[0],
                                 filename: file.fileName,
                                 mimetype: file.fileType,
                                 fileSizeInBytes: file.fileSizeInBytes

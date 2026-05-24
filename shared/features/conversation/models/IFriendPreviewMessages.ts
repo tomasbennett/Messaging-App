@@ -10,7 +10,7 @@ import { BaseUserSchema } from "../../user/models/IUser";
 
 
 
-export const FriendPreviewMessagesSchema = 
+export const FriendPreviewMessagesSchema =
     z.object({
         conversation: ReceiveConversationFrontendSchema.pick({
             conversationId: true,
@@ -18,24 +18,23 @@ export const FriendPreviewMessagesSchema =
             groupChatProfilePicture: true,
             isRead: true,
         })
-        .extend({
-            conversationGroupType: ConversationGroupSingleUnionSchema,
-            participants: z.array(z.object(
-                {
-                    participantId: z.string(),
-                    participantUsername: BaseUserSchema.shape.username,
-                    participantProfilePictureUrl: z.string().optional(),
-                }
-            ))
-        }),
+            .extend({
+                conversationGroupType: ConversationGroupSingleUnionSchema,
+                participants: z.array(z.object(
+                    {
+                        participantId: z.string(),
+                        participantUsername: BaseUserSchema.shape.username,
+                        participantProfilePictureUrl: z.string().optional(),
+                    }
+                ))
+            }),
         latestMessage: ReceiveMessageFrontendSchema.pick({
             timestamp: true,
-            // isRead: true,
         })
-        .extend({
-            content: LastMessageContentTypesSchema
-        })
-        .optional(),
+            .extend({
+                content: LastMessageContentTypesSchema
+            })
+            .optional(),
     });
 
 

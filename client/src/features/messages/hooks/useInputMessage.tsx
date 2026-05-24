@@ -15,6 +15,8 @@ import { IInputMessageComponentProps, IInputMessageErrors } from "../models/IInp
 import { IInlineOrDownloadableFile } from "../../../../../shared/features/files/discriminatedUnions/InlineVsDownloadableFiles";
 import { IFileArrayProperties } from "../../../../../shared/features/files/models/IFileArray";
 import { allowedAllFileTypes, allowedImgTypes, allowedTextFileTypes, maxFileSizeInBytes } from "../../../../../shared/features/files/constants";
+import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
+import { ILastMessageContentTypes } from "../../../../../shared/features/conversation/discriminatedUnions/ILastMessageContentTypes";
 
 export function useInputMessage({
     conversationId,
@@ -41,6 +43,8 @@ export function useInputMessage({
 
     const errCtx = useError();
     const nav = useNavigate();
+
+    const { setFriendMessages } = useFriendMessageContext();
 
 
 
@@ -172,15 +176,43 @@ export function useInputMessage({
                     root: undefined
                 })
 
+                const submissionTime = new Date();
+
                 onMessageSent({
                     conversationId,
                     senderId: authLevel.userId,
                     senderName: authLevel.username,
                     senderProfileImgUrl: authLevel.userProfileImgUrl,
                     content: data.content,
-                    timestamp: new Date(),
+                    timestamp: submissionTime,
                     files: filePreviewTypes,
                     messageId: messageUploadResult.data.messageId
+                });
+
+                setFriendMessages(prev => {
+                    return prev.map(friendConversation => {
+                        if (friendConversation.conversation.conversationId === conversationId) {
+                            const latestMessage: ILastMessageContentTypes = data.content ? {
+                                messageType: "text",
+                                textContent: data!.content!
+                            } : {
+                                messageType: "file",
+                                fileSize: filePreviewTypes[0].fileDetails.fileSizeInBytes
+                            };
+                            
+                            return {
+                                ...friendConversation,
+                                latestMessage: {
+                                    timestamp: submissionTime,
+                                    content: latestMessage
+                                }
+                            }
+                        }
+
+                        return friendConversation;
+
+
+                    })
                 });
                 return;
 

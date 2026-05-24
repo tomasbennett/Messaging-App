@@ -121,9 +121,59 @@ export function ConversationBody() {
 
                 const conversationDataResult = ReceiveConversationMessagesAndHeaderInfoFrontendSchema.safeParse(conversationJSON);
                 if (conversationDataResult.success) {
-                    setConversationMessages(conversationDataResult.data.messages);
+                    const messagesWithLocalUrlFiles: IConversationMessage[] = await Promise.all(
+                        conversationDataResult.data.messages.map(async (message) => {
+                            if (message.files) {
+                                message.files = await Promise.all(
+                                    message.files.map(async (file) => {
+                                        if (file.fileDetails.fileType === "inline") {
+                                            const res = await fetch(file.fileDetails.signedUrl);
+                                            const blob = await res.blob();
+                                            const localUrl = URL.createObjectURL(blob);
+
+                                            return {
+                                                ...file,
+                                                fileDetails: {
+                                                    ...file.fileDetails,
+                                                    signedUrl: localUrl
+                                                }
+                                            }
+
+                                        } else {
+                                            const res = await fetch(file.fileDetails.supabaseId);
+                                            const arrayBuffer = await res.arrayBuffer();
+
+                                            const blob = new Blob(
+                                                [arrayBuffer],
+                                                {
+                                                    type: file.fileDetails.mimetype
+                                                }
+                                            );
+
+                                            const localUrl = URL.createObjectURL(blob);
+
+                                            return {
+                                                ...file,
+                                                fileDetails: {
+                                                    ...file.fileDetails,
+                                                    supabaseId: localUrl
+                                                }
+                                            }
+
+                                        }
+                                    })
+                                )
+                            }
+
+                            return message;
+                        })
+
+                    );
+
+
+                    setConversationMessages(messagesWithLocalUrlFiles);
                     setConversationHeaderInfo(conversationDataResult.data.headerInfo);
-                    // setConversationGroupType(conversationDataResult.data.conversationGroupType);
+
                     return;
                 }
 
@@ -248,7 +298,7 @@ export function ConversationBody() {
                 }
             });
         });
-        
+
         return () => {
 
             async function markConversationAsRead() {
@@ -288,11 +338,11 @@ export function ConversationBody() {
                     console.error("Unexpected response format while marking conversation as read:", resJSON);
                     errorCtx?.throwError(notExpectedFormatError);
                     return;
-    
-    
+
+
                 } catch (error) {
                     console.error("Error clearing isRead status:", error);
-    
+
                     if (error instanceof Error) {
                         const knownError: ICustomErrorResponse = {
                             message: error.message,
@@ -302,7 +352,7 @@ export function ConversationBody() {
                         errorCtx?.throwError(knownError);
                         return;
                     }
-    
+
                     errorCtx?.throwError(unknownError);
                     return;
                 }
@@ -320,6 +370,15 @@ export function ConversationBody() {
         setConversationMessages((prevMessages) => [...prevMessages, newMessage]);
     }
 
+    const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const container = messagesContainerRef.current;
+
+        if (!container) return;
+
+        container.scrollTop = container.scrollHeight;
+    }, []);
 
     return (
         <div className={styles.outerContainer}>
@@ -355,7 +414,7 @@ export function ConversationBody() {
                                 {
                                     isMessges && conversationGroupType ?
 
-                                        <div className={styles.messagesContainer}>
+                                        <div ref={messagesContainerRef} className={styles.messagesContainer}>
 
                                             {
                                                 conversationMessages.map((message) => (

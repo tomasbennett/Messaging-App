@@ -189,7 +189,6 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                     }
                     : undefined;
 
-
                 const participants = conversation.conversation.participants;
 
                 const validImageUrls: string[] = participants
@@ -206,6 +205,10 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
 
                 let indx: number = 0;
 
+                const latestMessage = lastMessageContent ? {
+                    timestamp: conversation.conversation.messages[0].createdAt,
+                    content: lastMessageContent
+                } : undefined;
 
                 return {
                     conversation: {
@@ -231,13 +234,13 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                             }
                         })
                     },
-                    lastMessage: isMessageInConversation ? {
-                        timestamp: conversation.conversation.messages[0].createdAt,
-                        content: lastMessageContent
-                    } : undefined,
+                    latestMessage
                 };
             }));
 
+
+            console.log("Preview friend conversations data:");
+            console.dir(previewFriendConversations, { depth: null });
 
         return res.status(200).json({
             ok: true,
@@ -400,15 +403,17 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
                     message.files.map(async (file) => {
                         let fileDetails: IInlineOrDownloadableFile;
 
+                        const generatedSignedUrl = await GenerateSupabasePublicURL([file.supabaseFileId]);
+
+                        if (!generatedSignedUrl.ok) {
+                            throw new Error(
+                                "Failed to generate signed URL for file with ID: " + file.id
+                            );
+                        }
+
                         if (allowedImgTypes.includes(file.filetype)) {
 
-                            const generatedSignedUrl = await GenerateSupabasePublicURL([file.supabaseFileId]);
 
-                            if (!generatedSignedUrl.ok) {
-                                throw new Error(
-                                    "Failed to generate signed URL for file with ID: " + file.id
-                                );
-                            }
 
                             fileDetails = {
                                 fileType: "inline",
@@ -419,7 +424,7 @@ router.get("/:conversationId", ensureJWTAuthentication, async (req: Request<{ co
                         } else {
                             fileDetails = {
                                 fileType: "downloadable",
-                                supabaseId: file.supabaseFileId,
+                                supabaseId: generatedSignedUrl.supabasePublicURLs[0],
                                 filename: file.filename,
                                 mimetype: file.filetype,
                                 fileSizeInBytes: file.filesize

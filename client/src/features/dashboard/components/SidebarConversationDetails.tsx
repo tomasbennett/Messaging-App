@@ -6,6 +6,7 @@ import { FileIcon } from "../../../assets/icons/FileIcon";
 import { NavLink } from "react-router-dom";
 import { conversationPageRoute, homePageRoute } from "../../../constants/routes";
 import { formatFileSize } from "../../../util/FormatBytes";
+import { formatSentAtDate } from "../../../util/FormatDateMessage";
 
 
 
@@ -80,7 +81,7 @@ export function SidebarUserDetails({
                     <div className={styles.upperTextContainer}>
 
                         <p className={styles.username}>{conversationName}</p>
-                        <p className={styles.timestamp}>{lastMessageTimestamp ? lastMessageTimestamp.toLocaleTimeString() : ""}</p>
+                        <p className={styles.timestamp}>{lastMessageTimestamp ? formatSentAtDate(lastMessageTimestamp) : ""}</p>
 
                     </div>
                     <div className={styles.lowerTextContainer}>
