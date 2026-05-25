@@ -29,6 +29,8 @@ model User {
   refreshTokens RefreshToken[]  
 
   receivedFriendRequests ConversationJoinRequest[] @relation("ReceivedRequests")
+
+  // sentConversationJoinRequests ConversationJoinRequest[] @relation("SentRequests")
 }
 
 enum InviteStatus {
@@ -42,6 +44,12 @@ model ConversationJoinRequest {
 
   senderParticipantId String @db.Uuid
   senderParticipant   ConversationParticipant   @relation("SentRequests", fields: [senderParticipantId], references: [id])
+
+  // senderUserId String @db.Uuid
+  // senderUser   User   @relation("SentRequests", fields: [senderUserId], references: [id])
+
+
+
 
   receiverId String @db.Uuid
   receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id])

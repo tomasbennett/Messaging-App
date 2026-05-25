@@ -16,6 +16,9 @@ import { IDeclineConversationInvite } from "../../../shared/features/inviteReq/m
 import { IPendingConversationInvitesAPISuccess } from "../../../shared/features/inviteReq/models/IPendingConversationInvites";
 import { IPendingInviteSentvsReceivedDisUnion } from "../../../shared/features/inviteReq/discriminatedUnions/IPendingInviteSentvsReceived";
 import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
+import { IFriendPreviewMessages, ILatestMessage, IReceiveFriendPreviewMessagesFrontend } from "../../../shared/features/conversation/models/IFriendPreviewMessages";
+import { IConversationGroupSingleUnion } from "../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
+import { IGroupProfileUnion } from "../../../shared/features/conversation/discriminatedUnions/IGroupProfileUnion";
 
 
 export const router = Router();
@@ -361,6 +364,7 @@ router.post(
                     conversationId,
                     senderParticipantId: conversationParticipant.id,
                     receiverId: inviteeUserId,
+                    // senderUserId: user.id,
                 }
             });
 
@@ -536,7 +540,7 @@ router.delete(
 router.post(
     "/:conversationId/acceptInvite",
     ensureJWTAuthentication,
-    async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+    async (req: Request<{ conversationId: string }, {}, IBaseSocketEmitData>, res: Response<ICustomErrorResponse | IReceiveFriendPreviewMessagesFrontend>, next: NextFunction) => {
 
         const { conversationId } = req.params;
         const { userSocketId } = req.body;
@@ -576,8 +580,49 @@ router.post(
                 select: {
                     id: true,
                     conversation: {
+                        
                         select: {
-                            chatName: true
+                            messages: {
+                                orderBy: {
+                                    createdAt: "desc"
+                                },
+                                take: 1,
+                                select: {
+                                    content: true,
+                                    createdAt: true,
+                                    files: {
+                                        select: {
+                                            // id: true,
+                                            // supabaseFileId: true,
+                                            // filetype: true,
+                                            // filename: true,
+                                            filesize: true
+                                        }
+                                    }
+                                }
+                            },
+                            groupChatImg: {
+                                select: {
+                                    supabaseFileId: true
+                                }
+                            },
+                            chatName: true,
+                            participants: {
+                                select: {
+                                    hasLeft: true,
+                                    user: {
+                                        select: {
+                                            id: true,
+                                            username: true,
+                                            profileImg: {
+                                                select: {
+                                                    supabaseFileId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -628,10 +673,143 @@ router.post(
 
             io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, acceptedInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI WITH THE NEW PARTICIPANT
 
+
+            const validParticipantProfileImgUrls: string[] = joinRequest.conversation.participants
+                .filter(p => !p.hasLeft)
+                .map(p => p.user.profileImg?.supabaseFileId)
+                .filter(Boolean) as string[];
+
+            const generatedProfileImgUrlsRes = await GenerateSupabasePublicURL(validParticipantProfileImgUrls);
+
+            if (!generatedProfileImgUrlsRes.ok) {
+                return res.status(500).json({
+                    ok: false,
+                    status: 500,
+                    message: generatedProfileImgUrlsRes.error
+                });
+            }
+
+            let indxForProfileImgUrls: number = 0;
+
+            joinRequest.conversation.participants = joinRequest.conversation.participants.map(p => {
+                if (!p.user.profileImg?.supabaseFileId) {
+                    return {
+                        ...p,
+                    };
+                }
+
+                return {
+                    ...p,
+                    user: {
+                        ...p.user,
+                        profileImg: {
+                            supabaseFileId: generatedProfileImgUrlsRes.supabasePublicURLs[indxForProfileImgUrls++]
+                        }
+                    }
+                };
+            });
+
+            const conversationGroupType: IConversationGroupSingleUnion = joinRequest.conversation.participants.length > 2 ? "group" : "one_to_one";
+
+            let groupChatProfilePicture: IGroupProfileUnion;
+
+            if (joinRequest.conversation.groupChatImg?.supabaseFileId) {
+                const generatedGroupChatImgUrlRes = await GenerateSupabasePublicURL([joinRequest.conversation.groupChatImg.supabaseFileId]);
+
+                if (!generatedGroupChatImgUrlRes.ok) {
+                    return res.status(500).json({
+                        ok: false,
+                        status: 500,
+                        message: generatedGroupChatImgUrlRes.error
+                    });
+                }
+
+                groupChatProfilePicture = {
+                    type: "custom",
+                    groupChatProfileImgUrl: generatedGroupChatImgUrlRes.supabasePublicURLs[0]
+                };
+
+            } else {
+
+                groupChatProfilePicture = {
+                    type: "participants",
+                    participants: joinRequest.conversation.participants.map(p => ({
+                        participantId: p.user.id,
+                        profileImgUrl: p.user.profileImg?.supabaseFileId
+                    }))
+                }
+            }
+
+
+
+            const latestMessage: ILatestMessage = (() => {
+                if (joinRequest.conversation.messages.length === 0) {
+                    return undefined;
+                }
+
+                const latestMessageFromDB = joinRequest.conversation.messages[0];
+
+                if (latestMessageFromDB.content) {
+                    return {
+                        timestamp: latestMessageFromDB.createdAt,
+                        content: {
+                            messageType: "text",
+                            textContent: latestMessageFromDB.content
+                        }
+                    };
+                }
+
+                // const validMessageFileUrls: string[] = latestMessageFromDB.files.map(f => {
+                //     if (f.supabaseFileId) {
+                //         return f.supabaseFileId;
+                //     }
+
+                //     return undefined;
+                // }).filter(Boolean) as string[];
+
+                // const generatedMessageFileUrlsRes = await GenerateSupabasePublicURL(validMessageFileUrls);
+
+                // if (!generatedMessageFileUrlsRes.ok) {
+                //     throw new Error(generatedMessageFileUrlsRes.error);
+                // }
+
+                // let indxForMessageFileUrls: number = 0;
+
+                return {
+                    timestamp: latestMessageFromDB.createdAt,
+                    content: {
+                        messageType: "file",
+                        fileSize: latestMessageFromDB.files[0].filesize,
+                    }
+                };
+
+            })();
+
+
+
+
+            const friendPreviewMessages: IFriendPreviewMessages[] = [{
+                conversation: {
+                    conversationId,
+                    name: joinRequest.conversation.chatName,
+                    isRead: true,
+                    participants: joinRequest.conversation.participants.map(p => ({
+                        participantId: p.user.id,
+                        participantUsername: p.user.username,
+                        participantProfilePictureUrl: p.user.profileImg?.supabaseFileId
+                    })),
+                    conversationGroupType,
+                    groupChatProfilePicture
+                },
+                latestMessage
+            }]
+
+
             return res.status(200).json({
                 ok: true,
                 status: 200,
-                message: "Invite accepted and joined the conversation successfully!!!"
+                message: "Invite accepted and joined the conversation successfully!!!",
+                friendPreviewsData: friendPreviewMessages
             });
 
         } catch (error: unknown) {

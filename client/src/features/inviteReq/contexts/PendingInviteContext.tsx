@@ -45,6 +45,16 @@ export function PendingInvitesProvider({
                         bcg: "orange",
                         message: `${receivedInvite.inviterUsername} invited you to ${receivedInvite.conversationName}`,
                     });
+
+                    pendingInvitesCtx.setPendingInvites((prev) => [...prev, {
+                        type: "receivedInvite",
+                        conversationId: receivedInvite.conversationId,
+                        conversationName: receivedInvite.conversationName,
+                        inviterUserId: receivedInvite.inviterUserId,
+                        inviterUsername: receivedInvite.inviterUsername,
+                        inviterProfilePictureUrl: receivedInvite.inviterProfilePictureUrl,
+                    }]);
+                    
                     return;
                 }
 

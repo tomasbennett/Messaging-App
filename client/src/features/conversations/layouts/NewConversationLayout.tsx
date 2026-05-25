@@ -21,6 +21,9 @@ import { useMediaQuery } from "react-responsive";
 import { mediumScreenMaxWidth, thinScreenMaxWidth } from "../../../constants/screenDimensions";
 import { PreppedParticipant } from "../components/PreppedParticipant";
 import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
+import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
+import { ReceiveFriendPreviewMessagesFrontendSchema } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
+import { usePendingInvitesContext } from "../../inviteReq/contexts/PendingInviteContext";
 
 
 
@@ -60,6 +63,10 @@ export function NewConversationLayout({
     const [isSubmissionLoading, setIsSubmissionLoading] = useState<boolean>(false);
 
     const location = useLocation();
+
+    const { setFriendMessages } = useFriendMessageContext();
+
+    const { setPendingInvites } = usePendingInvitesContext();
 
     const onSubmit = async (data: IClientNewConversation) => {
         if (!errorCtx) {
@@ -106,7 +113,7 @@ export function NewConversationLayout({
 
             const resJSON = await response.data.json();
 
-            const successResult = APISuccessSchema.safeParse(resJSON);
+            const successResult = ReceiveFriendPreviewMessagesFrontendSchema.safeParse(resJSON);
             if (successResult.success) {
                 if (location.pathname === newConversationPageRoute) {
                     nav(homePageRoute, {
@@ -114,6 +121,23 @@ export function NewConversationLayout({
                     });
 
                 }
+
+                setFriendMessages((prev) => [...prev, successResult.data.friendPreviewsData[0]]);
+
+                setPendingInvites(prev => {
+                    return [
+                        ...prev,
+                        ...selectedUsersToJoin.map(u => ({
+                            type: "sentInvite" as const,
+                            username: u.username,
+                            userId: u.userId,
+                            conversationId: successResult.data.friendPreviewsData[0].conversation.conversationId,
+                            conversationName: successResult.data.friendPreviewsData[0].conversation.name,
+                            userProfileImgUrl: u.userProfileImgUrl
+                        }))
+                    ];
+                });
+
                 //SOME NOTIFICATION POSITIVE THAT THE INVITES HAVE BEEN SENT
                 return;
 

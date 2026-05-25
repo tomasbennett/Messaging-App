@@ -76,8 +76,8 @@ router.get("/search", ensureJWTAuthentication, async (req: Request, res: Respons
 
 
         const validImgIds: string[] = usersSearched
-            .filter(Boolean)
-            .map(u => u.profileImg!.supabaseFileId!);
+            .map(u => u.profileImg?.supabaseFileId)
+            .filter(Boolean) as string[];
 
         const generatePublicUrlsResult = await GenerateSupabasePublicURL(validImgIds);
 

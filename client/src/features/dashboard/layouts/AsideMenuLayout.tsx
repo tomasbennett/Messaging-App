@@ -131,6 +131,11 @@ export function AsideMenuLayout({
     } = usePendingInvitesContext();
 
 
+    const pendingInvitesNotificationCount = useMemo<number>(() => {
+        return pendingInvites.filter(p => p.type === "receivedInvite").length;
+
+    }, [pendingInvites]);
+
 
     return (
         <>
@@ -172,7 +177,7 @@ export function AsideMenuLayout({
                                 icon={<InviteConversationIcon />}
                                 label="Pending Invites"
                                 notification={
-                                    pendingInvites.length > 0 ? pendingInvites.length : undefined
+                                    pendingInvitesNotificationCount > 0 ? pendingInvitesNotificationCount : undefined
                                 }
                             />
 

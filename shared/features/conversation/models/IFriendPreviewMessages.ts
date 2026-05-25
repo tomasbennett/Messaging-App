@@ -8,6 +8,15 @@ import { LastMessageContentTypesSchema } from "../discriminatedUnions/ILastMessa
 import { ConversationGroupSingleUnionSchema } from "../discriminatedUnions/IGroupSingleUnion";
 import { BaseUserSchema } from "../../user/models/IUser";
 
+export const LatestMessageSchema = ReceiveMessageFrontendSchema.pick({
+    timestamp: true,
+})
+    .extend({
+        content: LastMessageContentTypesSchema
+    })
+    .optional();
+
+export type ILatestMessage = z.infer<typeof LatestMessageSchema>;
 
 
 export const FriendPreviewMessagesSchema =
@@ -28,14 +37,11 @@ export const FriendPreviewMessagesSchema =
                     }
                 ))
             }),
-        latestMessage: ReceiveMessageFrontendSchema.pick({
-            timestamp: true,
-        })
-            .extend({
-                content: LastMessageContentTypesSchema
-            })
-            .optional(),
+        latestMessage: LatestMessageSchema,
     });
+
+
+
 
 
 export type IFriendPreviewMessages = z.infer<typeof FriendPreviewMessagesSchema>;

@@ -23,6 +23,7 @@ import { Prisma } from "@prisma/client";
 import { GenerateSupabasePublicURL } from "../services/SupabaseGeneratePublicURL";
 import { allowedImgTypes } from "../../../shared/features/files/constants";
 import { IInlineOrDownloadableFile } from "../../../shared/features/files/discriminatedUnions/InlineVsDownloadableFiles";
+import { IConversationGroupSingleUnion } from "../../../shared/features/conversation/discriminatedUnions/IGroupSingleUnion";
 
 export const router = Router();
 
@@ -617,7 +618,7 @@ router.get("/:conversationId/download/:fileId", ensureJWTAuthentication, async (
 
 
 
-router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_IMAGE_FILE_KEY), async (req: Request<{}, {}, Omit<ICreateNewConversation, typeof CONVERSATION_CUSTOM_IMAGE_FILE_KEY>>, res: Response<ICustomErrorResponse | ICustomSuccessMessage>, next: NextFunction) => {
+router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_IMAGE_FILE_KEY), async (req: Request<{}, {}, Omit<ICreateNewConversation, typeof CONVERSATION_CUSTOM_IMAGE_FILE_KEY>>, res: Response<ICustomErrorResponse | IReceiveFriendPreviewMessagesFrontend>, next: NextFunction) => {
     const user = req.user!;
 
     const participantIds: string[] = Array.isArray(req.body.participantIds)
@@ -648,6 +649,7 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
     try {
 
         let groupChatImgId: string | undefined = undefined;
+        let generatedCustomGroupChatImgUrl: string | undefined = undefined;
 
         if (customImageFile) {
 
@@ -675,6 +677,13 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
             });
 
             groupChatImgId = prismaFile.id;
+
+            const generatedPublicUrlRes = await GenerateSupabasePublicURL([storagePath]);
+            if (!generatedPublicUrlRes.ok) {
+                throw new Error(generatedPublicUrlRes.error);
+            }
+
+            generatedCustomGroupChatImgUrl = generatedPublicUrlRes.supabasePublicURLs[0];
 
         }
 
@@ -717,8 +726,12 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
                                 newConversation.id,
                             senderParticipantId:
                                 creatorParticipant.id,
-                        })
+                            // senderUserId: user.id
+                            
+                        }),
+                        
                     )
+                    
                 });
 
                 return newConversation;
@@ -738,33 +751,75 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
             });
         });
 
+
+
+        const conversationGroupType: IConversationGroupSingleUnion = "one_to_one";
+
+        let groupChatProfilePicture: IGroupProfileUnion;
+
+        if (generatedCustomGroupChatImgUrl) {
+
+            groupChatProfilePicture = {
+                type: "custom",
+                groupChatProfileImgUrl: generatedCustomGroupChatImgUrl
+            };
+
+        } else {
+
+            groupChatProfilePicture = {
+                type: "participants",
+                participants: [{
+                    participantId: user.id,
+                    profileImgUrl: user.profileImg?.supabaseFileId
+                }]
+            }
+        }
+
+
+
+
+        const friendPreviewMessages: IFriendPreviewMessages[] = [{
+            conversation: {
+                conversationId: result.id,
+                name: result.chatName,
+                isRead: true,
+                participants: [{
+                    participantId: user.id,
+                    participantUsername: user.username,
+                    participantProfilePictureUrl: user.profileImg?.supabaseFileId
+                }],
+                conversationGroupType,
+                groupChatProfilePicture
+            },
+            latestMessage: undefined
+        }]
+
+
+
+
+
+
+
+
+
+
+
+
         if (!inviteeSocketIds || inviteeSocketIds.size === 0) {
             return res.status(201).json({
                 ok: true,
                 status: 201,
                 message: "Conversation created successfully",
+                friendPreviewsData: friendPreviewMessages
             });
         }
-
-        const userImg = await prisma.user.findUnique({
-            where: {
-                id: user.id
-            },
-            select: {
-                profileImg: {
-                    select: {
-                        supabaseFileId: true
-                    }
-                },
-            }
-        });
 
         const conversationInvite: IReceivingAnInvite = {
             conversationId: result.id,
             conversationName: result.chatName,
             inviterUserId: user.id,
             inviterUsername: user.username,
-            inviterProfilePictureUrl: userImg?.profileImg?.supabaseFileId
+            inviterProfilePictureUrl: user.profileImg?.supabaseFileId
         }
 
 
@@ -775,6 +830,7 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
             ok: true,
             status: 201,
             message: "Conversation created successfully",
+            friendPreviewsData: friendPreviewMessages
         });
 
 

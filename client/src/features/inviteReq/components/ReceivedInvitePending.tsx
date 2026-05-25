@@ -18,6 +18,8 @@ import { IPendingInviteSentvsReceivedDisUnion } from "../../../../../shared/feat
 import { LoadingCircle } from "../../../components/LoadingCircle";
 import { usePopup } from "../../../hooks/usePopup";
 import { useInviteReqContext } from "../contexts/InviteReqContext";
+import { useFriendMessageContext } from "../../messages/contexts/PreviewFriendConversationContext";
+import { ReceiveFriendPreviewMessagesFrontendSchema } from "../../../../../shared/features/conversation/models/IFriendPreviewMessages";
 
 
 
@@ -46,6 +48,7 @@ export function ReceivedInvitePending({
     const nav = useNavigate();
 
     const { showInvitePopup } = useInviteReqContext();
+    const { setFriendMessages } = useFriendMessageContext();
 
     const onAccept = async () => {
         const setIsLoading = setIsAcceptLoading;
@@ -99,8 +102,10 @@ export function ReceivedInvitePending({
 
             const resJSON = await response.data.json();
 
-            const successResult = APISuccessSchema.safeParse(resJSON);
+            const successResult = ReceiveFriendPreviewMessagesFrontendSchema.safeParse(resJSON);
             if (successResult.success) {
+                const newConversationData = successResult.data.friendPreviewsData[0];
+
                 const onClick = (e: React.MouseEvent) => {
                     e.stopPropagation();
                     nav(`${conversationPageRoute}/${conversationId}`, { replace: true });
@@ -123,6 +128,17 @@ export function ReceivedInvitePending({
                             return p.conversationId !== conversationId || p.inviterUserId !== inviterUserId
                         });
                 });
+
+                setFriendMessages(prev => {
+                    return [
+                        ...prev,
+                        {
+                            conversation: newConversationData.conversation,
+                            latestMessage: newConversationData.latestMessage,
+                        }
+                    ]
+                });
+
                 return;
             }
 
@@ -229,6 +245,7 @@ export function ReceivedInvitePending({
                             return p.conversationId !== conversationId || p.inviterUserId !== inviterUserId
                         });
                 });
+
                 return;
             }
 
