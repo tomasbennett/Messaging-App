@@ -69,6 +69,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                         chatName: true,
                         participants: {
                             select: {
+                                hasLeft: true,
                                 user: {
                                     select: {
                                         id: true,
@@ -144,7 +145,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                 }
                 else {
 
-                    const participants = conversation.conversation.participants;
+                    const participants = conversation.conversation.participants.filter(p => !p.hasLeft);
 
                     const validImageUrls: string[] = participants
                         .filter(p => p.user.profileImg?.supabaseFileId)
@@ -190,7 +191,7 @@ router.post("/my_conversations", ensureJWTAuthentication, async (req: Request<{}
                     }
                     : undefined;
 
-                const participants = conversation.conversation.participants;
+                const participants = conversation.conversation.participants.filter(p => !p.hasLeft);
 
                 const validImageUrls: string[] = participants
                     .filter(p => p.user.profileImg?.supabaseFileId)
@@ -796,7 +797,14 @@ router.post("/new", ensureJWTAuthentication, upload.single(CONVERSATION_CUSTOM_I
 
 
 
+        const socketIds = connectedUsers.get(user.id);
 
+        socketIds?.forEach(socketId => {
+            const socket = io.sockets.sockets.get(socketId);
+            if (socket) {
+                socket.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${result.id}`);
+            }
+        });
 
 
 

@@ -53,7 +53,6 @@ export async function issueSignedInResponse(user: AuthUser, res: Response<ISignI
 
 
     } catch (error: unknown) {
-        console.error("Error issuing signed-in response:", error);
         if (error instanceof Error) {
             return res.status(500).json({
                 message: error.message,

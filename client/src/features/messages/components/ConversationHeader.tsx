@@ -19,6 +19,7 @@ import { useInviteReqContext } from "../../inviteReq/contexts/InviteReqContext";
 import { APIErrorSchema, ICustomErrorResponse } from "../../../../../shared/features/api/models/APIErrorResponse";
 import { useFriendMessageContext } from "../contexts/PreviewFriendConversationContext";
 import { usePendingInvitesContext } from "../../inviteReq/contexts/PendingInviteContext";
+import { SharedOrSingleProfileImg } from "../../../components/SharedOrSingleProfileImg";
 
 
 export function ConversationHeader({
@@ -101,9 +102,12 @@ export function ConversationHeader({
                 userSocketId: socket.id,
             }
 
-            const response = await jwtFetchHandler(`${domain}/api//${conversationId}/leave`, {
+            const response = await jwtFetchHandler(`${domain}/api/invites/${conversationId}/leave`, {
                 method: "DELETE",
-                body: JSON.stringify(reqBody)
+                body: JSON.stringify(reqBody),
+                headers: {
+                    "Content-Type": "application/json"
+                }
             });
 
             if (response.returnType === "fetchError") {
@@ -184,40 +188,44 @@ export function ConversationHeader({
             <div className={styles.leftHeaderContainer}>
 
                 {
-                    groupChatProfilePicture.type === "custom" ?
+                    // groupChatProfilePicture.type === "custom" ?
 
-                        <div className={styles.profImgContainer}>
-                            <img
-                                src={groupChatProfilePicture.groupChatProfileImgUrl}
-                                alt={`${name}'s profile picture`}
-                                className={styles.profImg} />
-                        </div>
+                    //     <div className={styles.profImgContainer}>
+                    //         <img
+                    //             src={groupChatProfilePicture.groupChatProfileImgUrl}
+                    //             alt={`${name}'s profile picture`}
+                    //             className={styles.profImg} />
+                    //     </div>
 
-                        :
+                    //     :
 
-                        conversationGroupType === "group" ?
-                            <div className={styles.multiIconContainer}>
+                    //     conversationGroupType === "group" ?
+                    //         <div className={styles.multiIconContainer}>
 
-                                <img
-                                    src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
-                                    alt={`User Icon: ${name}`}
-                                    className={styles.multiIcon}
-                                />
+                    //             <img
+                    //                 src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
+                    //                 alt={`User Icon: ${name}`}
+                    //                 className={styles.multiIcon}
+                    //             />
 
-                                <div className={styles.participantsNumber}>
-                                    {`+${groupChatProfilePicture.participants.length - 1}`}
-                                </div>
+                    //             <div className={styles.participantsNumber}>
+                    //                 {`+${groupChatProfilePicture.participants.length - 1}`}
+                    //             </div>
 
-                            </div>
+                    //         </div>
 
-                            :
+                    //         :
 
-                            <div className={styles.profImgContainer}>
-                                <img
-                                    src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
-                                    alt={`${name}'s profile picture`}
-                                    className={styles.profImg} />
-                            </div>
+                    //         <div className={styles.profImgContainer}>
+                    //             <img
+                    //                 src={groupChatProfilePicture.participants[0]?.profileImgUrl ?? defaultUserImg}
+                    //                 alt={`${name}'s profile picture`}
+                    //                 className={styles.profImg} />
+                    //         </div>
+
+                    <div className={styles.conversationProfileImgContainer}>
+                        <SharedOrSingleProfileImg groupProfileImgType={groupChatProfilePicture} />
+                    </div>
                 }
 
                 <div className={styles.conversationNameContainer}>

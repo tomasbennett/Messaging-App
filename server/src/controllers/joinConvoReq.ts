@@ -170,7 +170,7 @@ router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Respon
                     inviterUsername: invite.senderParticipant.user.username,
                     inviterProfilePictureUrl: publicSenderProfileImgUrls[invitesReceivedIndx++]
                 });
-                
+
                 return;
             }
 
@@ -195,7 +195,7 @@ router.get("/pending", ensureJWTAuthentication, async (req: Request, res: Respon
                     username: invite.receiver.username,
                     userProfileImgUrl: publicSentToProfileImgUrls[invitesSentIndx++]
                 });
-                
+
                 return;
             }
 
@@ -444,11 +444,15 @@ router.delete(
 
         try {
 
-            const conversationParticipantToRemove = await prisma.conversationParticipant.findMany({
+            const conversationParticipantToRemove = await prisma.conversationParticipant.findUnique({
                 where: {
-                    userId: user.id,
-                    conversationId: conversationId,
-                    hasLeft: false
+                    // userId: user.id,
+                    // conversationId: conversationId,
+                    hasLeft: false,
+                    conversationId_userId: {
+                        conversationId,
+                        userId: user.id
+                    }
                 },
                 select: {
                     id: true,
@@ -460,7 +464,7 @@ router.delete(
                 }
             });
 
-            if (!conversationParticipantToRemove || conversationParticipantToRemove.length !== 1) {
+            if (!conversationParticipantToRemove) {
                 return res.status(400).json({
                     ok: false,
                     status: 400,
@@ -468,11 +472,13 @@ router.delete(
                 });
             }
 
-            const removeFromConversation = await prisma.conversationParticipant.updateMany({
+            const removeFromConversation = await prisma.conversationParticipant.update({
                 where: {
-                    userId: user.id,
-                    conversationId: conversationId,
-                    hasLeft: false
+                    hasLeft: false,
+                    conversationId_userId: {
+                        conversationId,
+                        userId: user.id
+                    }
                 },
                 data: {
                     hasLeft: true
@@ -480,7 +486,7 @@ router.delete(
 
             });
 
-            if (removeFromConversation.count === 0) {
+            if (!removeFromConversation || removeFromConversation.hasLeft === false) {
                 return res.status(400).json({
                     ok: false,
                     status: 400,
@@ -494,7 +500,7 @@ router.delete(
 
             const leaveConversationData: ILeavingConversation = {
                 conversationId,
-                conversationName: conversationParticipantToRemove[0].conversation.chatName,
+                conversationName: conversationParticipantToRemove.conversation.chatName,
                 userLeavingId: user.id,
                 userLeavingName: user.username,
                 userLeavingProfilePictureUrl: user.profileImg?.supabaseFileId || undefined,
@@ -580,7 +586,7 @@ router.post(
                 select: {
                     id: true,
                     conversation: {
-                        
+
                         select: {
                             messages: {
                                 orderBy: {
@@ -659,9 +665,21 @@ router.post(
                 })
             ]);
 
+
+
+
+
+            
+            
+            
+            
+            
+            
+            
             sockets.forEach((socket) => {
                 socket?.join(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`); //MAKE THE USER JOIN THE CONVERSATION ROOM TO START RECEIVING REAL-TIME UPDATES FOR THAT CONVERSATION
             });
+
 
             const acceptedInviteData: IAcceptConversationInvite = {
                 conversationId,
@@ -674,14 +692,23 @@ router.post(
             io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).emit(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, acceptedInviteData); //NOTIFY OTHER PARTICIPANTS IN REAL-TIME TO UPDATE THEIR UI WITH THE NEW PARTICIPANT
 
 
-            const validParticipantProfileImgUrls: string[] = joinRequest.conversation.participants
-                .filter(p => !p.hasLeft)
+
+
+
+
+
+
+            const otherActiveParticipants = joinRequest.conversation.participants.filter(p => !p.hasLeft);
+
+            const otherValidParticipantProfileImgUrls: string[] = otherActiveParticipants
                 .map(p => p.user.profileImg?.supabaseFileId)
                 .filter(Boolean) as string[];
 
-            const generatedProfileImgUrlsRes = await GenerateSupabasePublicURL(validParticipantProfileImgUrls);
+            const generatedProfileImgUrlsRes = await GenerateSupabasePublicURL(otherValidParticipantProfileImgUrls);
 
             if (!generatedProfileImgUrlsRes.ok) {
+                console.log("FIRST AN ERROR OCCURRED WHILE GENERATING PUBLIC URLS FOR PARTICIPANT PROFILE IMAGES: ", generatedProfileImgUrlsRes.error);
+
                 return res.status(500).json({
                     ok: false,
                     status: 500,
@@ -691,7 +718,7 @@ router.post(
 
             let indxForProfileImgUrls: number = 0;
 
-            joinRequest.conversation.participants = joinRequest.conversation.participants.map(p => {
+            const joinReqPublicImgUrls = otherActiveParticipants.map(p => {
                 if (!p.user.profileImg?.supabaseFileId) {
                     return {
                         ...p,
@@ -709,7 +736,33 @@ router.post(
                 };
             });
 
-            const conversationGroupType: IConversationGroupSingleUnion = joinRequest.conversation.participants.length > 2 ? "group" : "one_to_one";
+
+
+
+
+            const existingParticipant = joinReqPublicImgUrls.find(p => p.user.id === user.id);
+
+            if (existingParticipant) {
+                existingParticipant.hasLeft = false;
+
+            } else {
+                joinReqPublicImgUrls.push({
+                    hasLeft: false,
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        profileImg: user.profileImg?.supabaseFileId ? { supabaseFileId: user.profileImg.supabaseFileId } : null
+                    }
+                });
+
+            }
+
+
+            const allActiveParticipants = joinReqPublicImgUrls;
+
+            
+
+            const conversationGroupType: IConversationGroupSingleUnion = allActiveParticipants.length > 2 ? "group" : "one_to_one";
 
             let groupChatProfilePicture: IGroupProfileUnion;
 
@@ -717,6 +770,7 @@ router.post(
                 const generatedGroupChatImgUrlRes = await GenerateSupabasePublicURL([joinRequest.conversation.groupChatImg.supabaseFileId]);
 
                 if (!generatedGroupChatImgUrlRes.ok) {
+                    console.log("SECOND AN ERROR OCCURRED WHILE GENERATING PUBLIC URL FOR GROUP CHAT IMAGE: ", generatedGroupChatImgUrlRes.error);
                     return res.status(500).json({
                         ok: false,
                         status: 500,
@@ -733,7 +787,7 @@ router.post(
 
                 groupChatProfilePicture = {
                     type: "participants",
-                    participants: joinRequest.conversation.participants.map(p => ({
+                    participants: allActiveParticipants.map(p => ({
                         participantId: p.user.id,
                         profileImgUrl: p.user.profileImg?.supabaseFileId
                     }))
@@ -793,11 +847,12 @@ router.post(
                     conversationId,
                     name: joinRequest.conversation.chatName,
                     isRead: true,
-                    participants: joinRequest.conversation.participants.map(p => ({
-                        participantId: p.user.id,
-                        participantUsername: p.user.username,
-                        participantProfilePictureUrl: p.user.profileImg?.supabaseFileId
-                    })),
+                    participants: allActiveParticipants
+                        .map(p => ({
+                            participantId: p.user.id,
+                            participantUsername: p.user.username,
+                            participantProfilePictureUrl: p.user.profileImg?.supabaseFileId
+                        })),
                     conversationGroupType,
                     groupChatProfilePicture
                 },

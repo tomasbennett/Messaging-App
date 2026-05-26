@@ -73,7 +73,6 @@ export async function CheckAccessTokenPayload(header: string | undefined): Promi
         }
 
     } catch (err) {
-        console.log("CHECK ACCESS TOKEN PAYLOAD HAS RUN!!!");
         
         if (!(err instanceof Error)) {
             return {

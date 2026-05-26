@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import { conversationPageRoute, homePageRoute } from "../../../constants/routes";
 import { formatFileSize } from "../../../util/FormatBytes";
 import { formatSentAtDate } from "../../../util/FormatDateMessage";
+import { SharedOrSingleProfileImg } from "../../../components/SharedOrSingleProfileImg";
 
 
 
@@ -47,32 +48,37 @@ export function SidebarUserDetails({
 
                 <div className={styles.userIconContainer}>
                     {
-                        conversationProfilePictureUrl.type === "custom" ?
+                    // conversationProfilePictureUrl.type === "custom" ?
 
-                            <img
-                                src={conversationProfilePictureUrl.groupChatProfileImgUrl}
-                                alt={`${conversationName}'s profile picture`}
-                                className={styles.singleIcon} />
+                    //     <img
+                    //         src={conversationProfilePictureUrl.groupChatProfileImgUrl}
+                    //         alt={`${conversationName}'s profile picture`}
+                    //         className={styles.singleIcon} />
 
-                            :
+                    //     :
 
-                            <>
-                                <img
-                                    src={conversationProfilePictureUrl.participants[0]?.profileImgUrl ?? defaultUserImg}
-                                    alt={`User Icon: ${conversationName}`}
-                                    className={styles.singleIcon}
-                                />
+                    //     <>
+                    //         <img
+                    //             src={conversationProfilePictureUrl.participants[0]?.profileImgUrl ?? defaultUserImg}
+                    //             alt={`User Icon: ${conversationName}`}
+                    //             className={styles.singleIcon}
+                    //         />
 
-                                {
+                    //         {
 
-                                    conversationGroupType === "group" &&
+                    //             conversationGroupType === "group" &&
 
-                                    <div className={styles.participantsNumber}>
-                                        {`+${conversationProfilePictureUrl.participants.length - 1}`}
-                                    </div>
-                                }
+                    //             <div className={styles.participantsNumber}>
+                    //                 {`+${conversationProfilePictureUrl.participants.length - 1}`}
+                    //             </div>
+                    //         }
 
-                            </>
+                    //     </>
+
+                        <div className={styles.conversationImgContainer}>
+                            <SharedOrSingleProfileImg groupProfileImgType={conversationProfilePictureUrl} />
+                        </div>
+
 
                     }
                 </div>

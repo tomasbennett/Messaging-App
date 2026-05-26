@@ -160,23 +160,23 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
     const {
         setPendingInvites
     } = usePendingInvitesContext();
-    
+
     const location = useLocation();
-    
-    
-    
+
+
+
     useEffect(() => {
         if (!socket) return;
-        
-        
+
+
 
         socket.on(SOCKET_MESSAGE_RECEIVE_EVENT, (data: unknown) => {
             console.log("IT RAN CORRECTLY TO A RECEIVE!!!");
-            
+
             const parsedDataResult = ReceiveMessageFrontendSchema.safeParse(data);
             if (parsedDataResult.success) {
                 const receivedMessage = parsedDataResult.data;
-                
+
                 const isOnConversationPage = location.pathname === `${conversationPageRoute}/${receivedMessage.conversationId}`;
                 console.log("IS ON CONVERSATION PAGE?", isOnConversationPage);
 
@@ -225,7 +225,7 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
                 return;
 
             }
-            
+
             const errorResult = APIErrorSchema.safeParse(data);
             if (errorResult.success) {
                 errorCtx?.throwError(errorResult.data);
@@ -241,20 +241,39 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
         socket.on(SOCKET_USER_ACCEPTED_CONVERSATION_INVITE, (data: unknown) => {
             const acceptedResult = AcceptConversationInviteSchema.safeParse(data);
             if (acceptedResult.success) {
+
+                console.log("DOES THIS EVEN RUN WHEN SOMETHING GETS ACCEPTED BY ANOTHER USER???");
+
+
+
                 const acceptedData = acceptedResult.data;
+
+                console.log("ACCEPTED DATA:", { acceptedData }, { depth: null });
+
 
                 setFriendMessages(prev => {
                     return prev.map(friendMessageConversation => {
-                        
-                        
+
+
                         if (friendMessageConversation.conversation.conversationId === acceptedData.conversationId) {
 
-                            
+
                             return {
                                 ...friendMessageConversation,
                                 conversation: {
                                     ...friendMessageConversation.conversation,
                                     conversationGroupType: "group",
+                                    groupChatProfilePicture: friendMessageConversation.conversation.groupChatProfilePicture.type === "custom" ?
+                                        friendMessageConversation.conversation.groupChatProfilePicture : {
+                                            type: "participants",
+                                            participants: [
+                                                ...friendMessageConversation.conversation.groupChatProfilePicture.participants,
+                                                {
+                                                    participantId: acceptedData.userAcceptingId,
+                                                    profileImgUrl: acceptedData.userAcceptingProfilePictureUrl
+                                                }
+                                            ]
+                                        },
                                     participants: [
                                         ...friendMessageConversation.conversation.participants,
                                         {
@@ -300,27 +319,44 @@ export function FriendMessageProvider({ children }: { children: React.ReactNode 
         socket.on(SOCKET_USER_LEFT_CONVERSATION, (data: unknown) => {
             const leaveResult = LeavingConversationSchema.safeParse(data);
             if (leaveResult.success) {
+                console.log("DOES THIS EVEN RUN WHEN SOMEONE LEAVE???");
+
+
+
                 const leaveData = leaveResult.data;
+                console.log("LEAVE DATA:", { leaveData }, { depth: null });
+
 
                 setFriendMessages(prev => {
                     return prev.map(friendMessageConversation => {
-                        const isPreppedForOneToOneChat = friendMessageConversation.conversation.participants.length <= 3;
-                        
+
                         if (friendMessageConversation.conversation.conversationId === leaveData.conversationId) {
-                            
-                            
+                            const isPreppedForOneToOneChat = friendMessageConversation.conversation.participants.length <= 2; //WE MESSED UP HERE SHOULD BE THREE BUT JUST FOR TESTING PURPOSES
+                            console.log("DO WE MAKE IT TO THIS PART WHERE WE ARE IN THE CONVERSATION PROPERLY???");
+
+                            console.log("THE ACTUAL CONVERSATION DATA THAT WE ARE GOING TO CHANGE:", { friendMessageConversation }, { depth: null });
+
+
                             return {
                                 ...friendMessageConversation,
                                 conversation: {
                                     ...friendMessageConversation.conversation,
                                     participants: friendMessageConversation.conversation.participants.filter(participant => participant.participantId !== leaveData.userLeavingId),
                                     conversationGroupType: isPreppedForOneToOneChat ? "one_to_one" : "group",
+                                    groupChatProfilePicture: friendMessageConversation.conversation.groupChatProfilePicture.type === "custom" ? {
+                                        type: "custom",
+                                        groupChatProfileImgUrl: friendMessageConversation.conversation.groupChatProfilePicture.groupChatProfileImgUrl
+                                    } : {
+                                        type: "participants",
+                                        participants: friendMessageConversation.conversation.groupChatProfilePicture.participants.filter(participant => participant.participantId !== leaveData.userLeavingId)
+                                    }
                                 }
                             }
                         }
 
                         return friendMessageConversation;
                     })
+
                 }); //PARTICIPANTS NUMBER IN THE CONVERSATION DECREASES CHANGING EVERYTHING
 
                 return;

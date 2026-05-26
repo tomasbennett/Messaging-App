@@ -38,8 +38,8 @@
 
     overflow: hidden;
 
-    .profImgContainer{
-        border-radius: 50%;
+    .conversationProfileImgContainer{
+        /* border-radius: 50%; */
 
         height: 100%;
         aspect-ratio: 1;
@@ -47,12 +47,12 @@
         overflow: hidden;
 
 
-        .profImg{
+        /* .profImg{
             width: 100%;
             height: 100%;
     
             object-fit: cover;
-        }
+        } */
     }
 
 

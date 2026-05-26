@@ -162,11 +162,11 @@ router.post("/", ensureJWTAuthentication, upload.array(FILES_KEY_NAME),
             }
 
 
-            const room = `${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`;
+            // const room = `${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`;
 
-            const socketsInRoom = await io.in(room).allSockets();
+            // const socketsInRoom = await io.in(room).allSockets();
 
-            console.log("Sockets in room:", [...socketsInRoom]);
+            // console.log("Sockets in room:", [...socketsInRoom]);
 
 
             io.to(`${SOCKET_CONVERSATION_ROOM_PREFIX}:${conversationId}`).except(userSocketId).emit(`${SOCKET_MESSAGE_RECEIVE_EVENT}`, receiveMessageData);

@@ -79,8 +79,8 @@ app.use("/api", apiRouter);
 
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+  console.error("Unexpected error: ", err);
   if (err instanceof Error) {
-    console.error("Unexpected error: ", err);
     return res.status(500).json({
       status: 500,
       message: err.message || "An unexpected error occurred",

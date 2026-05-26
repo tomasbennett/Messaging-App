@@ -110,6 +110,7 @@ export function ReceivedInvitePending({
                     e.stopPropagation();
                     nav(`${conversationPageRoute}/${conversationId}`, { replace: true });
                 }
+                
                 showInvitePopup({
                     conversationId,
                     conversationName,
@@ -120,6 +121,7 @@ export function ReceivedInvitePending({
                     bcg: "green",
                     message: `Successfully joined: ${conversationName}`
                 });
+
                 setPendingInvites(prev => {
                     return prev
                         .filter(p => {

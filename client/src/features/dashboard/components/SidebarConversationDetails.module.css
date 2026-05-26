@@ -56,16 +56,18 @@
     overflow: hidden;
 
 
-    .singleIcon {
+    .conversationImgContainer {
         aspect-ratio: 1;
         width: 6rem;
 
-        border-radius: 50%;
+        overflow: hidden;
 
-        object-fit: cover;
+        /* border-radius: 50%;
+
+        object-fit: cover; */
     }
 
-    .participantsNumber {
+    /* .participantsNumber {
         position: absolute;
 
         bottom: 0;
@@ -83,9 +85,9 @@
 
         border-radius: 50%;
 
-        /* box-shadow: .5rem .5rem 1rem rgba(0, 0, 0, 0.432); */
+        box-shadow: .5rem .5rem 1rem rgba(0, 0, 0, 0.432); 
 
-    }
+    } */
 
 
 
