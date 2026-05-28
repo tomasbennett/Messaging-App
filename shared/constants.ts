@@ -1,4 +1,4 @@
-export const environment: "DEV" | "PROD" = "DEV";
+export const environment: "DEV" | "PROD" = "PROD";
 
 
 
