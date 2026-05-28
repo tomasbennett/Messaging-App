@@ -75,6 +75,14 @@ app.use(cookieParser());
 
 app.use("/api", apiRouter);
 
+app.get(/.*/, (req: Request, res: Response, next: NextFunction) => {
+
+  return res.sendFile(path.join(CLIENT_DIST, "index.html"));
+
+
+});
+
+
 
 // app.get(/.*/, (req: Request, res: Response, next: NextFunction) => {
 //   return res.sendFile(path.join(CLIENT_DIST, "index.html"));
